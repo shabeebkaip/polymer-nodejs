@@ -7,6 +7,7 @@ import productRouter from "./product/product.js";
 import chemicalFamilyRouter from "./chemicalFamily/chemicalFamily.js";
 import enquiryRouter from "./enquiry/enquiry.js";
 import userRouter from "./user/user.js";
+import industryRouter from "./industry/industry.js";
 
 const router = express.Router();
 
@@ -15,8 +16,9 @@ router.use("/category", categoryRouter);
 router.use("/sub-category", subCategoryRouter);
 router.use("/brand", brandRouter);
 router.use("/product", productRouter);
-router.use("/chemical-family", chemicalFamilyRouter)
-router.use("/enquiry", enquiryRouter)
-router.use("/user",userRouter)
+router.use("/chemical-family", chemicalFamilyRouter);
+router.use("/enquiry", enquiryRouter);
+router.use("/user", userRouter);
+router.use("/industry", industryRouter);
 
 export default router;
