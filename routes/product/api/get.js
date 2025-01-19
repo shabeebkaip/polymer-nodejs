@@ -77,6 +77,7 @@ productGet.get("", async (req, res) => {
         status: true,
         result,
         tools,
+        data: products,
         pagination: {
           total,
           limit: parseInt(limit),
