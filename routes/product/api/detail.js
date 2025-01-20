@@ -11,7 +11,7 @@ const products = express.Router();
 
 products.post("", async (req, res) => {
   try {
-    const {  name, categoryName, brandName, chemicalFamilyName, subCategoryName,} = req.body;
+    const { name, categoryName, brandName, chemicalFamilyName, subCategoryName,} = req.body;
 
     const parsedQuery = {
       search: name,
