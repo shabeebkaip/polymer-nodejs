@@ -7,10 +7,10 @@ import productDetail from "./api/detail.js";
 
 const productRouter = express.Router();
 
-productRouter.use("", productCreate);
-productRouter.use("", productDelete);
-productRouter.use("", productGet);
-productRouter.use("", productUpdate);
+productRouter.use("/create", productCreate);
+productRouter.use("/delete", productDelete);
+productRouter.use("/list", productGet);
+productRouter.use("/edit", productUpdate);
 productRouter.use("", productDetail);
 
 export default productRouter;
