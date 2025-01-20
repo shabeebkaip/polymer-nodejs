@@ -3,7 +3,7 @@ import Product from "../../../models/product.js";
 
 const productGet = express.Router();
 
-productGet.post("", async (req, res) => {
+productGet.get("", async (req, res) => {
   try {
     const { page = 1, limit = 10, name } = req.query;
     const query = name ? { name: { $regex: name, $options: "i" } } : {};
@@ -77,13 +77,6 @@ productGet.post("", async (req, res) => {
         status: true,
         result,
         tools,
-        data: products,
-        pagination: {
-          total,
-          limit: parseInt(limit),
-          currentPage: parseInt(page),
-          totalPages: Math.ceil(total / limit),
-        },
       });
     } else {
       res.status(200).json({
