@@ -3,7 +3,7 @@ import Product from "../../../models/product.js";
 
 const productGet = express.Router();
 
-productGet.get("", async (req, res) => {
+productGet.post("", async (req, res) => {
   try {
     const { page = 1, limit = 10, name } = req.query;
     const query = name ? { name: { $regex: name, $options: "i" } } : {};
