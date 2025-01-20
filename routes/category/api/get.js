@@ -14,6 +14,9 @@ categoryGet.get('', async (req, res) => {
             .skip((page - 1) * limit)
             .limit(limit);
 
+        // Fetching category names separately
+        const category = await Category.find({}).select("name _id");
+
         const result = {
             tableHeader: [
                 { name: "name", displayName: "Category" },
@@ -60,9 +63,19 @@ categoryGet.get('', async (req, res) => {
             result.totalPages = Math.ceil(totalCategories / limit);
             result.currentPage = page;
 
-            res.status(200).send({ status: true, result, tools });
+            res.status(200).send({ 
+                status: true, 
+                result, 
+                tools, 
+                category 
+            });
         } else {
-            res.status(200).send({ status: false, message: 'No data', tools });
+            res.status(200).send({ 
+                status: false, 
+                message: 'No data', 
+                tools, 
+                category 
+            });
         }
     } catch (error) {
         console.log(error);

@@ -1,11 +1,11 @@
 import express from "express";
-import Category from "../../../models/category.js";
+import SubCategory from "../../../models/subCategory.js";
 
-const categoryName = express.Router();
+const subCategoryName = express.Router();
 
-categoryName.get("", async (req, res) => {
+subCategoryName.get("", async (req, res) => {
     try {
-        const categories = await Category.find({}).select("name _id");
+        const categories = await SubCategory.find({}).select("name _id");
         res.status(200).json({
             status: true,
             categories,
@@ -19,4 +19,4 @@ categoryName.get("", async (req, res) => {
     }
 });
 
-export default categoryName;
+export default subCategoryName;

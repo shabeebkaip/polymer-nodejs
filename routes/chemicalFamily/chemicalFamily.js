@@ -1,5 +1,6 @@
 
-import express from "express";import chemicalFamilyGet from "./api/get.js";
+import express from "express";
+import chemicalFamilyGet from "./api/get.js";
 import chemicalFamilyCreate from "./api/create.js";
 import chemicalFamilyUpdate from "./api/update.js";
 import chemicalFamilyDelete from "./api/delete.js";
