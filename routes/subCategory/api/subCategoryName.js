@@ -5,7 +5,7 @@ const subCategoryName = express.Router();
 
 subCategoryName.get("", async (req, res) => {
     try {
-        const categories = await SubCategory.find({}).select("name _id");
+        const categories = await SubCategory.find({});
         res.status(200).json({
             status: true,
             categories,
