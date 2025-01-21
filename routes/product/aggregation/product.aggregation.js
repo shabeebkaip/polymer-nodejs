@@ -7,12 +7,9 @@ export const getProductAgg = async (query) => {
           { name: { $regex: query.search, $options: "i" } },
           { "category": { $regex: query.search, $options: "i" } },
           { "brand": { $regex: query.search, $options: "i" } },
-          { "chemicalFamily": { $regex: query.search, $options: "i" } },
-          { "subCategoryNames": { $regex: query.search, $options: "i" } },
         ],
       } : {}),
     };
-  
     const aggregation = [
       {
         $lookup: {
@@ -81,7 +78,6 @@ export const getProductAgg = async (query) => {
     ];
   
     const products = await Product.aggregate(aggregation);
-  
     return { products };
   };
   

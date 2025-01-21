@@ -4,6 +4,9 @@ import mongoose from "mongoose";
 import dotenv from 'dotenv';
 import fileUpload from "express-fileupload";
 import router from "./routes/routes.js";
+import Admin from "./models/admin.js";
+import bcrypt from "bcrypt";
+import Auth from "./models/auth.js";
 
 dotenv.config({ path: '.env' });
 const app = express();
@@ -18,6 +21,32 @@ if (!DB_URL) {
 mongoose.connect(DB_URL)
     .then(() => console.log('Database connected successfully'))
     .catch((err) => console.error('Unable to connect database:', err));
+
+//     const insertAdminData = async () => {
+//   try {
+//     const newAdmin = await Admin.create({
+//       name: 'Admin',
+//       email: 'admin@gmail.com',
+//     });
+
+//     const salt = await bcrypt.genSalt(10);
+//     const password = await bcrypt.hash('123456', salt);
+
+//     await Auth.create({ email: newAdmin.email, password });
+
+//     console.log('New Admin Document:', newAdmin);
+//   } catch (error) {
+//     console.error('Error inserting admin data:', error);
+//   } finally {
+//     mongoose.connection.close();
+//   }
+// };
+
+
+
+
+
+// insertAdminData();
 
 app.use(fileUpload({
     useTempFiles: true,

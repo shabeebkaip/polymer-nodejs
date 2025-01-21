@@ -2,11 +2,7 @@ import mongoose from "mongoose";
 import { Schema } from "mongoose";
 
 const schema = new Schema({
-    first_name: {
-        type: String,
-        required: true,
-    },
-    last_name: {
+    name: {
         type: String,
         required: true,
     },
@@ -28,8 +24,12 @@ const schema = new Schema({
     mobile: {
         type: Number
     },
-   
-         
+    isSeller: {
+        type: Boolean,
+        default: false
+    },
+    
+
 })
 
 const User = mongoose.model('user', schema);
