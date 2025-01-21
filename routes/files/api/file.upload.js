@@ -23,7 +23,7 @@ fileUpload.post('/', async (req, res) => {
   try {
     const result = await cloudinary.uploader.upload(file.tempFilePath || file.path, {
       folder: 'polymer',
-      transformation: [{ width: 500, height: 500, crop: "limit" }],
+      transformation: [{ width: 500, height: 500, crop: "limit", quality: "100" }],
     });
     
     
