@@ -70,20 +70,13 @@ export const getProductAgg = async (query) => {
       {
         $match: {
           ...searchQuery,
-          ...(query.categoryName && Array.isArray(query.categoryName) && query.categoryName.length > 0
-            ? { "category": { $in: query.categoryName } } 
-            : {}),
-          ...(query.brandName && Array.isArray(query.brandName) && query.brandName.length > 0
-            ? { "brand": { $in: query.brandName } }
-            : {}),
-          ...(query.chemicalFamilyName && Array.isArray(query.chemicalFamilyName) && query.chemicalFamilyName.length > 0
-            ? { "chemicalFamily": { $in: query.chemicalFamilyName } }
-            : {}),
-          ...(query.subCategoryName && Array.isArray(query.subCategoryName) && query.subCategoryName.length > 0
-            ? { "subCategoryNames": { $in: query.subCategoryName } }
-            : {}),
+          ...(query.categoryName.length ? { category: { $in: query.categoryName } } : {}),
+          ...(query.brandName.length ? { brand: { $in: query.brandName } } : {}),
+          ...(query.chemicalFamilyName.length ? { chemicalFamily: { $in: query.chemicalFamilyName } } : {}),
+          ...(query.subCategoryName.length ? { subCategoryNames: { $in: query.subCategoryName } } : {}),
         },
       },
+      
       { $sort: { createdAt: -1 } },
     ];
   
