@@ -3,18 +3,17 @@ import SubCategory from "../../../models/subCategory.js";
 
 const subCategoryGet = express.Router();
 
-subCategoryGet.get("", async (req, res) => {
+subCategoryGet.post("", async (req, res) => {
   try {
-    const query = req.query || {};
-    const page = parseInt(query.page) || 1;
-    const limit = parseInt(query.limit) || 10;
+    const { page = 1, limit = 10 } = req.body;  
+    const currentPage = parseInt(page);
+    const pageSize = parseInt(limit);
 
     const totalSubCategory = await SubCategory.countDocuments({});
-    const subCategory  = await SubCategory.find({})
-        .skip((page - 1) * limit)
-        .limit(limit);
+    const subCategories = await SubCategory.find({})
+      .skip((currentPage - 1) * pageSize)
+      .limit(pageSize);
 
-   
     const result = {
       tableHeader: [
         { name: "name", displayName: "Category" },
@@ -25,7 +24,6 @@ subCategoryGet.get("", async (req, res) => {
         { name: "edit", displayName: "" },
         { name: "delete", displayName: "" },
       ],
-
       components: [
         { name: "name", displayName: "Category", component: "text" },
         { name: "parentCategory", displayName: "Main Category", component: "text" },
@@ -35,8 +33,8 @@ subCategoryGet.get("", async (req, res) => {
         { name: "edit", displayName: "Edit", component: "action" },
         { name: "delete", displayName: "Delete", component: "action" },
       ],
-      data: []
-    }
+      data: [],
+    };
 
     const tools = [
       {
@@ -46,34 +44,34 @@ subCategoryGet.get("", async (req, res) => {
         bgColor: "#0D47A1",
         txtColor: "#FFFFFF",
       },
-    ]; 
+    ];
 
-    if (subCategory) {
-      subCategory.forEach((subCategory) => {
-        const row = {}
-        row.id = subCategory._id
-        row.name = subCategory.name
-        row.parentCategory = subCategory.parentCategory
-        row.description = subCategory.description
-        row.image = subCategory.image
-        row.icon = subCategory.icon
-        row.edit = { name: "edit", icon: "edit.svg", displayName: "Edit", id: subCategory._id }
-        row.delete = { name: "delete", icon: "delete.svg", displayName: "Delete", id: subCategory._id }
-        result.data.push(row)
-      })
-      result.totalPages = Math.ceil(totalSubCategory / limit);
-      result.currentPage = page;
+    if (subCategories.length > 0) {
+      subCategories.forEach((subCategory) => {
+        const row = {
+          id: subCategory._id,
+          name: subCategory.name,
+          parentCategory: subCategory.parentCategory,
+          description: subCategory.description,
+          image: subCategory.image,
+          icon: subCategory.icon,
+          edit: { name: "edit", icon: "edit.svg", displayName: "Edit", id: subCategory._id },
+          delete: { name: "delete", icon: "delete.svg", displayName: "Delete", id: subCategory._id },
+        };
+        result.data.push(row);
+      });
 
-      res.status(200).send({ status: true, result, tools })
+      result.totalPages = Math.ceil(totalSubCategory / pageSize);
+      result.currentPage = currentPage;
 
+      res.status(200).send({ status: true, result, tools });
     } else {
-      res.status(200).send({ status: false, message: 'No data' })
+      res.status(200).send({ status: false, message: "No data found", tools });
     }
-
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({
-      status:false,
+      status: false,
       message: "Internal server error",
     });
   }

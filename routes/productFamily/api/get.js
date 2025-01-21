@@ -3,9 +3,17 @@ import productFamily from "../../../models/productFamily.js";
 
 const productFamilyGet = express.Router();
 
-productFamilyGet.get('', async (req, res) => {
+productFamilyGet.post('', async (req, res) => {
     try {
-        const products = await productFamily.find({});
+        const { page = 1, limit = 10 } = req.body;  
+        const currentPage = parseInt(page);
+        const pageSize = parseInt(limit);
+    
+        const totalProductFamily = await productFamily.countDocuments({});
+        const products = await productFamily.find({})
+          .skip((currentPage - 1) * pageSize)
+          .limit(pageSize);
+        
 
         const result = {
             tableHeader: [
@@ -26,7 +34,7 @@ productFamilyGet.get('', async (req, res) => {
         const tools = [
             {
                 name: "create",
-                displayName: "ADD CHEMICAL FAMILY",
+                displayName: "ADD PRODUCT FAMILY",
                 icon: "create.svg",
                 bgColor: "#0D47A1",
                 txtColor: "#FFFFFF",
@@ -44,6 +52,8 @@ productFamilyGet.get('', async (req, res) => {
                 };
                 result.data.push(row);
             });
+            result.totalPages = Math.ceil(totalProductFamily / pageSize);
+            result.currentPage = currentPage;
             res.status(200).send({ status: true, result, tools });
         } else {
             res.status(200).send({ status: false, message: 'No data' });

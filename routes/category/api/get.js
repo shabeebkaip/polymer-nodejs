@@ -3,9 +3,9 @@ import Category from "../../../models/category.js";
 
 const categoryGet = express.Router();
 
-categoryGet.get('', async (req, res) => {
+categoryGet.post('', async (req, res) => {
     try {
-        const query = req.query || {};
+        const query = req.body || {};
         const page = parseInt(query.page) || 1;
         const limit = parseInt(query.limit) || 10;
 
@@ -14,7 +14,6 @@ categoryGet.get('', async (req, res) => {
             .skip((page - 1) * limit)
             .limit(limit);
 
-        // Fetching category names separately
         const category = await Category.find({}).select("name _id");
 
         const result = {
