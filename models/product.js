@@ -23,6 +23,8 @@ const schema = new Schema({
   stock: { type: Number, required: true },
   uom: { type: String, required: true },
   price: { type: Number, required: true },
+  ingredient_name: { type: String, required: false },
+  chemical_family : { type: String, required: false },
   basic_details: [
     {
       title: { type: String, required: false },
