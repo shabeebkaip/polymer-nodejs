@@ -8,7 +8,7 @@ subCategoryName.get("", async (req, res) => {
         const categories = await SubCategory.find({});
         res.status(200).json({
             status: true,
-            categories,
+            data,
         });
     } catch (error) {
         console.log(error);
