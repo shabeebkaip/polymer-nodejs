@@ -3,9 +3,18 @@ import ChemicalFamily from "../../../models/chemicalFamily.js";
 
 const chemicalFamilyGet = express.Router();
 
-chemicalFamilyGet.get('', async (req, res) => {
+chemicalFamilyGet.post('', async (req, res) => {
     try {
+      const { page = 1, limit = 10 } = req.body;  
+      const currentPage = parseInt(page);
+      const pageSize = parseInt(limit);
+
+      const totalChemicalFamily = await ChemicalFamily.countDocuments({});
       const chemical = await ChemicalFamily.find({})
+        .skip((currentPage - 1) * pageSize)
+        .limit(pageSize);
+  
+     
       
       const result = {
         tableHeader: [
@@ -46,6 +55,9 @@ chemicalFamilyGet.get('', async (req, res) => {
           row.delete = { name: "delete", icon: "delete.svg", displayName: "Delete", id: chemical._id }
           result.data.push(row)
         })
+
+        result.totalPages = Math.ceil(totalChemicalFamily / pageSize);
+        result.currentPage = currentPage;
         res.status(200).send({status:true, result, tools })
   
       } else {

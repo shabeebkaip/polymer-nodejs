@@ -5,6 +5,7 @@ const schema = new Schema({
   name: { type: String, required: true },
   brand: { type: Schema.Types.ObjectId, ref: "Brand", required: false },
   category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
+  user_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
   subCategory: [
     {
       type: Schema.Types.ObjectId,

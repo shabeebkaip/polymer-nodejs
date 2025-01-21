@@ -25,6 +25,7 @@ productGet.get("", async (req, res) => {
         { name: "stock", displayName: "Stock" },
         { name: "edit", displayName: "" },
         { name: "delete", displayName: "" },
+        { name: "view", displayName: "" },
       ],
       components: [
         { name: "name", displayName: "Product Name", component: "text" },
@@ -34,6 +35,7 @@ productGet.get("", async (req, res) => {
         { name: "stock", displayName: "Stock", component: "text" },
         { name: "edit", displayName: "Edit", component: "action" },
         { name: "delete", displayName: "Delete", component: "action" },
+        { name: "view", displayName: "View", component: "action" },
       ],
       data: [],
     };
@@ -67,6 +69,12 @@ productGet.get("", async (req, res) => {
             name: "delete",
             icon: "delete.svg",
             displayName: "Delete",
+            id: product._id,
+          },
+          view: {
+            name: "view",
+            icon: "view.svg",
+            displayName: "View",
             id: product._id,
           },
         };
