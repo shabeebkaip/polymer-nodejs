@@ -21,6 +21,7 @@ productCreate.post("", async (req, res) => {
     });
     console.log("Error creating product", error);
   }
+  
 });
 
 export default productCreate;

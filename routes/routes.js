@@ -9,10 +9,13 @@ import enquiryRouter from "./enquiry/enquiry.js";
 import userRouter from "./user/user.js";
 import industryRouter from "./industry/industry.js";
 import productFamilyRouter from "./productFamily/productFamily.js";
+import authRouter from "./auth/auth.js";
+import cartRouter from "./cart/cart.js";
 
 const router = express.Router();
 
 router.use("/file", fileRouter);
+router.use("/auth", authRouter);
 router.use("/category", categoryRouter);
 router.use("/sub-category", subCategoryRouter);
 router.use("/brand", brandRouter);
@@ -22,4 +25,6 @@ router.use("/enquiry", enquiryRouter);
 router.use("/user", userRouter);
 router.use("/industry", industryRouter);
 router.use("/product-family",productFamilyRouter)
+router.use("/cart",cartRouter)
+
 export default router;

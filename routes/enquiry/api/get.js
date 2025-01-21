@@ -31,6 +31,7 @@ enquiryGet.get("", async (req, res) => {
         { name: "address", displayName: "Address", component: "text" },
       ],
       data: [],
+      
     };
 
     if (enquiries.length > 0) {
