@@ -52,6 +52,9 @@ export const getProductAgg = async (query) => {
           name: 1,
           description: 1,
           price: 1,
+          identification: 1,
+          stock: 1,
+          
           brand: "$brand.name",
           category: "$category.name",  
           chemicalFamily: "$chemicalFamily.name",

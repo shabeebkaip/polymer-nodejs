@@ -22,11 +22,8 @@ fileUpload.post('/', async (req, res) => {
 
   try {
     const result = await cloudinary.uploader.upload(file.tempFilePath || file.path, {
-      folder: 'polymer',
-      transformation: [{ width: 500, height: 500, crop: "limit", quality: "100" }],
+      folder: 'polymer'
     });
-    
-    
     res.status(200).json({ imageUrl: result.secure_url,id:result.public_id });
   } catch (error) {
     console.error("Cloudinary Upload Error:", error);

@@ -8,20 +8,27 @@ import { getProductAgg } from "../aggregation/product.aggregation.js";
 
 const products = express.Router();
 
-
 products.post("", async (req, res) => {
   try {
-    const { name, categoryName, brandName, chemicalFamilyName, subCategoryName,} = req.body;
+    const {
+      name,
+      categoryName,
+      brandName,
+      chemicalFamilyName,
+      subCategoryName,
+    } = req.body;
 
     const parsedQuery = {
       search: name || "",
       categoryName: Array.isArray(categoryName) ? categoryName : [],
       brandName: Array.isArray(brandName) ? brandName : [],
-      chemicalFamilyName: Array.isArray(chemicalFamilyName) ? chemicalFamilyName : [],
+      chemicalFamilyName: Array.isArray(chemicalFamilyName)
+        ? chemicalFamilyName
+        : [],
       subCategoryName: Array.isArray(subCategoryName) ? subCategoryName : [],
     };
 
-    const { products} = await getProductAgg(parsedQuery);
+    const { products } = await getProductAgg(parsedQuery);
 
     const brands = await Brand.find({}).select("name _id");
     const chemicalFamily = await ChemicalFamily.find({}).select("name _id");
@@ -51,7 +58,6 @@ products.post("", async (req, res) => {
     console.log("Error getting products", error);
   }
 });
-
 
 products.get("/:id", async (req, res) => {
   try {
