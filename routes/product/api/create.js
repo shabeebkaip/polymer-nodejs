@@ -7,10 +7,9 @@ productCreate.post("", async (req, res) => {
   try {
     const product = new Product(req.body);
     await product.save();
-    res.status(201).json({
+    res.status(200).json({
       message: "Product created successfully",
       success: true,
-      statusCode: 201,
       product: product,
     });
   } catch (error) {

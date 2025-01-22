@@ -1,5 +1,6 @@
 import express from "express";
 import SubCategory from "../../../models/subCategory.js";
+import Category from "../../../models/category.js";
 
 const subCategoryGet = express.Router();
 
@@ -13,6 +14,8 @@ subCategoryGet.post("", async (req, res) => {
     const subCategories = await SubCategory.find({})
       .skip((currentPage - 1) * pageSize)
       .limit(pageSize);
+
+      const category = await Category.find({}).select("name _id");
 
     const result = {
       tableHeader: [
@@ -64,7 +67,7 @@ subCategoryGet.post("", async (req, res) => {
       result.totalPages = Math.ceil(totalSubCategory / pageSize);
       result.currentPage = currentPage;
 
-      res.status(200).send({ status: true, result, tools });
+      res.status(200).send({ status: true, result, tools,category });
     } else {
       res.status(200).send({ status: false, message: "No data found", tools });
     }

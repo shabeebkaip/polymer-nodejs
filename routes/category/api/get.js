@@ -14,7 +14,7 @@ categoryGet.post('', async (req, res) => {
             .skip((page - 1) * limit)
             .limit(limit);
 
-        const category = await Category.find({}).select("name _id");
+       
 
         const result = {
             tableHeader: [
@@ -65,8 +65,7 @@ categoryGet.post('', async (req, res) => {
             res.status(200).send({ 
                 status: true, 
                 result, 
-                tools, 
-                category 
+                tools
             });
         } else {
             res.status(200).send({ 

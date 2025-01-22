@@ -12,7 +12,7 @@ brandGet.post("", async (req, res) => {
 
     const total = await Brand.countDocuments({});
 
-    const brands = await Brand.getEnquiryAgg()
+    const brands = await Brand.find()
       .skip(pageSize * (currentPage - 1))
       .limit(pageSize)
       .exec();

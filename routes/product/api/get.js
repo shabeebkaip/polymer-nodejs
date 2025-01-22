@@ -3,18 +3,19 @@ import Product from "../../../models/product.js";
 
 const productGet = express.Router();
 
-productGet.get("", async (req, res) => {
+productGet.post("", async (req, res) => {
   try {
-    const { page = 1, limit = 10, name } = req.query;
-    const query = name ? { name: { $regex: name, $options: "i" } } : {};
-    const products = await Product.find(query)
+    const { page = 1, limit = 10 } = req.body;  
+    const currentPage = parseInt(page);
+    const pageSize = parseInt(limit);
+    
+    const totalProducts = await Product.countDocuments();
+    const products = await Product.find()
       .populate("brand", "name")
       .populate("category", "name")
       .populate("subCategory", "name")
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit));
-
-    const total = await Product.countDocuments(query);
+     .skip((currentPage - 1) * pageSize)
+        .limit(pageSize);
 
     const result = {
       tableHeader: [
@@ -38,6 +39,8 @@ productGet.get("", async (req, res) => {
         { name: "view", displayName: "View", component: "action" },
       ],
       data: [],
+      totalPages: Math.ceil(totalProducts / limit),
+      currentPage: page,
     };
 
     const tools = [
@@ -59,6 +62,21 @@ productGet.get("", async (req, res) => {
           category: product.category?.name || "N/A",
           price: product.price,
           stock: product.stock,
+          description:product.description,
+          subCategory:product.subCategory,
+          documents:product.documents,
+          image:product.image,
+          uom:product.uom,
+          ingredient_name:product.ingredient_name,
+          chemical_family:product.chemical_family,
+          chemical_name:product.chemical_name,
+          CAS_number:product.CAS_number,
+          identification:product.identification,
+          product_family:product.product_family,
+          features:product.features,
+          basic_details:product.basic_details,
+          chemical_family:product.chemical_family,
+
           edit: {
             name: "edit",
             icon: "edit.svg",
