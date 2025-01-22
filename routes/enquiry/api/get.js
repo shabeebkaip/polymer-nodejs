@@ -1,51 +1,53 @@
 import express from "express";
 import Enquiry from "../../../models/enquiry.js";
+import { getEnquiryAgg } from "../../enquiry/aggregation/enquiry.agg.js";
 
-const enquiryGet = express.Router();
+const enquiryPost = express.Router();
 
-enquiryGet.get("", async (req, res) => {
+enquiryPost.post("", async (req, res) => {
   try {
-    const query = req.query || {};
-    const page = parseInt(query.page) || 1;
-    const limit = parseInt(query.limit) || 10;
-    const totalEnquiries = await Enquiry.countDocuments({});
-    const enquiries = await Enquiry.find({})
-      .skip((page - 1) * limit)
-      .limit(limit);
+    const body = req.body || {};
+    const page = parseInt(body.page) || 1;
+    const limit = parseInt(body.limit) || 10;
+    const sellerId = body.sellerId || null;
+    const { enquiries,totalEnquiries } = await getEnquiryAgg({ sellerId, page, limit });
 
     const result = {
       tableHeader: [
-        { name: "name", displayName: "Name" },
+        { name: "product", displayName: "Product" },
+        { name: "customer", displayName: "Customer" },
+        { name: "seller", displayName: "Seller" },
         { name: "email", displayName: "Email" },
         { name: "phone", displayName: "Phone" },
         { name: "message", displayName: "Message" },
-        { name: "market", displayName: "Market" },
-        { name: "address", displayName: "Address" },
+        { name: "quantity", displayName: "Quantity" },
+        { name: "uom", displayName: "UOM" },
       ],
       components: [
-        { name: "name", displayName: "Name", component: "text" },
+        { name: "product", displayName: "Product", component: "text" },
+        { name: "customer", displayName: "Customer", component: "text" },
+        { name: "seller", displayName: "Seller", component: "text" },
         { name: "email", displayName: "Email", component: "text" },
         { name: "phone", displayName: "Phone", component: "text" },
         { name: "message", displayName: "Message", component: "text" },
-        { name: "market", displayName: "Market", component: "text" },
-        { name: "address", displayName: "Address", component: "text" },
+        { name: "quantity", displayName: "Quantity", component: "text" },
+        { name: "uom", displayName: "UOM", component: "text" },
       ],
       data: [],
-      
     };
 
     if (enquiries.length > 0) {
       enquiries.forEach((enquiry) => {
         const row = {
           id: enquiry._id,
-          name: enquiry.name,
-          email: enquiry.email,
-          phone: enquiry.phone,
+          product: enquiry.product,
+          customer: enquiry.custumer,
+          seller: enquiry.seller,
+          email: enquiry.custumerMail,
+          phone: enquiry.custumerPhone,
           message: enquiry.message,
-          market: enquiry.market,
-          address: enquiry.address,
-          existing_customer: enquiry.existing_customer,
-          expected_annual_volume: enquiry.expected_annual_volume,
+          quantity: enquiry.quantity,
+          uom: enquiry.uom,
         };
         result.data.push(row);
       });
@@ -66,4 +68,4 @@ enquiryGet.get("", async (req, res) => {
   }
 });
 
-export default enquiryGet;
+export default enquiryPost;
