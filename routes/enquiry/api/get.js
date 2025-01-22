@@ -8,7 +8,7 @@ enquiryPost.post("", async (req, res) => {
   try {
     const body = req.body || {};
     const page = parseInt(body.page) || 1;
-    const limit = parseInt(body.limit) || 1;
+    const limit = parseInt(body.limit) || 10;
     const sellerId = body.sellerId || null;
     const { enquiries,totalEnquiries } = await getEnquiryAgg({ sellerId, page, limit });
 
