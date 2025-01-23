@@ -64,7 +64,6 @@ export const getProductAgg = async (query) => {
         brand: "$brand.name",
         category: "$category.name",
         chemicalFamily: "$chemicalFamily.name",
-        
         subCategoryNames: {
           $map: {
             input: "$subCategory",

@@ -23,7 +23,7 @@ productGet.post("", async (req, res) => {
         : [],
       subCategoryName: Array.isArray(subCategoryName) ? subCategoryName : [],
     };
-    const products = await getProductAgg(parsedQuery)
+    const { products } = await getProductAgg(parsedQuery)
 
     const result = {
       tableHeader: [
@@ -66,12 +66,12 @@ productGet.post("", async (req, res) => {
         const row = {
           id: product._id,
           name: product.name,
-          brand: product.brand?.name || "N/A",
-          category: product.category?.name || "N/A",
+          brand: product.brand || "N/A",
+          category: product.category || "N/A",
           price: product.price,
           stock: product.stock,
           description:product.description,
-          subCategory:product.subCategory,
+          subCategory:product.subCategoryNames,
           documents:product.documents,
           image:product.image,
           uom:product.uom,
@@ -83,7 +83,7 @@ productGet.post("", async (req, res) => {
           product_family:product.product_family,
           features:product.features,
           basic_details:product.basic_details,
-          chemical_family:product.chemical_family,
+          chemical_family:product.chemicalFamily,
 
           edit: {
             name: "edit",
@@ -115,6 +115,7 @@ productGet.post("", async (req, res) => {
     } else {
       res.status(200).json({
         status: false,
+        result,
         message: "No products found",
         tools
       });
