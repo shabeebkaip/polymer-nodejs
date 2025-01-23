@@ -30,6 +30,7 @@ productGet.post("", async (req, res) => {
 
     const result = {
       tableHeader: [
+        {name:"image", displayName: "Image"},
         { name: "name", displayName: "Product Name" },
         { name: "brand", displayName: "Brand" },
         { name: "category", displayName: "Category" },
@@ -40,6 +41,7 @@ productGet.post("", async (req, res) => {
       ],
       search: true,
       components: [
+        { name: "image", displayName: "Image", component: "image" },
         { name: "name", displayName: "Product Name", component: "text" },
         { name: "brand", displayName: "Brand", component: "text" },
         { name: "category", displayName: "Category", component: "text" },

@@ -11,6 +11,7 @@ const products = express.Router();
 products.post("", async (req, res) => {
   try {
     const {
+      id,
       name,
       categoryName,
       brandName,
@@ -19,6 +20,7 @@ products.post("", async (req, res) => {
     } = req.body;
 
     const parsedQuery = {
+      id,
       search: name || "",
       categoryName: Array.isArray(categoryName) ? categoryName : [],
       brandName: Array.isArray(brandName) ? brandName : [],

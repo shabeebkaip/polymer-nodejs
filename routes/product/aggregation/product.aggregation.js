@@ -3,18 +3,22 @@ import Product from "../../../models/product.js";
 export const getProductAgg = async (parsedQuery, page, limit) => {
   const skip = (page - 1) * limit;
 
-  const searchQuery = {
-    ...(parsedQuery.search
-      ? {
-          $or: [
-            { name: { $regex: parsedQuery.search, $options: "i" } },
-            { category: { $regex: parsedQuery.search, $options: "i" } },
-            { brand: { $regex: parsedQuery.search, $options: "i" } },
-          ],
-        }
-      : {}),
-  };
+  const { id } = parsedQuery;
 
+  const searchQuery = id
+    ? { _id: id } // If `id` is provided, match the specific product
+    : {
+        ...(parsedQuery.search
+          ? {
+              $or: [
+                { name: { $regex: parsedQuery.search, $options: "i" } },
+                { category: { $regex: parsedQuery.search, $options: "i" } },
+                { brand: { $regex: parsedQuery.search, $options: "i" } },
+              ],
+            }
+          : {}),
+      };
+      
   const baseAggregation = [
     {
       $lookup: {
