@@ -19,6 +19,7 @@ userList.post('', async (req, res) => {
                 { name: "mobile", displayName: "Mobile" },
                 { name: "email", displayName: "Email" },
                 { name: "dob", displayName: "DOB" },
+                {name:"role",displayName:"Role"},
                 
 
             ],
@@ -28,6 +29,7 @@ userList.post('', async (req, res) => {
                 { name: "mobile", displayName: "Mobile", component: "text" },
                 { name: "email", displayName: "Email", component: "text" },
                 { name: "dob", displayName: "DOB", component: "date" },
+                {name:"role",displayName:"Role",component:"textBox"},
                
             ],
             data: []
@@ -40,10 +42,11 @@ userList.post('', async (req, res) => {
             paginatedUsers.forEach((user) => {
                 const row = {};
                 row.id = user._id;
-                row.name = { name: `${user.first_name} ${user.last_name}`, profileUrl: user.profile_url || "" };
+                row.name = user.name;
                 row.mobile = user.mobile;
                 row.email = user.email;
                 row.dob = user.dob;
+                row.role = user.isSeller ? "Seller" : "Customer";
                
                 result.data.push(row);
             });
