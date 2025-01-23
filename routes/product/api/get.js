@@ -33,10 +33,8 @@ productGet.post("", async (req, res) => {
         { name: "category", displayName: "Category" },
         { name: "price", displayName: "Price" },
         { name: "stock", displayName: "Stock" },
-        { name: 'more', displayName: 'More', component: 'more' },
-        // { name: "edit", displayName: "" },
-        // { name: "delete", displayName: "" },
-        // { name: "view", displayName: "" },
+        { name: 'more', displayName: 'More'},
+        
       ],
       search: true,
       components: [
@@ -46,9 +44,7 @@ productGet.post("", async (req, res) => {
         { name: "price", displayName: "Price", component: "text" },
         { name: "stock", displayName: "Stock", component: "text" },
         { name: 'more', displayName: 'More', component: 'more' },
-        // { name: "edit", displayName: "Edit", component: "action" },
-        // { name: "delete", displayName: "Delete", component: "action" },
-        // { name: "view", displayName: "View", component: "action" },
+      
       ],
       data: [],
       // totalPages: Math.ceil(totalProducts / limit),

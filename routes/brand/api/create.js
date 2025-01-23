@@ -7,16 +7,16 @@ brandCreate.post("", async (req, res) => {
   try {
     const newBrand = new Brand(req.body);
     await newBrand.save();
-    res.status(201).json({
+    res.status(200).json({
       message: "Brand created successfully",
-      success: true,
-      statusCode: 201,
+      status: true,
+      statusCode: 200,
       brand: newBrand,
     });
   } catch (error) {
     res.status(500).json({
       message: "Internal server error",
-      success: false,
+      status: false,
       statusCode: 500,
     });
     console.log("Error creating brand", error);

@@ -23,8 +23,7 @@ brandGet.post("", async (req, res) => {
         { name: "image", displayName: "Image" },
         { name: "mail", displayName: "Mail" },
         { name: "phone", displayName: "Phone" },
-        { name: "edit", displayName: "" },
-        { name: "delete", displayName: "" },
+        { name: 'more', displayName: '' },
       ],
       components: [
         { name: "name", displayName: "Category", component: "text" },
@@ -32,8 +31,8 @@ brandGet.post("", async (req, res) => {
         { name: "image", displayName: "Image", component: "image" },
         { name: "mail", displayName: "Mail", component: "text" },
         { name: "phone", displayName: "Phone", component: "text" },
-        { name: "edit", displayName: "Edit", component: "action" },
-        { name: "delete", displayName: "Delete", component: "action" },
+       
+        { name: 'more', displayName: 'More', component: 'more' },
       ],
       data: [],
     };
@@ -53,11 +52,17 @@ brandGet.post("", async (req, res) => {
           id: brand._id,
           name: brand.name,
           description: brand.description,
-          image: brand.logo,
+          image: brand.image,
           mail: brand.mail,
           phone: brand.phone,
-          edit: { name: "edit", icon: "edit.svg", displayName: "Edit", id: brand._id },
-          delete: { name: "delete", icon: "delete.svg", displayName: "Delete", id: brand._id },
+          website:brand.website,
+          linkedIn:brand.linkedIn,
+          more: [
+            { name: "edit", icon: "edit.svg", displayName: "Edit", id: brand._id },
+            { name: "delete", icon: "delete.svg", displayName: "Delete", id: brand._id },
+          
+          ]
+          
         };
         result.data.push(row);
       });

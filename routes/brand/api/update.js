@@ -10,13 +10,13 @@ brandUpdate.put("/:id", async (req, res) => {
     if (!brand) {
       return res.status(404).json({
         message: "Brand not found",
-        success: false,
+        status: false,
         statusCode: 404,
       });
     }
     res.status(200).json({
       message: "Brand updated successfully",
-      success: true,
+      status: true,
       statusCode: 200,
       data: brand,
     });
@@ -24,7 +24,7 @@ brandUpdate.put("/:id", async (req, res) => {
     console.error("Error updating brand", error);
     res.status(500).json({
       message: "Internal server error",
-      success: false,
+      status: false,
       statusCode: 500,
     });
   }

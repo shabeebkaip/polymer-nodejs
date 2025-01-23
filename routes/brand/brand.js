@@ -6,9 +6,9 @@ import brandUpdate from "./api/update.js";
 
 const brandRouter = express.Router();
 
-brandRouter.use("", brandCreate);
-brandRouter.use("", brandDelete);
+brandRouter.use("/create", brandCreate);
+brandRouter.use("/delete", brandDelete);
 brandRouter.use("/list", brandGet);
-brandRouter.use("", brandUpdate);
+brandRouter.use("/edit", brandUpdate);
 
 export default brandRouter;

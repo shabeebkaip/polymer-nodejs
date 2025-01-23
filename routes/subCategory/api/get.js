@@ -24,8 +24,7 @@ subCategoryGet.post("", async (req, res) => {
         { name: "description", displayName: "Description" },
         { name: "image", displayName: "Image" },
         { name: "icon", displayName: "Icon" },
-        { name: "edit", displayName: "" },
-        { name: "delete", displayName: "" },
+        { name: 'more', displayName: 'More'},
       ],
       components: [
         { name: "name", displayName: "Category", component: "text" },
@@ -33,8 +32,7 @@ subCategoryGet.post("", async (req, res) => {
         { name: "description", displayName: "Description", component: "text" },
         { name: "image", displayName: "Image", component: "image" },
         { name: "icon", displayName: "Icon", component: "image" },
-        { name: "edit", displayName: "Edit", component: "action" },
-        { name: "delete", displayName: "Delete", component: "action" },
+        { name: 'more', displayName: 'More', component: 'more' },
       ],
       data: [],
     };
@@ -58,8 +56,12 @@ subCategoryGet.post("", async (req, res) => {
           description: subCategory.description,
           image: subCategory.image,
           icon: subCategory.icon,
-          edit: { name: "edit", icon: "edit.svg", displayName: "Edit", id: subCategory._id },
-          delete: { name: "delete", icon: "delete.svg", displayName: "Delete", id: subCategory._id },
+          more: [
+            { name: "edit", icon: "edit.svg", displayName: "Edit", id: subCategory._id },
+            { name: "delete", icon: "delete.svg", displayName: "Delete", id: subCategory._id },
+    
+          ]
+          
         };
         result.data.push(row);
       });

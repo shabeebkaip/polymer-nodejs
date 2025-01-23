@@ -9,7 +9,7 @@ brandDelete.delete("/:id", async (req, res) => {
     const brand = await Brand.findByIdAndDelete(id);
     res.status(200).json({
       message: "Brand deleted successfully",
-      success: true,
+      status: true,
       statusCode: 200,
       data: brand,
     });
@@ -17,7 +17,7 @@ brandDelete.delete("/:id", async (req, res) => {
     console.error("Error deleting brand", error);
     res.status(500).json({
       message: "Internal server error",
-      success: false,
+      status: false,
       statusCode: 500,
     });
   }
