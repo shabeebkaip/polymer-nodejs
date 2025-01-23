@@ -4,7 +4,7 @@ import { Schema } from "mongoose";
 const schema = new Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
-  owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  owner: { type: Schema.Types.ObjectId, ref: "User" },
   logo: { type: String, required: false },
   cover: { type: String, required: false },
   mail: { type: String, required: false },

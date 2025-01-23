@@ -19,7 +19,6 @@ brandGet.post("", async (req, res) => {
     const result = {
       tableHeader: [
         { name: "name", displayName: "Name" },
-        {name:"owner",displayName:"Owner"},
         { name: "description", displayName: "Description" },
         { name: "image", displayName: "Image" },
         { name: "mail", displayName: "Mail" },
@@ -29,7 +28,6 @@ brandGet.post("", async (req, res) => {
       ],
       components: [
         { name: "name", displayName: "Category", component: "text" },
-        { name: "owner", displayName: "Owner", component: "text" },
         { name: "description", displayName: "Description", component: "text" },
         { name: "image", displayName: "Image", component: "image" },
         { name: "mail", displayName: "Mail", component: "text" },
@@ -54,7 +52,6 @@ brandGet.post("", async (req, res) => {
         const row = {
           id: brand._id,
           name: brand.name,
-          owner: brand.owner,
           description: brand.description,
           image: brand.logo,
           mail: brand.mail,
