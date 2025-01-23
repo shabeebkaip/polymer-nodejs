@@ -15,7 +15,7 @@ productGet.post("", async (req, res) => {
 
     } = req.body;
     const page = parseInt(req.body.page) || 1;
-    const limit = parseInt(req.body.limit) || 2;
+    const limit = parseInt(req.body.limit) || 10;
 
     const parsedQuery = {
       search: name || "",
