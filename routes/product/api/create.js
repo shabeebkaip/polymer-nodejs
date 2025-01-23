@@ -9,13 +9,13 @@ productCreate.post("", async (req, res) => {
     await product.save();
     res.status(200).json({
       message: "Product created successfully",
-      success: true,
+      status: true,
       product: product,
     });
   } catch (error) {
     res.status(500).json({
       message: "Internal server error",
-      success: false,
+      status: false,
       statusCode: 500,
     });
     console.log("Error creating product", error);

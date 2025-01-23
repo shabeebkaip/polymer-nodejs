@@ -1,18 +1,30 @@
 import Product from "../../../models/product.js";
+import productFamily from "../../../models/productFamily.js";
 
 export const getProductAgg = async (query) => {
   const searchQuery = {
     ...(query.search
       ? {
-          $or: [
-            { name: { $regex: query.search, $options: "i" } },
-            { category: { $regex: query.search, $options: "i" } },
-            { brand: { $regex: query.search, $options: "i" } },
-          ],
-        }
+        $or: [
+          { name: { $regex: query.search, $options: "i" } },
+          { category: { $regex: query.search, $options: "i" } },
+          { brand: { $regex: query.search, $options: "i" } },
+        ],
+      }
       : {}),
   };
   const aggregation = [
+    {
+      $lookup: {
+        from: "productfamilies",
+        localField: "product_family",
+        foreignField: "_id",
+        as: "productFamily"
+      }
+    },
+
+    { $unwind: { path: "$productfamilies", preserveNullAndEmptyArrays: true } },
+
     {
       $lookup: {
         from: "categories",
@@ -50,6 +62,7 @@ export const getProductAgg = async (query) => {
     },
     {
       $project: {
+        _id:1,
         image: 1,
         name: 1,
         description: 1,
@@ -60,10 +73,12 @@ export const getProductAgg = async (query) => {
         basic_details: 1,
         CAS_number: 1,
         identification: 1,
+        uom:1,
         features: 1,
         brand: "$brand.name",
         category: "$category.name",
         chemicalFamily: "$chemicalFamily.name",
+        productFamily:"$productFamily.name",
         subCategoryNames: {
           $map: {
             input: "$subCategory",

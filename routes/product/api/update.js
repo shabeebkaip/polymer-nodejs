@@ -18,13 +18,13 @@ productUpdate.put("/:id", async (req, res) => {
     res.status(200).json({
       message: "Product updated successfully",
       success: true,
-      statusCode: 200,
+      status: 200,
       product: product,
     });
   } catch (error) {
     res.status(500).json({
       message: "Internal server error",
-      success: false,
+      status: false,
       statusCode: 500,
     });
     console.log("Error updating product", error);

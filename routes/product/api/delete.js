@@ -15,14 +15,14 @@ productDelete.delete("/:id", async (req, res) => {
     }
     res.status(200).json({
       message: "Product deleted successfully",
-      success: true,
+      status: true,
       statusCode: 200,
       product: product,
     });
   } catch (error) {
     res.status(500).json({
       message: "Internal server error",
-      success: false,
+      status: false,
       statusCode: 500,
     });
     console.log("Error deleting product", error);
