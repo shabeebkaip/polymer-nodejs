@@ -11,6 +11,7 @@ enquiryPost.post("", async (req, res) => {
     const limit = parseInt(body.limit) || 10;
     const sellerId = body.sellerId || null;
     const { enquiries,totalEnquiries } = await getEnquiryAgg({ sellerId, page, limit });
+console.log(enquiries);
 
     const result = {
       tableHeader: [

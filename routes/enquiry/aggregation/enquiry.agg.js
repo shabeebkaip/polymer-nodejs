@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 import Enquiry from "../../../models/enquiry.js";
 
 export const getEnquiryAgg = async (query) => {
-    const { sellerId } = query;
+    const { sellerId, limit,page } = query;
 
-    console.log("sellerId", sellerId);      
+    const skip = (page - 1) * limit;
 
     const baseAggregation = [
         ...(sellerId ? [{ $match: { sellerId: new mongoose.Types.ObjectId(sellerId) } }] : []),
@@ -39,6 +39,8 @@ export const getEnquiryAgg = async (query) => {
 
     const aggregation = [
         ...baseAggregation,
+        { $skip: skip },
+        { $limit: limit },
         {
             $project: {
                 message: 1,

@@ -6,7 +6,7 @@ const subCategoryGet = express.Router();
 
 subCategoryGet.post("", async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.body;  
+    const { page = 1, limit = 5 } = req.body;  
     const currentPage = parseInt(page);
     const pageSize = parseInt(limit);
 

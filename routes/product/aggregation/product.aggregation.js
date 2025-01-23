@@ -1,30 +1,30 @@
 import Product from "../../../models/product.js";
-import productFamily from "../../../models/productFamily.js";
 
-export const getProductAgg = async (query) => {
+export const getProductAgg = async (parsedQuery, page, limit) => {
+  const skip = (page - 1) * limit;
+
   const searchQuery = {
-    ...(query.search
+    ...(parsedQuery.search
       ? {
-        $or: [
-          { name: { $regex: query.search, $options: "i" } },
-          { category: { $regex: query.search, $options: "i" } },
-          { brand: { $regex: query.search, $options: "i" } },
-        ],
-      }
+          $or: [
+            { name: { $regex: parsedQuery.search, $options: "i" } },
+            { category: { $regex: parsedQuery.search, $options: "i" } },
+            { brand: { $regex: parsedQuery.search, $options: "i" } },
+          ],
+        }
       : {}),
   };
-  const aggregation = [
+
+  const baseAggregation = [
     {
       $lookup: {
         from: "productfamilies",
         localField: "product_family",
         foreignField: "_id",
-        as: "productFamily"
-      }
+        as: "productFamily",
+      },
     },
-
-    { $unwind: { path: "$productfamilies", preserveNullAndEmptyArrays: true } },
-
+    { $unwind: { path: "$productFamily", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: "categories",
@@ -60,25 +60,49 @@ export const getProductAgg = async (query) => {
         as: "subCategory",
       },
     },
+  ];
+
+  const aggregation = [
+    ...baseAggregation,
+    {
+      $match: {
+        ...searchQuery,
+        ...(parsedQuery.categoryName?.length ? { "category.name": { $in: parsedQuery.categoryName } } : {}),
+        ...(parsedQuery.brandName?.length ? { "brand.name": { $in: parsedQuery.brandName } } : {}),
+        ...(parsedQuery.chemicalFamilyName?.length ? { "chemicalFamily.name": { $in: parsedQuery.chemicalFamilyName } } : {}),
+        ...(parsedQuery.subCategoryName?.length 
+          ? { 
+              subCategory: { 
+                $elemMatch: { name: { $in: parsedQuery.subCategoryName } } 
+              } 
+            } 
+          : {}),
+      },
+    },
+    { $sort: { createdAt: -1 } },
+    { $skip: skip },
+    { $limit: limit },
     {
       $project: {
-        _id:1,
-        image: 1,
+        _id: 1,
         name: 1,
         description: 1,
         price: 1,
-        identification: 1,
         stock: 1,
+        documents: 1,
+        image: 1,
+        uom: 1,
+        ingredient_name: 1,
+        chemical_family: 1,
         chemical_name: 1,
-        basic_details: 1,
         CAS_number: 1,
         identification: 1,
-        uom:1,
         features: 1,
+        basic_details: 1,
         brand: "$brand.name",
         category: "$category.name",
         chemicalFamily: "$chemicalFamily.name",
-        productFamily:"$productFamily.name",
+        productFamily: "$productFamily.name",
         subCategoryNames: {
           $map: {
             input: "$subCategory",
@@ -88,25 +112,34 @@ export const getProductAgg = async (query) => {
         },
       },
     },
+  ];
+
+  const countAggregation = [
+    ...baseAggregation,
     {
       $match: {
         ...searchQuery,
-        ...(query.categoryName.length
-          ? { category: { $in: query.categoryName } }
-          : {}),
-        ...(query.brandName.length ? { brand: { $in: query.brandName } } : {}),
-        ...(query.chemicalFamilyName.length
-          ? { chemicalFamily: { $in: query.chemicalFamilyName } }
-          : {}),
-        ...(query.subCategoryName.length
-          ? { subCategoryNames: { $in: query.subCategoryName } }
+        ...(parsedQuery.categoryName?.length ? { "category.name": { $in: parsedQuery.categoryName } } : {}),
+        ...(parsedQuery.brandName?.length ? { "brand.name": { $in: parsedQuery.brandName } } : {}),
+        ...(parsedQuery.chemicalFamilyName?.length ? { "chemicalFamily.name": { $in: parsedQuery.chemicalFamilyName } } : {}),
+        ...(parsedQuery.subCategoryName?.length 
+          ? { 
+              subCategory: { 
+                $elemMatch: { name: { $in: parsedQuery.subCategoryName } } 
+              } 
+            } 
           : {}),
       },
     },
-
-    { $sort: { createdAt: -1 } },
+    { $count: "totalCount" },
   ];
 
-  const products = await Product.aggregate(aggregation);
-  return { products };
+  const [products, countResult] = await Promise.all([
+    Product.aggregate(aggregation),
+    Product.aggregate(countAggregation)
+  ]);
+
+  const totalProducts = countResult.length > 0 ? countResult[0].totalCount : 0;
+
+  return { products, totalProducts };
 };

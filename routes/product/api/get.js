@@ -14,6 +14,8 @@ productGet.post("", async (req, res) => {
       subCategoryName,
 
     } = req.body;
+    const page = parseInt(req.body.page) || 1;
+    const limit = parseInt(req.body.limit) || 2;
 
     const parsedQuery = {
       search: name || "",
@@ -24,7 +26,7 @@ productGet.post("", async (req, res) => {
         : [],
       subCategoryName: Array.isArray(subCategoryName) ? subCategoryName : [],
     };
-    const { products } = await getProductAgg(parsedQuery)
+    const { products,totalProducts } = await getProductAgg(parsedQuery, page, limit )
 
     const result = {
       tableHeader: [
@@ -47,8 +49,7 @@ productGet.post("", async (req, res) => {
       
       ],
       data: [],
-      // totalPages: Math.ceil(totalProducts / limit),
-      // currentPage: page,
+     
     };
 
     const tools = [
@@ -94,7 +95,8 @@ productGet.post("", async (req, res) => {
         };
         result.data.push(row);
       });
-
+      result.totalPages= Math.ceil(totalProducts / limit),
+      result.currentPage= page,
       res.status(200).json({
         status: true,
         result,
