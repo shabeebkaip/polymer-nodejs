@@ -56,7 +56,7 @@ productFamilyGet.post('', async (req, res) => {
             result.currentPage = currentPage;
             res.status(200).send({ status: true, result, tools });
         } else {
-            res.status(200).send({ status: false, message: 'No data' });
+            res.status(200).send({ status: false, message: 'No data' ,tools});
         }
     } catch (error) {
         console.error(error);

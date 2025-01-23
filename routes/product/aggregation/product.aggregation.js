@@ -34,7 +34,7 @@ export const getProductAgg = async (query) => {
     {
       $lookup: {
         from: "chemicalfamilies",
-        localField: "chemicalFamily",
+        localField: "chemical_family",
         foreignField: "_id",
         as: "chemicalFamily",
       },
@@ -64,6 +64,7 @@ export const getProductAgg = async (query) => {
         brand: "$brand.name",
         category: "$category.name",
         chemicalFamily: "$chemicalFamily.name",
+        
         subCategoryNames: {
           $map: {
             input: "$subCategory",

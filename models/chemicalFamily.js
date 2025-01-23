@@ -8,5 +8,5 @@ const schema = new Schema({
 
 });
 
-const ChemicalFamily = mongoose.model("Chemical Family", schema);
+const ChemicalFamily = mongoose.model("chemicalFamily", schema);
 export default ChemicalFamily ;

@@ -6,5 +6,5 @@ const schema = new Schema({
   image: { type: String, required: false },
 });
 
-const productFamily = mongoose.model("Product Family", schema);
+const productFamily = mongoose.model("productFamily", schema);
 export default productFamily;

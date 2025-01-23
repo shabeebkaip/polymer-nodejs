@@ -1,21 +1,29 @@
 import express from "express";
 import Product from "../../../models/product.js";
+import { getProductAgg } from "../aggregation/product.aggregation.js";
 
 const productGet = express.Router();
 
 productGet.post("", async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.body;  
-    const currentPage = parseInt(page);
-    const pageSize = parseInt(limit);
-    
-    const totalProducts = await Product.countDocuments();
-    const products = await Product.find()
-      .populate("brand", "name")
-      .populate("category", "name")
-      .populate("subCategory", "name")
-     .skip((currentPage - 1) * pageSize)
-        .limit(pageSize);
+    const {
+      name,
+      categoryName,
+      brandName,
+      chemicalFamilyName,
+      subCategoryName,
+    } = req.body;
+
+    const parsedQuery = {
+      search: name || "",
+      categoryName: Array.isArray(categoryName) ? categoryName : [],
+      brandName: Array.isArray(brandName) ? brandName : [],
+      chemicalFamilyName: Array.isArray(chemicalFamilyName)
+        ? chemicalFamilyName
+        : [],
+      subCategoryName: Array.isArray(subCategoryName) ? subCategoryName : [],
+    };
+    const products = await getProductAgg(parsedQuery)
 
     const result = {
       tableHeader: [
@@ -39,8 +47,8 @@ productGet.post("", async (req, res) => {
         { name: "view", displayName: "View", component: "action" },
       ],
       data: [],
-      totalPages: Math.ceil(totalProducts / limit),
-      currentPage: page,
+      // totalPages: Math.ceil(totalProducts / limit),
+      // currentPage: page,
     };
 
     const tools = [
@@ -108,6 +116,7 @@ productGet.post("", async (req, res) => {
       res.status(200).json({
         status: false,
         message: "No products found",
+        tools
       });
     }
   } catch (error) {

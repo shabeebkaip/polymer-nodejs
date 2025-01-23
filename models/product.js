@@ -25,7 +25,7 @@ const schema = new Schema({
   uom: { type: String, required: true },
   price: { type: Number, required: true },
   ingredient_name: { type: String, required: false },
-  chemical_family : { type: String, required: false },
+  chemical_family : { type: Schema.Types.ObjectId, required: false },
   basic_details: [
     {
       title: { type: String, required: false },
@@ -34,12 +34,8 @@ const schema = new Schema({
   ],
   chemical_name: { type: String, required: false },
   CAS_number: { type: String, required: false },
-  product_family: [
-    {
-      title: { type: String, required: false },
-      value: { type: String, required: false },
-    },
-  ],
+ 
+  product_family: { type: Schema.Types.ObjectId, required: true },
   identification: [
     {
       title: { type: String, required: false },
