@@ -1,7 +1,9 @@
 import Product from "../../../models/product.js";
 
-export const getProductAgg = async (parsedQuery, page, limit) => {
-  const skip = (page - 1) * limit;
+export const getProductAgg = async (parsedQuery, page = 1, limit = 10) => {
+  // Ensure page is at least 1
+  const currentPage = Math.max(Number(page) || 1, 1);
+  const skip = (currentPage - 1) * limit;
 
   const { id } = parsedQuery;
 
@@ -71,15 +73,21 @@ export const getProductAgg = async (parsedQuery, page, limit) => {
     {
       $match: {
         ...searchQuery,
-        ...(parsedQuery.categoryName?.length ? { "category.name": { $in: parsedQuery.categoryName } } : {}),
-        ...(parsedQuery.brandName?.length ? { "brand.name": { $in: parsedQuery.brandName } } : {}),
-        ...(parsedQuery.chemicalFamilyName?.length ? { "chemicalFamily.name": { $in: parsedQuery.chemicalFamilyName } } : {}),
-        ...(parsedQuery.subCategoryName?.length 
-          ? { 
-              subCategory: { 
-                $elemMatch: { name: { $in: parsedQuery.subCategoryName } } 
-              } 
-            } 
+        ...(parsedQuery.categoryName?.length
+          ? { "category.name": { $in: parsedQuery.categoryName } }
+          : {}),
+        ...(parsedQuery.brandName?.length
+          ? { "brand.name": { $in: parsedQuery.brandName } }
+          : {}),
+        ...(parsedQuery.chemicalFamilyName?.length
+          ? { "chemicalFamily.name": { $in: parsedQuery.chemicalFamilyName } }
+          : {}),
+        ...(parsedQuery.subCategoryName?.length
+          ? {
+              subCategory: {
+                $elemMatch: { name: { $in: parsedQuery.subCategoryName } },
+              },
+            }
           : {}),
       },
     },
@@ -123,15 +131,21 @@ export const getProductAgg = async (parsedQuery, page, limit) => {
     {
       $match: {
         ...searchQuery,
-        ...(parsedQuery.categoryName?.length ? { "category.name": { $in: parsedQuery.categoryName } } : {}),
-        ...(parsedQuery.brandName?.length ? { "brand.name": { $in: parsedQuery.brandName } } : {}),
-        ...(parsedQuery.chemicalFamilyName?.length ? { "chemicalFamily.name": { $in: parsedQuery.chemicalFamilyName } } : {}),
-        ...(parsedQuery.subCategoryName?.length 
-          ? { 
-              subCategory: { 
-                $elemMatch: { name: { $in: parsedQuery.subCategoryName } } 
-              } 
-            } 
+        ...(parsedQuery.categoryName?.length
+          ? { "category.name": { $in: parsedQuery.categoryName } }
+          : {}),
+        ...(parsedQuery.brandName?.length
+          ? { "brand.name": { $in: parsedQuery.brandName } }
+          : {}),
+        ...(parsedQuery.chemicalFamilyName?.length
+          ? { "chemicalFamily.name": { $in: parsedQuery.chemicalFamilyName } }
+          : {}),
+        ...(parsedQuery.subCategoryName?.length
+          ? {
+              subCategory: {
+                $elemMatch: { name: { $in: parsedQuery.subCategoryName } },
+              },
+            }
           : {}),
       },
     },
@@ -140,7 +154,7 @@ export const getProductAgg = async (parsedQuery, page, limit) => {
 
   const [products, countResult] = await Promise.all([
     Product.aggregate(aggregation),
-    Product.aggregate(countAggregation)
+    Product.aggregate(countAggregation),
   ]);
 
   const totalProducts = countResult.length > 0 ? countResult[0].totalCount : 0;
