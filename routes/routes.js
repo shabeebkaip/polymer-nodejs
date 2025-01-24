@@ -11,6 +11,7 @@ import industryRouter from "./industry/industry.js";
 import productFamilyRouter from "./productFamily/productFamily.js";
 import authRouter from "./auth/auth.js";
 import cartRouter from "./cart/cart.js";
+import adminRouter from "./admins/admin.js";
 
 const router = express.Router();
 
@@ -26,5 +27,6 @@ router.use("/user", userRouter);
 router.use("/industry", industryRouter);
 router.use("/product-family",productFamilyRouter)
 router.use("/cart",cartRouter)
+router.use('/admin', adminRouter)
 
 export default router;
