@@ -10,27 +10,27 @@ userList.post('', async (req, res) => {
         const page = parseInt(query.page) || 1;
         const limit = parseInt(query.limit) || 10;
         const skip = (page - 1) * limit;
-        
+
         const users = await User.find({}).sort({ _id: -1 });
 
         const result = {
-            tableHeader:[
+            tableHeader: [
                 { name: "name", displayName: "Name" },
                 { name: "mobile", displayName: "Mobile" },
                 { name: "email", displayName: "Email" },
                 { name: "dob", displayName: "DOB" },
-                {name:"role",displayName:"Role"},
-                
+                { name: "role", displayName: "Role" },
+
 
             ],
-          
+
             components: [
-                { name: "name", displayName: "Name", component: "profile" },
+                { name: "name", displayName: "Name", component: "text" },
                 { name: "mobile", displayName: "Mobile", component: "text" },
                 { name: "email", displayName: "Email", component: "text" },
                 { name: "dob", displayName: "DOB", component: "date" },
-                {name:"role",displayName:"Role",component:"textBox"},
-               
+                { name: "role", displayName: "Role", component: "textBox" },
+
             ],
             data: []
         };
@@ -46,8 +46,7 @@ userList.post('', async (req, res) => {
                 row.mobile = user.mobile;
                 row.email = user.email;
                 row.dob = user.dob;
-                row.role = user.isSeller ? "Seller" : "Customer";
-               
+                row.role = user.isSeller ? "Seller" : "Customer";  
                 result.data.push(row);
             });
 
