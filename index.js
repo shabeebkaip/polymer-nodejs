@@ -1,26 +1,24 @@
-import express from "express"
-import cors from 'cors'
+import express from "express";
+import cors from "cors";
 import mongoose from "mongoose";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 import fileUpload from "express-fileupload";
 import router from "./routes/routes.js";
-import Admin from "./models/admin.js";
-import bcrypt from "bcrypt";
-import Auth from "./models/auth.js";
 
-dotenv.config({ path: '.env' });
+dotenv.config({ path: ".env" });
 const app = express();
 const DB_URL = process.env.MONGO;
 const port = process.env.PORT || 6000;
 
 if (!DB_URL) {
-    console.error('Error: MONGO URL not defined in .env file');
-    process.exit(1);
+  console.error("Error: MONGO URL not defined in .env file");
+  process.exit(1);
 }
 
-mongoose.connect(DB_URL)
-    .then(() => console.log('Database connected successfully'))
-    .catch((err) => console.error('Unable to connect database:', err));
+mongoose
+  .connect(DB_URL)
+  .then(() => console.log("Database connected successfully"))
+  .catch((err) => console.error("Unable to connect database:", err));
 
 //     const insertAdminData = async () => {
 //   try {
@@ -42,20 +40,18 @@ mongoose.connect(DB_URL)
 //   }
 // };
 
-
-
-
-
 // insertAdminData();
 
-app.use(fileUpload({
+app.use(
+  fileUpload({
     useTempFiles: true,
-    tempFileDir: '/tmp/'
-}));
+    tempFileDir: "/tmp/",
+  })
+);
 
 app.use(cors());
 app.use(express.json());
 
-app.use('/api', router);
+app.use("/api", router);
 
 app.listen(port, () => console.log(`Server connected at ${port}`));
