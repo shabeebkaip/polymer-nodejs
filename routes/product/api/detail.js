@@ -63,7 +63,7 @@ products.post("", async (req, res) => {
 
 products.get("/:id", async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await getProductAgg(req.params.id);
     if (!product) {
       return res.status(404).json({
         message: "Product not found",

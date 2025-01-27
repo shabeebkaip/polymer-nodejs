@@ -1,14 +1,15 @@
+import mongoose from "mongoose";
 import Product from "../../../models/product.js";
 
-export const getProductAgg = async (parsedQuery, page = 1, limit = 10) => {
+export const getProductAgg = async (parsedQuery, page = 1, limit = 10,) => {
   // Ensure page is at least 1
   const currentPage = Math.max(Number(page) || 1, 1);
   const skip = (currentPage - 1) * limit;
 
   const { id } = parsedQuery;
 
-  const searchQuery = id
-    ? { _id: id } // If `id` is provided, match the specific product
+  const searchQuery = mongoose.Types.ObjectId.isValid(id)
+    ? { _id: new mongoose.Types.ObjectId(id) }
     : {
         ...(parsedQuery.search
           ? {
@@ -82,6 +83,8 @@ export const getProductAgg = async (parsedQuery, page = 1, limit = 10) => {
         ...(parsedQuery.chemicalFamilyName?.length
           ? { "chemicalFamily.name": { $in: parsedQuery.chemicalFamilyName } }
           : {}),
+
+         
         ...(parsedQuery.subCategoryName?.length
           ? {
               subCategory: {
