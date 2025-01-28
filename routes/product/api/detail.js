@@ -62,20 +62,26 @@ products.post("", async (req, res) => {
 });
 
 products.get("/:id", async (req, res) => {
+  const { id } = req.params; 
+  console.log(id);
+  
   try {
-    const product = await getProductAgg(req.params.id);
-    if (!product) {
+    const parsedQuery = { id };
+    const { products } = await getProductAgg(parsedQuery);
+    
+    if (!products) {
       return res.status(404).json({
         message: "Product not found",
         success: false,
         statusCode: 404,
       });
     }
+
     res.status(200).json({
       message: "Product fetched successfully",
       success: true,
       statusCode: 200,
-      data: product,
+      data: products[0],
     });
   } catch (error) {
     res.status(500).json({
@@ -86,5 +92,6 @@ products.get("/:id", async (req, res) => {
     console.log("Error getting product", error);
   }
 });
+
 
 export default products;

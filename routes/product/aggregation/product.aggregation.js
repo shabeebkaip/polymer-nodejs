@@ -6,7 +6,13 @@ export const getProductAgg = async (parsedQuery, page = 1, limit = 10,) => {
   const currentPage = Math.max(Number(page) || 1, 1);
   const skip = (currentPage - 1) * limit;
 
+  
+  
+
   const { id } = parsedQuery;
+
+  console.log(id);
+  
 
   const searchQuery = mongoose.Types.ObjectId.isValid(id)
     ? { _id: new mongoose.Types.ObjectId(id) }
