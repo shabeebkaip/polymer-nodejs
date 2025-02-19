@@ -45,7 +45,7 @@ console.log(enquiries);
           customer: "test",
           seller: "admin",
           email: "test3@gmail.com",
-          phone: enquiry.custumerPhone,
+          phone: "7736499063",
           message: enquiry.message,
           quantity: enquiry.quantity,
           uom: enquiry.uom,
