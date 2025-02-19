@@ -7,11 +7,6 @@ const schema = new Schema({
     ref: 'User',
     required: true
   },
-  sellerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
   message: { type: String, required: true },
   product: { type: Schema.Types.ObjectId, ref: "Product", required: false },
   uom: { type: String, required: false },
