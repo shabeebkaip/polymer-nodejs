@@ -42,8 +42,8 @@ console.log(enquiries);
         const row = {
           id: enquiry._id,
           product: enquiry.product,
-          customer: "admin",
-          seller: "test ",
+          customer: "test",
+          seller: "admin",
           email: "test3@gmail.com",
           phone: enquiry.custumerPhone,
           message: enquiry.message,
