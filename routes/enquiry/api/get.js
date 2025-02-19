@@ -42,9 +42,9 @@ console.log(enquiries);
         const row = {
           id: enquiry._id,
           product: enquiry.product,
-          customer: enquiry.custumer,
-          seller: enquiry.seller,
-          email: enquiry.custumerMail,
+          customer: "admin",
+          seller: "test ",
+          email: "test3@gmail.com",
           phone: enquiry.custumerPhone,
           message: enquiry.message,
           quantity: enquiry.quantity,
