@@ -5,7 +5,7 @@ const schema = new Schema({
   custumerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: false
   },
   message: { type: String, required: true },
   product: { type: Schema.Types.ObjectId, ref: "Product", required: false },
