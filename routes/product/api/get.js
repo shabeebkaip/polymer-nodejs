@@ -1,9 +1,10 @@
 import express from "express";
 import { getProductAgg } from "../aggregation/product.aggregation.js";
+import { verifyToken } from "../../../middlewares/login.auth.js";
 
 const productGet = express.Router();
 
-productGet.post("", async (req, res) => {
+productGet.post("", verifyToken, async (req, res) => {
   try {
     const {
       name,
@@ -11,7 +12,6 @@ productGet.post("", async (req, res) => {
       brandName,
       chemicalFamilyName,
       subCategoryName,
-
     } = req.body;
     const page = parseInt(req.body.page) || 1;
     const limit = parseInt(req.body.limit) || 10;
@@ -24,19 +24,24 @@ productGet.post("", async (req, res) => {
         ? chemicalFamilyName
         : [],
       subCategoryName: Array.isArray(subCategoryName) ? subCategoryName : [],
+      createdBy: req.body.userId, // Filter by authenticated user's _id
     };
-    const { products,totalProducts } = await getProductAgg(parsedQuery, page, limit )
+
+    const { products, totalProducts } = await getProductAgg(
+      parsedQuery,
+      page,
+      limit
+    );
 
     const result = {
       tableHeader: [
-        {name:"image", displayName: "Image"},
+        { name: "image", displayName: "Image" },
         { name: "name", displayName: "Product Name" },
         { name: "brand", displayName: "Brand" },
         { name: "category", displayName: "Category" },
         { name: "price", displayName: "Price" },
         { name: "stock", displayName: "Stock" },
-        { name: 'more', displayName: 'More'},
-        
+        { name: "more", displayName: "More" },
       ],
       search: true,
       components: [
@@ -46,11 +51,9 @@ productGet.post("", async (req, res) => {
         { name: "category", displayName: "Category", component: "text" },
         { name: "price", displayName: "Price", component: "text" },
         { name: "stock", displayName: "Stock", component: "text" },
-        { name: 'more', displayName: 'More', component: 'more' },
-      
+        { name: "more", displayName: "More", component: "more" },
       ],
       data: [],
-     
     };
 
     const tools = [
@@ -87,17 +90,30 @@ productGet.post("", async (req, res) => {
           basic_details: product.basic_details,
           chemical_family: product.chemicalFamily,
           more: [
-            { name: "edit", icon: "edit.svg", displayName: "Edit", id: product._id },
-            { name: "delete", icon: "delete.svg", displayName: "Delete", id: product._id },
-            { name: "view", icon: "view.svg", displayName: "View", id: product._id },
-          ]
-
-
+            {
+              name: "edit",
+              icon: "edit.svg",
+              displayName: "Edit",
+              id: product._id,
+            },
+            {
+              name: "delete",
+              icon: "delete.svg",
+              displayName: "Delete",
+              id: product._id,
+            },
+            {
+              name: "view",
+              icon: "view.svg",
+              displayName: "View",
+              id: product._id,
+            },
+          ],
         };
         result.data.push(row);
       });
-      result.totalPages= Math.ceil(totalProducts / limit),
-      result.currentPage= page,
+      result.totalPages = Math.ceil(totalProducts / limit);
+      result.currentPage = page;
       res.status(200).json({
         status: true,
         result,
@@ -108,7 +124,7 @@ productGet.post("", async (req, res) => {
         status: false,
         result,
         message: "No products found",
-        tools
+        tools,
       });
     }
   } catch (error) {

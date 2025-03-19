@@ -6,7 +6,7 @@ const schema = new Schema(
     name: { type: String, required: true },
     brand: { type: Schema.Types.ObjectId, ref: "Brand", required: false },
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
-    user_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    user_id: { type: Schema.Types.ObjectId, ref: "Auth", required: true },
     subCategory: [
       {
         type: Schema.Types.ObjectId,
@@ -49,8 +49,9 @@ const schema = new Schema(
         value: { type: String, required: false },
       },
     ],
-    createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    createdBy: { type: Schema.Types.ObjectId, ref: "Auth", required: true },
   },
+  
   { timestamps: true }
 );
 

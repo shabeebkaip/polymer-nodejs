@@ -19,6 +19,7 @@ export const validate = (req, res, next) => {
 };
 
 export const verify = async (req, res, next) => {
+    console.log(req.body.email);
   const auth = await Auth.findOne({
     email: req.body.email.toLowerCase().trim(),
   });
@@ -62,6 +63,7 @@ export const createJwt = (req, res, next) => {
 };
 
 export const verifyToken = async (req, res, next) => {
+    console.log(req.headers.authorization);
   try {
     const token = req.headers.authorization.split(" ")[1];
     if (!token) {

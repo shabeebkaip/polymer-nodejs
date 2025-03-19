@@ -1,18 +1,11 @@
 import mongoose from "mongoose";
 import Product from "../../../models/product.js";
 
-export const getProductAgg = async (parsedQuery, page = 1, limit = 10,) => {
-  // Ensure page is at least 1
+export const getProductAgg = async (parsedQuery, page = 1, limit = 10) => {
   const currentPage = Math.max(Number(page) || 1, 1);
   const skip = (currentPage - 1) * limit;
 
-  
-  
-
-  const { id } = parsedQuery;
-
-  console.log(id);
-  
+  const { id, createdBy } = parsedQuery;
 
   const searchQuery = mongoose.Types.ObjectId.isValid(id)
     ? { _id: new mongoose.Types.ObjectId(id) }
@@ -27,7 +20,7 @@ export const getProductAgg = async (parsedQuery, page = 1, limit = 10,) => {
             }
           : {}),
       };
-      
+
   const baseAggregation = [
     {
       $lookup: {
@@ -79,6 +72,9 @@ export const getProductAgg = async (parsedQuery, page = 1, limit = 10,) => {
     ...baseAggregation,
     {
       $match: {
+        ...(createdBy
+          ? { createdBy: new mongoose.Types.ObjectId(createdBy) }
+          : {}), // Optional filter
         ...searchQuery,
         ...(parsedQuery.categoryName?.length
           ? { "category.name": { $in: parsedQuery.categoryName } }
@@ -89,8 +85,6 @@ export const getProductAgg = async (parsedQuery, page = 1, limit = 10,) => {
         ...(parsedQuery.chemicalFamilyName?.length
           ? { "chemicalFamily.name": { $in: parsedQuery.chemicalFamilyName } }
           : {}),
-
-         
         ...(parsedQuery.subCategoryName?.length
           ? {
               subCategory: {
@@ -139,6 +133,9 @@ export const getProductAgg = async (parsedQuery, page = 1, limit = 10,) => {
     ...baseAggregation,
     {
       $match: {
+        ...(createdBy
+          ? { createdBy: new mongoose.Types.ObjectId(createdBy) }
+          : {}), // Optional filter
         ...searchQuery,
         ...(parsedQuery.categoryName?.length
           ? { "category.name": { $in: parsedQuery.categoryName } }
