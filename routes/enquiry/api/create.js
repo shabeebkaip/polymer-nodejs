@@ -6,6 +6,7 @@ const enquiryCreate = express.Router();
 
 enquiryCreate.post("", async (req, res) => {
   try {
+    console.log("req.body", req.body);
     const newCategory = new Enquiry(req.body);
     await newCategory.save();
     res.status(200).json({

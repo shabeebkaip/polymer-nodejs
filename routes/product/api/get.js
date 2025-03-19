@@ -1,5 +1,4 @@
 import express from "express";
-import Product from "../../../models/product.js";
 import { getProductAgg } from "../aggregation/product.aggregation.js";
 
 const productGet = express.Router();
