@@ -6,7 +6,7 @@ const productFamilyGet = express.Router();
 productFamilyGet.post("", async (req, res) => {
   try {
     const totalProductFamily = await productFamily.countDocuments({});
-    const products = await productFamily.find({});
+    const products = await productFamily.find();
 
     res.status(200).json({
       data: products,
