@@ -5,7 +5,6 @@ const productFamilyGet = express.Router();
 
 productFamilyGet.get("", async (req, res) => {
   try {
-    const totalProductFamily = await productFamily.countDocuments({});
     const products = await productFamily.find();
 
     res.status(200).json({
