@@ -3,7 +3,7 @@ import productFamily from "../../../models/productFamily.js";
 
 const productFamilyGet = express.Router();
 
-productFamilyGet.post("", async (req, res) => {
+productFamilyGet.get("", async (req, res) => {
   try {
     const totalProductFamily = await productFamily.countDocuments({});
     const products = await productFamily.find();
