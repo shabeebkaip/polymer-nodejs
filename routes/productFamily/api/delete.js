@@ -1,7 +1,6 @@
 import express from "express";
 import productFamily from "../../../models/productFamily.js";
 
-
 const ProductFamilyDelete = express.Router();
 
 ProductFamilyDelete.delete("/:id", async (req, res) => {
@@ -10,8 +9,8 @@ ProductFamilyDelete.delete("/:id", async (req, res) => {
     await productFamily.findByIdAndDelete(id);
     res.status(200).json({
       message: "product family deleted successfully",
-      status: true,
-    
+      success: true,
+      statusCode: 200,
     });
   } catch (error) {
     console.log("Error deleting product family", error);
