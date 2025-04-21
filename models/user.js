@@ -17,9 +17,10 @@ const schema = new Schema({
   country: {
     type: String,
   },
-  isSeller: {
-    type: Boolean,
-    default: false,
+  user_type: {
+    type: String,
+    enum: ["seller", "user", "superadmin"],
+    default: "user",
   },
 });
 

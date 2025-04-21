@@ -19,7 +19,7 @@ export const validate = (req, res, next) => {
 };
 
 export const verify = async (req, res, next) => {
-    console.log(req.body.email);
+  console.log(req.body.email);
   const auth = await Auth.findOne({
     email: req.body.email.toLowerCase().trim(),
   });
@@ -43,40 +43,106 @@ export const authenticate = async (req, res, next) => {
 };
 
 export const createJwt = (req, res, next) => {
-  console.log(req.body);
-  const token = jwt.sign(
-    {
-      id: req.body.auth._id, // Use MongoDB _id instead of email
-      email: req.body.email, // Include email as well
-    },
-    process.env.JWT_KEY,
-    SIGN_OPTION()
-  );
-  if (token) {
+  try {
+    // Get the authenticated user from req.body.auth
+    const auth = req.body.auth;
+
+    // Create token payload with essential user information
+    const payload = {
+      id: auth._id,
+      email: auth.email,
+      name: auth.name,
+      role: auth.role,
+      // Add any other non-sensitive user data you might need
+    };
+
+    // Generate token with expiration from SIGN_OPTION
+    const token = jwt.sign(payload, process.env.JWT_KEY, SIGN_OPTION());
+
+    if (!token) {
+      throw new Error("Token generation failed");
+    }
+
+    // Attach token to response and request
     req.body.token = token;
+    res.setHeader("Authorization", `Bearer ${token}`);
+
+    // Optionally set cookie if using cookies
+    // res.cookie('token', token, { httpOnly: true, secure: true });
+
     next();
-  } else {
-    return res
-      .status(500)
-      .send({ message: "Token generation failed.", code: 4 });
+  } catch (error) {
+    console.error("Token generation error:", error);
+    return res.status(500).send({
+      message: "Token generation failed",
+      code: 4,
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
   }
 };
 
 export const verifyToken = async (req, res, next) => {
-    console.log(req.headers.authorization);
   try {
-    const token = req.headers.authorization.split(" ")[1];
-    if (!token) {
-      return res
-        .status(401)
-        .json({ message: "Authentication token is missing" });
+    // Check for token in Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        message: "Authorization token required",
+        code: 401,
+      });
     }
+
+    // Extract token
+    const token = authHeader.split(" ")[1];
+
+    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_KEY);
-    req.body.userId = decoded.id; // Set userId as _id from JWT
-    req.body.email = decoded.email; // Optional: keep email too
+
+    // Fetch user from database to ensure they still exist
+    const user = await Auth.findById(decoded.id).select("-password");
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found",
+        code: 401,
+      });
+    }
+
+    // Attach complete user object to request
+    req.user = {
+      id: user._id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      // Add any other user properties you need
+    };
+
     next();
   } catch (error) {
     console.error("Token verification failed:", error);
-    res.status(401).json({ message: "Authentication failed" });
+
+    // Handle specific JWT errors
+    if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid token",
+        code: 401,
+      });
+    }
+
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({
+        success: false,
+        message: "Token expired",
+        code: 401,
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Authentication failed",
+      code: 500,
+    });
   }
 };

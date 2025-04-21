@@ -13,7 +13,20 @@ const schema = new Schema({
     required: true,
     trim: true,
   },
+  role: {
+    type: String,
+    enum: ["seller", "user", "superadmin"],
+    default: "user",
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
 });
 
-const Auth = mongoose.model('auth', schema);
-export default Auth
+const Auth = mongoose.model("auth", schema);
+export default Auth;
