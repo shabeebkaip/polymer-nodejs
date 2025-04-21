@@ -15,6 +15,7 @@ import adminRouter from "./admins/admin.js";
 import appearanceRouter from "./appearance/appearance.js";
 import substanceRouter from "./substance/substance.js";
 import gradeRouter from "./grade/grade.js";
+import incotermRouter from "./incoterm/incoterm.js";
 
 const router = express.Router();
 
@@ -34,5 +35,6 @@ router.use("/admin", adminRouter);
 router.use("/appearance", appearanceRouter);
 router.use("/substance", substanceRouter);
 router.use("/grade", gradeRouter);
+router.use("/incoterm", incotermRouter);
 
 export default router;
