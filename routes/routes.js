@@ -13,6 +13,7 @@ import authRouter from "./auth/auth.js";
 import cartRouter from "./cart/cart.js";
 import adminRouter from "./admins/admin.js";
 import appearanceRouter from "./appearance/appearance.js";
+import substanceRouter from "./substance/substance.js";
 
 const router = express.Router();
 
@@ -30,5 +31,6 @@ router.use("/product-family", productFamilyRouter);
 router.use("/cart", cartRouter);
 router.use("/admin", adminRouter);
 router.use("/appearance", appearanceRouter);
+router.use("/substance", substanceRouter);
 
 export default router;
