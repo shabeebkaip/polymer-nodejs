@@ -1,6 +1,5 @@
 import express from "express";
 import Brand from "../../../models/brand.js";
-import { getEnquiryAgg } from "../../enquiry/aggregation/enquiry.agg.js";
 
 const brandGet = express.Router();
 

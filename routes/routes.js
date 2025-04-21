@@ -12,6 +12,7 @@ import productFamilyRouter from "./productFamily/productFamily.js";
 import authRouter from "./auth/auth.js";
 import cartRouter from "./cart/cart.js";
 import adminRouter from "./admins/admin.js";
+import appearanceRouter from "./appearance/appearance.js";
 
 const router = express.Router();
 
@@ -25,8 +26,9 @@ router.use("/chemical-family", chemicalFamilyRouter);
 router.use("/enquiry", enquiryRouter);
 router.use("/user", userRouter);
 router.use("/industry", industryRouter);
-router.use("/product-family",productFamilyRouter)
-router.use("/cart",cartRouter)
-router.use('/admin', adminRouter)
+router.use("/product-family", productFamilyRouter);
+router.use("/cart", cartRouter);
+router.use("/admin", adminRouter);
+router.use("/appearance", appearanceRouter);
 
 export default router;
