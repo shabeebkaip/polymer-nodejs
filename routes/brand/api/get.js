@@ -8,7 +8,7 @@ brandGet.get("", async (req, res) => {
   try {
     const brands = await Brand.find();
     res.status(200).json({
-      status: true,
+      success: true,
       message: "Brand list fetched successfully",
       data: brands,
     });
