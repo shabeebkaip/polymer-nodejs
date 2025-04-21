@@ -14,6 +14,7 @@ import cartRouter from "./cart/cart.js";
 import adminRouter from "./admins/admin.js";
 import appearanceRouter from "./appearance/appearance.js";
 import substanceRouter from "./substance/substance.js";
+import gradeRouter from "./grade/grade.js";
 
 const router = express.Router();
 
@@ -32,5 +33,6 @@ router.use("/cart", cartRouter);
 router.use("/admin", adminRouter);
 router.use("/appearance", appearanceRouter);
 router.use("/substance", substanceRouter);
+router.use("/grade", gradeRouter);
 
 export default router;

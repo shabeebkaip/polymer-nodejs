@@ -10,6 +10,9 @@ const productSchema = new Schema(
     stock: { type: Number, required: false }, // Available stock
     price: { type: Number, required: false }, // Price
     minimum_order_quantity: { type: Number, required: false }, // Minimum order quantity
+    safety_data_sheet: { type: String, required: false }, // Safety Data Sheet URL
+    technical_data_sheet: { type: String, required: false }, // Technical Data Sheet URL
+    min_purity: { type: Number, required: false }, // Minimum purity percentage
 
     // References
     brand: { type: Schema.Types.ObjectId, ref: "Brand" }, // Reference to Brand
