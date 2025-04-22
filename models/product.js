@@ -22,11 +22,7 @@ const productSchema = new Schema(
     industry: [
       { type: Schema.Types.ObjectId, ref: "Industry", required: true }, // Linked industries
     ],
-    appearance: {
-      type: Schema.Types.ObjectId,
-      ref: "Appearance",
-    }, // Visual appearance
-
+    appearance: [{ type: Schema.Types.ObjectId, ref: "Appearance" }],
     substance: [
       { type: Schema.Types.ObjectId, ref: "Substance" }, // Chemical substances
     ],

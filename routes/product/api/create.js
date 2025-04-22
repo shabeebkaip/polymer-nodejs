@@ -14,9 +14,6 @@ productCreate.post(
   authorizeRoles("seller", "superadmin"), // Only sellers and superadmins can create products
   async (req, res) => {
     try {
-      // User details are now available in req.user
-      console.log("Authenticated user:", req.user);
-
       const productData = {
         ...req.body,
         createdBy: req.user.id, // Automatically set the creator
