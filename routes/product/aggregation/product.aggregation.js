@@ -140,28 +140,28 @@ export const getProductAgg = async (parsedQuery, page = 1, limit = 10) => {
         createdBy: 1,
 
         // Array references (mapped to names for easier consumption)
-        industries: {
+        industry: {
           $map: {
             input: "$industries",
             as: "industry",
             in: "$$industry",
           },
         },
-        appearances: {
+        appearance: {
           $map: {
             input: "$appearances",
             as: "appearance",
             in: "$$appearance",
           },
         },
-        substances: {
+        substance: {
           $map: {
             input: "$substances",
             as: "substance",
             in: "$$substance",
           },
         },
-        grades: {
+        grade: {
           $map: {
             input: "$grades",
             as: "grade",
@@ -175,7 +175,7 @@ export const getProductAgg = async (parsedQuery, page = 1, limit = 10) => {
             in: "$$incoterm",
           },
         },
-        productFamilies: {
+        product_family: {
           $map: {
             input: "$productFamilies",
             as: "family",
