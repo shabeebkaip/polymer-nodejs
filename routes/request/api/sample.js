@@ -14,6 +14,7 @@ sampleRequestRouter.post("", authenticateUser, async (req, res) => {
       quantity,
       purchase_plan,
       application,
+      message = "", // Optional field with default
       expected_annual_volume,
       industry,
       uom,
@@ -55,6 +56,7 @@ sampleRequestRouter.post("", authenticateUser, async (req, res) => {
       expected_annual_volume: Number(expected_annual_volume),
       industry,
       uom,
+      message: message.trim(), // Optional field
       address,
       status: "pending", // Default status
     });

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import { Schema } from "mongoose";
 
-const sampleRequestSchema = new mongoose.Schema(
+const schema = new Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -17,20 +18,14 @@ const sampleRequestSchema = new mongoose.Schema(
       required: true,
       min: 1,
     },
-    purchase_plan: {
+    message: {
       type: String,
-      required: true,
-      enum: ["immediate", "3_months", "6_months", "1_year", "testing"], // example values
+      trim: true,
     },
     application: {
       type: String,
       required: true,
       trim: true,
-    },
-    expected_annual_volume: {
-      type: Number,
-      required: true,
-      min: 0,
     },
     industry: {
       type: mongoose.Schema.Types.ObjectId,
@@ -56,23 +51,14 @@ const sampleRequestSchema = new mongoose.Schema(
         "Pint",
       ], // example units
     },
-    address: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected", "fulfilled"],
+      enum: ["pending", "approved", "rejected"],
       default: "pending",
-    },
-    message: {
-      type: String,
-      trim: true,
     },
   },
   { timestamps: true }
 );
 
-const SampleRequest = mongoose.model("SampleRequest", sampleRequestSchema);
-export default SampleRequest;
+const QuoteRequest = mongoose.model("QuoteRequest", schema);
+export default QuoteRequest;
