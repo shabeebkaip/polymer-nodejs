@@ -14,32 +14,15 @@ export const getProductAgg = async (parsedQuery, page = 1, limit = 10) => {
           ? {
               $or: [
                 { name: { $regex: parsedQuery.search, $options: "i" } },
-                { category: { $regex: parsedQuery.search, $options: "i" } },
-                { brand: { $regex: parsedQuery.search, $options: "i" } },
+                { description: { $regex: parsedQuery.search, $options: "i" } },
+                { uom: { $regex: parsedQuery.search, $options: "i" } },
               ],
             }
           : {}),
       };
 
   const baseAggregation = [
-    {
-      $lookup: {
-        from: "productfamilies",
-        localField: "product_family",
-        foreignField: "_id",
-        as: "productFamily",
-      },
-    },
-    { $unwind: { path: "$productFamily", preserveNullAndEmptyArrays: true } },
-    {
-      $lookup: {
-        from: "categories",
-        localField: "category",
-        foreignField: "_id",
-        as: "category",
-      },
-    },
-    { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
+    // Lookup for brand (single reference)
     {
       $lookup: {
         from: "brands",
@@ -49,21 +32,64 @@ export const getProductAgg = async (parsedQuery, page = 1, limit = 10) => {
       },
     },
     { $unwind: { path: "$brand", preserveNullAndEmptyArrays: true } },
+
+    // Lookup for industry (array reference)
     {
       $lookup: {
-        from: "chemicalfamilies",
-        localField: "chemical_family",
+        from: "industries",
+        localField: "industry",
         foreignField: "_id",
-        as: "chemicalFamily",
+        as: "industries",
       },
     },
-    { $unwind: { path: "$chemicalFamily", preserveNullAndEmptyArrays: true } },
+
+    // Lookup for appearance (array reference)
     {
       $lookup: {
-        from: "subcategories",
-        localField: "subCategory",
+        from: "appearances",
+        localField: "appearance",
         foreignField: "_id",
-        as: "subCategory",
+        as: "appearances",
+      },
+    },
+
+    // Lookup for substance (array reference)
+    {
+      $lookup: {
+        from: "substances",
+        localField: "substance",
+        foreignField: "_id",
+        as: "substances",
+      },
+    },
+
+    // Lookup for grade (array reference)
+    {
+      $lookup: {
+        from: "grades",
+        localField: "grade",
+        foreignField: "_id",
+        as: "grades",
+      },
+    },
+
+    // Lookup for incoterms (array reference)
+    {
+      $lookup: {
+        from: "incoterms",
+        localField: "incoterms",
+        foreignField: "_id",
+        as: "incoterms",
+      },
+    },
+
+    // Lookup for product_family (array reference)
+    {
+      $lookup: {
+        from: "productfamilies",
+        localField: "product_family",
+        foreignField: "_id",
+        as: "productFamilies",
       },
     },
   ];
@@ -74,24 +100,19 @@ export const getProductAgg = async (parsedQuery, page = 1, limit = 10) => {
       $match: {
         ...(createdBy
           ? { createdBy: new mongoose.Types.ObjectId(createdBy) }
-          : {}), // Optional filter
-        ...searchQuery,
-        ...(parsedQuery.categoryName?.length
-          ? { "category.name": { $in: parsedQuery.categoryName } }
           : {}),
+        ...searchQuery,
+        // Add filters for array fields if needed
         ...(parsedQuery.brandName?.length
           ? { "brand.name": { $in: parsedQuery.brandName } }
           : {}),
-        ...(parsedQuery.chemicalFamilyName?.length
-          ? { "chemicalFamily.name": { $in: parsedQuery.chemicalFamilyName } }
+        ...(parsedQuery.industryName?.length
+          ? { "industries.name": { $in: parsedQuery.industryName } }
           : {}),
-        ...(parsedQuery.subCategoryName?.length
-          ? {
-              subCategory: {
-                $elemMatch: { name: { $in: parsedQuery.subCategoryName } },
-              },
-            }
+        ...(parsedQuery.appearanceName?.length
+          ? { "appearances.name": { $in: parsedQuery.appearanceName } }
           : {}),
+        // Add similar filters for other array fields as needed
       },
     },
     { $sort: { createdAt: -1 } },
@@ -99,30 +120,66 @@ export const getProductAgg = async (parsedQuery, page = 1, limit = 10) => {
     { $limit: limit },
     {
       $project: {
+        // Basic Info
         _id: 1,
         name: 1,
         description: 1,
-        price: 1,
-        stock: 1,
-        documents: 1,
         image: 1,
         uom: 1,
-        ingredient_name: 1,
-        chemical_family: 1,
-        chemical_name: 1,
-        CAS_number: 1,
-        identification: 1,
-        features: 1,
-        basic_details: 1,
-        brand: "$brand.name",
-        category: "$category.name",
-        chemicalFamily: "$chemicalFamily.name",
-        productFamily: "$productFamily",
-        subCategoryNames: {
+        stock: 1,
+        price: 1,
+        minimum_order_quantity: 1,
+        safety_data_sheet: 1,
+        technical_data_sheet: 1,
+        min_purity: 1,
+        createdAt: 1,
+        updatedAt: 1,
+
+        // References
+        brand: "$brand",
+        createdBy: 1,
+
+        // Array references (mapped to names for easier consumption)
+        industries: {
           $map: {
-            input: "$subCategory",
-            as: "subcategory",
-            in: "$$subcategory.name",
+            input: "$industries",
+            as: "industry",
+            in: "$$industry",
+          },
+        },
+        appearances: {
+          $map: {
+            input: "$appearances",
+            as: "appearance",
+            in: "$$appearance",
+          },
+        },
+        substances: {
+          $map: {
+            input: "$substances",
+            as: "substance",
+            in: "$$substance",
+          },
+        },
+        grades: {
+          $map: {
+            input: "$grades",
+            as: "grade",
+            in: "$$grade",
+          },
+        },
+        incoterms: {
+          $map: {
+            input: "$incoterms",
+            as: "incoterm",
+            in: "$$incoterm",
+          },
+        },
+        productFamilies: {
+          $map: {
+            input: "$productFamilies",
+            as: "family",
+            in: "$$family",
           },
         },
       },
@@ -135,23 +192,14 @@ export const getProductAgg = async (parsedQuery, page = 1, limit = 10) => {
       $match: {
         ...(createdBy
           ? { createdBy: new mongoose.Types.ObjectId(createdBy) }
-          : {}), // Optional filter
-        ...searchQuery,
-        ...(parsedQuery.categoryName?.length
-          ? { "category.name": { $in: parsedQuery.categoryName } }
           : {}),
+        ...searchQuery,
+        // Same filters as in the main aggregation
         ...(parsedQuery.brandName?.length
           ? { "brand.name": { $in: parsedQuery.brandName } }
           : {}),
-        ...(parsedQuery.chemicalFamilyName?.length
-          ? { "chemicalFamily.name": { $in: parsedQuery.chemicalFamilyName } }
-          : {}),
-        ...(parsedQuery.subCategoryName?.length
-          ? {
-              subCategory: {
-                $elemMatch: { name: { $in: parsedQuery.subCategoryName } },
-              },
-            }
+        ...(parsedQuery.industryName?.length
+          ? { "industries.name": { $in: parsedQuery.industryName } }
           : {}),
       },
     },
