@@ -5,7 +5,7 @@ import QuoteRequest from "../../../models/quoteRequest.js";
 
 const quoteRequestRouter = express.Router();
 
-// Aggregation pipeline helper function
+// Aggregation pipeline helper function (unchanged)
 const getQuoteRequestsAggregation = (additionalStages = []) => {
   return [
     // Lookup user details from auth collection
@@ -82,7 +82,7 @@ const getQuoteRequestsAggregation = (additionalStages = []) => {
   ];
 };
 
-// POST endpoint - Create new quote request
+// POST endpoint - Create new quote request (unchanged)
 quoteRequestRouter.post("", authenticateUser, async (req, res) => {
   try {
     const user = req.user;
@@ -176,20 +176,17 @@ quoteRequestRouter.post("", authenticateUser, async (req, res) => {
   }
 });
 
-// GET endpoint - Fetch all quote requests for the user
+// GET endpoint - Fetch all quote requests (removed authentication)
 quoteRequestRouter.get("", async (req, res) => {
   try {
-    const user = req.user;
-
-    // Use aggregation pipeline with user filter
+    // Use aggregation pipeline without user filter to get all requests
     const quoteRequests = await QuoteRequest.aggregate([
-      { $match: { user: new mongoose.Types.ObjectId(user.id) } },
       ...getQuoteRequestsAggregation(),
     ]);
 
     return res.status(200).json({
       success: true,
-      message: "Quote requests fetched successfully",
+      message: "All quote requests fetched successfully",
       data: quoteRequests,
     });
   } catch (error) {
