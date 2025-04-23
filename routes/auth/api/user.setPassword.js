@@ -64,7 +64,7 @@ setRegisterRouter.post("/register", validateAuth, async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
-        status: false,
+        success: false,
         message: "Validation failed",
         errors: errors.array().map((err) => ({
           field: err.param,
@@ -88,7 +88,7 @@ setRegisterRouter.post("/register", validateAuth, async (req, res) => {
     const existingAuth = await Auth.findOne({ email });
     if (existingAuth) {
       return res.status(409).json({
-        status: false,
+        success: false,
         message: "Email already registered",
         field: "email",
       });
