@@ -68,7 +68,8 @@ sampleRequestRouter.post("", authenticateUser, async (req, res) => {
     // // Populate references if needed
     const populatedRequest = await SampleRequest.findById(savedRequest._id)
       .populate("product", "name") // Adjust fields as needed
-      .populate("industry", "name"); // Adjust fields as needed
+      .populate("industry", "name")
+      .populate("user", "name email") // Adjust fields as needed
 
     return res.status(201).json({
       success: true,

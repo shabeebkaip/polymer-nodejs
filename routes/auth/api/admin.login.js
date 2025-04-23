@@ -25,6 +25,10 @@ adminLogin.post(
         email: user.email,
         name: user.name,
         role: user.role,
+        company: user.company,
+        address: user.address,
+        industry: user.industry,
+        vat_number: user.vat_number,
         createdAt: user.createdAt,
       };
 

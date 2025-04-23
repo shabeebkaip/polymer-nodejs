@@ -3,7 +3,7 @@ import User from "../../../models/user.js";
 
 const userRegister = express.Router();
 
-userRegister.post("/register", async (req, res) => {
+userRegister.post("/register-old", async (req, res) => {
   try {
     const existingUser = await User.findOne({
       $or: [{ email: req.body.email }],
