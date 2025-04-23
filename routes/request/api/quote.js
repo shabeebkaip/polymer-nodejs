@@ -177,7 +177,7 @@ quoteRequestRouter.post("", authenticateUser, async (req, res) => {
 });
 
 // GET endpoint - Fetch all quote requests for the user
-quoteRequestRouter.get("", authenticateUser, async (req, res) => {
+quoteRequestRouter.get("", async (req, res) => {
   try {
     const user = req.user;
 
