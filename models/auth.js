@@ -18,8 +18,7 @@ const schema = new Schema(
       required: true,
     },
     industry: {
-      type: Schema.Types.ObjectId,
-      ref: "Industry",
+      type: String,
       required: false,
     },
     address: {
