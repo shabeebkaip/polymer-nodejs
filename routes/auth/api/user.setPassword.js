@@ -61,10 +61,7 @@ const validateAuth = [
     .isString()
     .matches(/^[A-Za-z0-9]+$/)
     .withMessage("VAT number must be alphanumeric"),
-  body("industry")
-    .optional()
-    .isMongoId()
-    .withMessage("Invalid industry ID format"),
+  body("industry").optional(),
 ];
 
 // Registration endpoint
@@ -133,7 +130,7 @@ setRegisterRouter.post("/register", validateAuth, async (req, res) => {
     };
 
     return res.status(201).json({
-      status: true,
+      success: true,
       message: "Registration successful",
       user: userResponse,
     });
@@ -142,14 +139,14 @@ setRegisterRouter.post("/register", validateAuth, async (req, res) => {
 
     if (error.code === 11000) {
       return res.status(400).json({
-        status: false,
+        success: false,
         message: "Duplicate key error",
         field: Object.keys(error.keyPattern)[0],
       });
     }
 
     return res.status(500).json({
-      status: false,
+      success: false,
       message: "Internal server error",
       error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
