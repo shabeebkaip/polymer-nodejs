@@ -51,17 +51,10 @@ const validateAuth = [
     .withMessage("Passwords do not match"),
   body("name").notEmpty().withMessage("Name is required"),
   body("company").notEmpty().withMessage("Company name is required"),
-  body("address").notEmpty().withMessage("Address is required"),
   body("role")
     .optional()
     .isIn(["seller", "user", "superadmin"])
     .withMessage("Invalid role specified"),
-  body("vat_number")
-    .optional()
-    .isString()
-    .matches(/^[A-Za-z0-9]+$/)
-    .withMessage("VAT number must be alphanumeric"),
-  body("industry").optional(),
 ];
 
 // Registration endpoint
