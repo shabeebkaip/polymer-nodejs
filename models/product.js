@@ -4,7 +4,7 @@ const productSchema = new Schema(
   {
     // Basic Info
     name: { type: String, required: true }, // Name of the product
-    description: { type: String, required: true }, // Product description
+    description: { type: String, required: false }, // Product description
     image: { type: String, required: false }, // Image URL
     uom: { type: String, required: true }, // Unit of Measure
     stock: { type: Number, required: false }, // Available stock
