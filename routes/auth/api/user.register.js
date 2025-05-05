@@ -1,36 +1,94 @@
 import express from "express";
+import bcrypt from "bcrypt";
 import User from "../../../models/user.js";
+import Auth from "../../../models/auth.js";
+import { createJwt } from "../../../middlewares/login.auth.js";
 
 const userRegister = express.Router();
 
-userRegister.post("/register-old", async (req, res) => {
-  try {
-    const existingUser = await User.findOne({
-      $or: [{ email: req.body.email }],
-    });
+const freeEmailDomains = new Set([
+  "gmail.com", "yahoo.com", "hotmail.com", "outlook.com",
+  "icloud.com", "aol.com", "zoho.com", "protonmail.com", "mail.com"
+]);
 
-    if (existingUser) {
-      let errorMessage = "";
-      if (existingUser.email === req.body.email) {
-        errorMessage = "Email already exists";
-      }
+const isCompanyEmail = (email) => {
+  const domain = email.split("@")[1]?.toLowerCase();
+  return domain && !freeEmailDomains.has(domain);
+};
+
+userRegister.post("/register", async (req, res) => {
+  try {
+    const { firstName,lastName,company,email,password, website,phone, industry,address,location,vat_number,company_logo,user_type } = req.body;
+
+    if (!firstName || !lastName || !company || !email || !password || !website || !phone) {
       return res.status(400).json({
-        message: errorMessage,
+        status: false,
+        message: "Missing required fields",
       });
     }
+
+    if (!isCompanyEmail(email)) {
+      return res.status(400).json({
+        status: false,
+        message: "Please use a company email address",
+      });
+    }
+
+    if (user_type === "seller" && (!vat_number || !company_logo)) {
+      return res.status(400).json({
+        status: false,
+        message: "VAT number and company logo are required for sellers",
+      });
+    }
+
+    const existingUser = await User.findOne({ email });
+    const existingAuth = await Auth.findOne({ email });
+
+    if (existingUser || existingAuth) {
+      return res.status(400).json({
+        status: false,
+        message: "Email already exists",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = new User({
-      name: req.body.name,
-      email: req.body.email,
-      dob: req.body.dob,
-      country: req.body.country || "",
-      isSeller: req.body.isSeller || false,
+      firstName,
+      lastName,
+      company,
+      email,
+      website,
+      industry,
+      address,
+      phone,
+      location,
+      vat_number: user_type === "seller" ? vat_number : undefined,
+      company_logo: user_type === "seller" ? company_logo : undefined,
+      user_type 
     });
 
     await newUser.save();
-    res.status(201).json({
-      status: true,
-      message: "User registered successfully",
+
+    const newAuth = new Auth({
+      email,
+      password: hashedPassword,
     });
+
+    await newAuth.save();
+
+    req.body.auth = { email };
+
+    createJwt(req, res, () => {
+      const userInfo = newUser.toObject();
+      res.status(201).json({
+        status: true,
+        message: "User registered successfully",
+        userInfo,
+        token: req.body.token,
+      });
+    });
+
   } catch (error) {
     res.status(500).json({
       status: false,
