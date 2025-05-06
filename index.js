@@ -8,7 +8,7 @@ import router from "./routes/routes.js";
 dotenv.config({ path: ".env" });
 const app = express();
 const DB_URL = process.env.MONGO;
-const port = process.env.PORT || 6000;
+const port = process.env.PORT || 7000;
 
 if (!DB_URL) {
   console.error("Error: MONGO URL not defined in .env file");
