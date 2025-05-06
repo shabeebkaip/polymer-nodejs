@@ -11,5 +11,5 @@ const schema = new Schema(
   { timestamps: true }
 );
 
-const packagingType = mongoose.model("packagingType", schema);
-export default packagingType;
+const PackagingType = mongoose.model("packagingType", schema);
+export default PackagingType;

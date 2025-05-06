@@ -20,7 +20,7 @@ updatePackagingType.put("/:id", async (req, res) => {
       success: false,
       statusCode: 500,
     });
-    console.log("Error updating Packaging t", error);
+    console.log("Error updating Packaging type", error);
   }
 });
 

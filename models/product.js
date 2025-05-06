@@ -27,11 +27,7 @@ const productSchema = new Schema(
     minimum_order_quantity: { type: Number, required: true }, // Minimum order quantity
     stock: { type: Number, required: true }, // Available stock
     // unitOfSale: [{ type: Schema.Types.ObjectId, ref: "unitOfSale" }],
-    unitOfSale: {
-      type: String,
-      enum: ["KG", "Ton", "Bag"],
-      required: true
-    },
+    unitOfSale: { type: String, required: true },
     price: { type: Number, required: true }, // Price
     priceTerms: { type: String,  enum: ["fixed", "negotiable"], required: false, default: "fixed", },
     leadTime: { type: Date, required: false, },

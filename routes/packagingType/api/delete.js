@@ -1,13 +1,13 @@
 import express from "express";
-import PhysicalForm from "../../../models/physicalForm.js";
+import PackagingType from "../../../models/packagingType.js";
 
-const deletePhysicalForm = express.Router();
+const deletePackagingType = express.Router();
 
-deletePhysicalForm.delete("/:id", async (req, res) => {
+deletePackagingType.delete("/:id", async (req, res) => {
   try {
-    await PhysicalForm.findByIdAndDelete(req.params.id);
+    await PackagingType.findByIdAndDelete(req.params.id);
     res.status(200).json({
-      message: "Physical Form deleted successfully",
+      message: "Packaging type deleted successfully",
       success: true,
       statusCode: 200,
     });
@@ -17,8 +17,8 @@ deletePhysicalForm.delete("/:id", async (req, res) => {
       success: false,
       statusCode: 500,
     });
-    console.log("Error deleting physical form", error);
+    console.log("Error deleting Packaging Type form", error);
   }
 });
 
-export default deletePhysicalForm;
+export default deletePackagingType;
