@@ -41,5 +41,6 @@ router.use("/incoterm", incotermRouter);
 router.use("/request", requestRouter);
 router.use("/physical-form", physicalFormRouter);
 router.use("/packaging-type", physicalFormRouter);
+router.use("/polymer-type", physicalFormRouter);
 
 export default router;
