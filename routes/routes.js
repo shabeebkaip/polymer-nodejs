@@ -20,6 +20,7 @@ import requestRouter from "./request/request.js";
 import physicalFormRouter from "./physicalForm/physicalForm.js";
 import polymerTypeRouter from "./polymerType/polimerType.js";
 import packagingTypeRouter from "./packagingType/packagingType.js";
+import paymentTermsRouter from "./paymentTerms/paymentTerms.js";
 
 const router = express.Router();
 
@@ -44,5 +45,7 @@ router.use("/request", requestRouter);
 router.use("/physical-form", physicalFormRouter);
 router.use("/packaging-type", packagingTypeRouter);
 router.use("/polymer-type", polymerTypeRouter);
+router.use("/payment-terms", paymentTermsRouter);
+
 
 export default router;

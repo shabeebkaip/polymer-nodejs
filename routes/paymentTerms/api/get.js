@@ -1,24 +1,24 @@
 import express from "express";
-import ChemicalFamily from "../../../models/chemicalFamily.js";
+import PaymentTerms from "../../../models/paymentTerms.js";
 
-const chemicalFamilyGet = express.Router();
+const getPaymentTerms = express.Router();
 
-chemicalFamilyGet.get("/", async (req, res) => {
+getPaymentTerms.get("", async (req, res) => {
   try {
     const { page, limit } = req.query;
 
     if (!page && !limit) {
-      const chemicalFamily = await ChemicalFamily.find({});
+      const paymentTerms = await PaymentTerms.find();
       return res.status(200).json({
-        message: "Fetched successfully",
+        message: "Payment Terms fetched successfully",
         success: true,
         statusCode: 200,
-        data: chemicalFamily,
+        data: paymentTerms,
       });
     }
 
-    const pageNumber = parseInt(page) || 1; 
-    const limitNumber = parseInt(limit) || 10; 
+    const pageNumber = parseInt(page) || 1;
+    const limitNumber = parseInt(limit) || 10;
 
     if (isNaN(pageNumber) || isNaN(limitNumber) || pageNumber < 1 || limitNumber < 1) {
       return res.status(400).json({
@@ -30,21 +30,21 @@ chemicalFamilyGet.get("/", async (req, res) => {
 
     const skip = (pageNumber - 1) * limitNumber;
 
-    const [chemicalFamily, totalCount] = await Promise.all([
-      ChemicalFamily.find({}).skip(skip).limit(limitNumber),
-      ChemicalFamily.countDocuments({}),
+    const [paymentTerms, totalCount] = await Promise.all([
+      PaymentTerms.find().skip(skip).limit(limitNumber),
+      PaymentTerms.countDocuments(),
     ]);
 
     const totalPages = Math.ceil(totalCount / limitNumber);
 
     res.status(200).json({
-      message: "Fetched successfully",
+      message: "Payment Terms fetched successfully",
       success: true,
       statusCode: 200,
-      data: chemicalFamily,
+      data: paymentTerms,
       pagination: {
         totalItems: totalCount,
-        totalPages: totalPages,
+        totalPages,
         currentPage: pageNumber,
         itemsPerPage: limitNumber,
       },
@@ -55,8 +55,8 @@ chemicalFamilyGet.get("/", async (req, res) => {
       success: false,
       statusCode: 500,
     });
-    console.log("Error fetching chemicalFamily", error);
+    console.log("Error fetching Payment Terms", error);
   }
 });
 
-export default chemicalFamilyGet;
+export default getPaymentTerms;
