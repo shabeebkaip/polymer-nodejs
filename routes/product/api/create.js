@@ -1,22 +1,15 @@
 import express from "express";
 import Product from "../../../models/product.js";
-import jwt from "jsonwebtoken";
-import {
-  authenticateUser,
-  authorizeRoles,
-} from "../../../middlewares/verify.token.js";
+import {authenticateUser,authorizeRoles} from '../../../middlewares/verify.token.js'
 
 const productCreate = express.Router();
 
-productCreate.post(
-  "",
-  authenticateUser,
-  authorizeRoles("seller", "superadmin"), // Only sellers and superadmins can create products
+productCreate.post("/",authenticateUser,authorizeRoles("seller", "superadmin"),
   async (req, res) => {
     try {
       const productData = {
         ...req.body,
-        createdBy: req.user.id, // Automatically set the creator
+        createdBy: req.user.id,
       };
 
       const product = new Product(productData);
@@ -31,6 +24,9 @@ productCreate.post(
             id: req.user.id,
             name: req.user.name,
             email: req.user.email,
+            company: req.user.company,
+            website: req.user.website,
+            phone: req.user.phone,
           },
         },
       });

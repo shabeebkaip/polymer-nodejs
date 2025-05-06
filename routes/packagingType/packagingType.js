@@ -1,16 +1,12 @@
 import express from "express";
-import createPhysicalForm from "../physicalForm/api/create";
-import getPhysicalForm from "../physicalForm/api/get";
-import updatePhysicalForm from "../physicalForm/api/update";
-import deletePhysicalForm from "../physicalForm/api/delete";
+
+import createPackagingType from "./api/create.js";
 
 
 const packagingTypeRouter = express.Router()
 
-packagingTypeRouter.use("/create", createPhysicalForm);
-packagingTypeRouter.use("/list", getPhysicalForm);
-packagingTypeRouter.use("/update", updatePhysicalForm);
-packagingTypeRouter.use("/delete", deletePhysicalForm);
+packagingTypeRouter.use("/create", createPackagingType);
+
 
 
 export default packagingTypeRouter

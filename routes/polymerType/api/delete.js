@@ -7,7 +7,7 @@ deletePolymerType.delete("/:id", async (req, res) => {
   try {
     await PolymerType.findByIdAndDelete(req.params.id);
     res.status(200).json({
-      message: "Packaging type deleted successfully",
+      message: "polymer type deleted successfully",
       success: true,
       statusCode: 200,
     });

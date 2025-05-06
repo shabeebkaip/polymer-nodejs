@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import Auth from "../models/auth.js";
+import User from "../models/user.js";
 
 export const verifyToken = async (req, res, next) => {
   try {
@@ -20,8 +21,8 @@ export const verifyToken = async (req, res, next) => {
 
 export const authenticateUser = async (req, res, next) => {
   try {
-    // 1. Check for authorization header
     const authHeader = req.headers.authorization;
+
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
         success: false,
@@ -29,28 +30,35 @@ export const authenticateUser = async (req, res, next) => {
       });
     }
 
-    // 2. Extract token
     const token = authHeader.split(" ")[1];
-
-    // 3. Verify token
     const decoded = jwt.verify(token, process.env.JWT_KEY);
 
-    // 4. Fetch complete user details from database
-    const user = await Auth.findById(decoded.id).select("-password");
+    const auth = await Auth.findOne({ email: decoded.email });
+
+    if (!auth) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid token: auth record not found",
+      });
+    }
+
+    const user = await User.findOne({ email: auth.email });
 
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "User not found",
+        message: "User profile not found",
       });
     }
 
-    // 5. Attach user to request object
     req.user = {
       id: user._id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
+      email: auth.email,
+      name: `${user.firstName} ${user.lastName}`,
+      company:user.company,
+      website: user.website,
+      phone: user.phone,
+      user_type: user.user_type,
       createdAt: user.createdAt,
     };
 
@@ -58,7 +66,6 @@ export const authenticateUser = async (req, res, next) => {
   } catch (error) {
     console.error("Authentication error:", error);
 
-    // Handle different error scenarios
     if (error.name === "JsonWebTokenError") {
       return res.status(401).json({
         success: false,
@@ -80,13 +87,12 @@ export const authenticateUser = async (req, res, next) => {
   }
 };
 
-// Optional: Role-based access control middleware
 export const authorizeRoles = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req.user.user_type)) {
       return res.status(403).json({
         success: false,
-        message: `Role (${req.user.role}) is not allowed to access this resource`,
+        message: `Role (${req.user.user_type}) is not allowed to access this resource`,
       });
     }
     next();

@@ -3,16 +3,14 @@ import PolymerType from "../../../models/polymerType.js";
 
 const getPolymerType = express.Router();
 
-getPolymerType.put("/:id", async (req, res) => {
+getPolymerType.get("", async (req, res) => {
   try {
-    const polymerType = await PolymerType.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const PolymerTypes = await PolymerType.find({});
     res.status(200).json({
-      message: "Polymer ype Form updated successfully",
+      message: "PolymerTypes fetched successfully",
       success: true,
       statusCode: 200,
-      data: polymerType,
+      data: PolymerTypes,
     });
   } catch (error) {
     res.status(500).json({
@@ -20,7 +18,7 @@ getPolymerType.put("/:id", async (req, res) => {
       success: false,
       statusCode: 500,
     });
-    console.log("Error updating Polymer Type", error);
+    console.log("Error fetching PolymerTypes", error);
   }
 });
 

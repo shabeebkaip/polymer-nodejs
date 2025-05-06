@@ -24,7 +24,7 @@ productGet.post("", verifyToken, async (req, res) => {
         ? chemicalFamilyName
         : [],
       subCategoryName: Array.isArray(subCategoryName) ? subCategoryName : [],
-      createdBy: req.body.userId, // Filter by authenticated user's _id
+      createdBy: req.body.userId, 
     };
 
     const { products, totalProducts } = await getProductAgg(
@@ -32,7 +32,7 @@ productGet.post("", verifyToken, async (req, res) => {
       page,
       limit
     );
-    // console.log("Products fetched successfully", products);
+  
     res.status(200).json({
       status: true,
       message: "Products fetched successfully",

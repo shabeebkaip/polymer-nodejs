@@ -19,7 +19,7 @@ export const validate = (req, res, next) => {
 };
 
 export const verify = async (req, res, next) => {
-  console.log(req.body.email);
+  // console.log(req.body.email);
   const auth = await Auth.findOne({
     email: req.body.email.toLowerCase().trim(),
   });
@@ -44,31 +44,23 @@ export const authenticate = async (req, res, next) => {
 
 export const createJwt = (req, res, next) => {
   try {
-    // Get the authenticated user from req.body.auth
+    
     const auth = req.body.auth;
-
-    // Create token payload with essential user information
     const payload = {
       id: auth._id,
       email: auth.email,
-      name: auth.name,
-      role: auth.role,
-      // Add any other non-sensitive user data you might need
+      // name: auth.name,
+      // role: auth.role,
+  
     };
-
-    // Generate token with expiration from SIGN_OPTION
     const token = jwt.sign(payload, process.env.JWT_KEY, SIGN_OPTION());
 
     if (!token) {
       throw new Error("Token generation failed");
     }
 
-    // Attach token to response and request
     req.body.token = token;
     res.setHeader("Authorization", `Bearer ${token}`);
-
-    // Optionally set cookie if using cookies
-    // res.cookie('token', token, { httpOnly: true, secure: true });
 
     next();
   } catch (error) {

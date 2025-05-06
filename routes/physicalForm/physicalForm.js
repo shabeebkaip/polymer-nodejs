@@ -9,7 +9,7 @@ const physicalFormRouter = express.Router()
 
 physicalFormRouter.use("/create", createPhysicalForm);
 physicalFormRouter.use("/list", getPhysicalForm);
-physicalFormRouter.use("/update", updatePhysicalForm);
+physicalFormRouter.use("/edit", updatePhysicalForm);
 physicalFormRouter.use("/delete", deletePhysicalForm);
 
 

@@ -11,7 +11,7 @@ createPolymerType.post("", async (req, res) => {
       message: "Polymer Type created successfully",
       success: true,
       statusCode: 201,
-      data: packagingType,
+      data: polymerType,
     });
   } catch (error) {
     res.status(500).json({

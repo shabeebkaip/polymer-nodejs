@@ -1,12 +1,12 @@
 import express from "express";
-import Category from "../../../models/category.js";
+import ChemicalFamily from "../../../models/chemicalFamily.js";
 
 const chemicalFamilyDelete = express.Router();
 
 chemicalFamilyDelete.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    await Category.findByIdAndDelete(id);
+    await ChemicalFamily.findByIdAndDelete(id);
     res.status(200).json({
       message: "chemical family deleted successfully",
       status: true,

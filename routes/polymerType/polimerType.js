@@ -9,8 +9,8 @@ const polymerTypeRouter = express.Router()
 
 polymerTypeRouter.use("/create", createPolymerType);
 polymerTypeRouter.use("/list", getPolymerType);
-polymerTypeRouter.use("/update", updatePolymerType);
+polymerTypeRouter.use("/edit", updatePolymerType);
 polymerTypeRouter.use("/delete", deletePolymerType);
 
 
-export default physicalFormRouter
+export default polymerTypeRouter
