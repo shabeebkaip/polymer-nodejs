@@ -1,0 +1,15 @@
+import mongoose from "mongoose";
+import { Schema } from "mongoose";
+
+const schema = new Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
+const PhysicalForm = mongoose.model("physicalForm", schema);
+export default PhysicalForm;

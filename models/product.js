@@ -2,43 +2,67 @@ import mongoose, { Schema } from "mongoose";
 
 const productSchema = new Schema(
   {
-    // Basic Info
-    name: { type: String, required: true }, // Name of the product
-    description: { type: String, required: false }, // Product description
-    image: { type: String, required: false }, // Image URL
-    uom: { type: String, required: true }, // Unit of Measure
-    stock: { type: Number, required: false }, // Available stock
-    price: { type: Number, required: false }, // Price
-    minimum_order_quantity: { type: Number, required: false }, // Minimum order quantity
-    safety_data_sheet: { type: String, required: false }, // Safety Data Sheet URL
-    technical_data_sheet: { type: String, required: false }, // Technical Data Sheet URL
-    min_purity: { type: Number, required: false }, // Minimum purity percentage
-
-    // References
-    brand: { type: Schema.Types.ObjectId, ref: "Brand" }, // Reference to Brand
-    createdBy: { type: Schema.Types.ObjectId, ref: "Auth", required: true }, // Created by
-
-    // Multi-references
-    industry: [
-      { type: Schema.Types.ObjectId, ref: "Industry", required: true }, // Linked industries
+    productName: { type: String, required: true },
+    chemicalName: { type: String, required: true },
+    description: { type: String, required: false },
+    additionalInfo: [
+      {
+        title: { type: String, required: false },
+        description: { type: String, required: false },
+      }
     ],
-    appearance: [{ type: Schema.Types.ObjectId, ref: "Appearance" }],
-    substance: [
-      { type: Schema.Types.ObjectId, ref: "Substance" }, // Chemical substances
-    ],
-    grade: [
-      { type: Schema.Types.ObjectId, ref: "Grade" }, // Grades (e.g., industrial, food)
-    ],
-    incoterms: [
-      { type: Schema.Types.ObjectId, ref: "Incoterms" }, // Trade incoterms
-    ],
-    product_family: [
-      { type: Schema.Types.ObjectId, ref: "productFamily" }, // Product family classification
-    ],
+    tradeName: { type: String, required: false },
+    chemicalFamily: [{ type: Schema.Types.ObjectId, ref: "chemicalFamily", required: true }],
+    polymerType: [{ type: Schema.Types.ObjectId, ref: "polymerType", required: true }],
+    industry: [{ type: Schema.Types.ObjectId, ref: "industry", required: true }],
+    grade: [{ type: Schema.Types.ObjectId, ref: "Grade" }],
+    manufacturingMethod: { type: String, required: false },
+    physicalForm: [{ type: Schema.Types.ObjectId, ref: "physicalForm", required: true }],
+    countryOfOrigin: { type: String, required: false },
+    color: { type: String, required: false },
+    productImages: [{ type: String }],
+    density: { type: Number, required: false },
+    mfi: { type: Number, required: false },
+    tensileStrength: { type: Number, required: false },
+    elongationAtBreak: { type: Number, required: false },
+    shoreHardness: { type: Number, required: false },
+    waterAbsorption: { type: Number, required: false },
+    safety_data_sheet: { type: String, required: false },
+    technical_data_sheet: { type: String, required: false },
+    certificate_of_analysis: { type: String, required: false },
+    minimum_order_quantity: { type: Number, required: true },
+    stock: { type: Number, required: true },
+    unitOfSale: { type: String, required: true },
+    price: { type: Number, required: true },
+    priceTerms: {
+      type: String,
+      enum: ["fixed", "negotiable"],
+      required: false,
+      default: "fixed",
+    },
+    incoterms: [{ type: Schema.Types.ObjectId, ref: "Incoterms", required: true }],
+    leadTime: { type: Date, required: false },
+    paymentTerms: [{ type: Schema.Types.ObjectId, ref: "paymentTerms" }],
+    packagingType: [{ type: Schema.Types.ObjectId, ref: "packagingType" }],
+    packagingWeight: { type: String, required: false },
+    storageConditions: { type: String, required: false },
+    shelfLife: { type: String, required: false },
+    recyclable: { type: Boolean, default: false },
+    bioDegradable: { type: Boolean, default: false },
+    fdaApproved: { type: Boolean, default: false },
+    medicalGrade: { type: Boolean, default: false },
+    createdBy: { type: Schema.Types.ObjectId, ref: "Auth", required: true },
+    
+    // min_purity: { type: Number, required: false },
+    // uom: { type: String, required: true },
+    // brand: { type: Schema.Types.ObjectId, ref: "Brand" },
+    // appearance: [{ type: Schema.Types.ObjectId, ref: "Appearance" }],
+    // substance: [{ type: Schema.Types.ObjectId, ref: "Substance" }],
+    // product_family: [{ type: Schema.Types.ObjectId, ref: "productFamily" }],
   },
+  
   { timestamps: true }
 );
 
 const Product = mongoose.model("Product", productSchema);
-
 export default Product;

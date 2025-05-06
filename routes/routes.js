@@ -17,6 +17,7 @@ import substanceRouter from "./substance/substance.js";
 import gradeRouter from "./grade/grade.js";
 import incotermRouter from "./incoterm/incoterm.js";
 import requestRouter from "./request/request.js";
+import physicalFormRouter from "./physicalForm/physicalForm.js";
 
 const router = express.Router();
 
@@ -38,5 +39,7 @@ router.use("/substance", substanceRouter);
 router.use("/grade", gradeRouter);
 router.use("/incoterm", incotermRouter);
 router.use("/request", requestRouter);
+router.use("/physical-form", physicalFormRouter);
+router.use("/packaging-type", physicalFormRouter);
 
 export default router;
