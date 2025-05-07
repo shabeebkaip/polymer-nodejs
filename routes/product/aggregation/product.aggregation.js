@@ -1,217 +1,116 @@
-import mongoose from "mongoose";
-import Product from "../../../models/product.js";
-
-export const getProductAgg = async (parsedQuery, page = 1, limit = 10) => {
-  const currentPage = Math.max(Number(page) || 1, 1);
-  const skip = (currentPage - 1) * limit;
-
-  const { id, createdBy } = parsedQuery;
-
-  const searchQuery = mongoose.Types.ObjectId.isValid(id)
-    ? { _id: new mongoose.Types.ObjectId(id) }
-    : {
-        ...(parsedQuery.search
-          ? {
-              $or: [
-                { name: { $regex: parsedQuery.search, $options: "i" } },
-                { description: { $regex: parsedQuery.search, $options: "i" } },
-                { uom: { $regex: parsedQuery.search, $options: "i" } },
-              ],
-            }
-          : {}),
-      };
-
-  const baseAggregation = [
-    // Lookup for brand (single reference)
-    {
-      $lookup: {
-        from: "brands",
-        localField: "brand",
-        foreignField: "_id",
-        as: "brand",
-      },
-    },
-    { $unwind: { path: "$brand", preserveNullAndEmptyArrays: true } },
-
-    // Lookup for industry (array reference)
+export const productAggregation = (filters = {}) => {
+  const pipeline = [
     {
       $lookup: {
         from: "industries",
         localField: "industry",
         foreignField: "_id",
-        as: "industries",
-      },
+        as: "industry"
+      }
     },
-
-    // Lookup for appearance (array reference)
     {
       $lookup: {
-        from: "appearances",
-        localField: "appearance",
+        from: "chemicalfamilies",
+        localField: "chemicalFamily",
         foreignField: "_id",
-        as: "appearances",
-      },
+        as: "chemicalFamily"
+      }
     },
-
-    // Lookup for substance (array reference)
+    {
+      $unwind: "$chemicalFamily"
+    },
     {
       $lookup: {
-        from: "substances",
-        localField: "substance",
+        from: "polymertypes",
+        localField: "polymerType",
         foreignField: "_id",
-        as: "substances",
-      },
+        as: "polymerType"
+      }
     },
-
-    // Lookup for grade (array reference)
+    {
+      $unwind: "$polymerType"
+    },
     {
       $lookup: {
         from: "grades",
         localField: "grade",
         foreignField: "_id",
-        as: "grades",
-      },
+        as: "grade"
+      }
     },
-
-    // Lookup for incoterms (array reference)
     {
       $lookup: {
         from: "incoterms",
         localField: "incoterms",
         foreignField: "_id",
-        as: "incoterms",
-      },
+        as: "incoterms"
+      }
     },
-
-    // Lookup for product_family (array reference)
+    {
+      $lookup: {
+        from: "physicalforms",
+        localField: "physicalForm",
+        foreignField: "_id",
+        as: "physicalForm"
+      }
+    },
+    {
+      $unwind: "$physicalForm"
+    },
     {
       $lookup: {
         from: "productfamilies",
         localField: "product_family",
         foreignField: "_id",
-        as: "productFamilies",
-      },
+        as: "productfamilie"
+      }
     },
-  ];
-
-  const aggregation = [
-    ...baseAggregation,
     {
-      $match: {
-        ...(createdBy
-          ? { createdBy: new mongoose.Types.ObjectId(createdBy) }
-          : {}),
-        ...searchQuery,
-        // Add filters for array fields if needed
-        ...(parsedQuery.brandName?.length
-          ? { "brand.name": { $in: parsedQuery.brandName } }
-          : {}),
-        ...(parsedQuery.industryName?.length
-          ? { "industries.name": { $in: parsedQuery.industryName } }
-          : {}),
-        ...(parsedQuery.appearanceName?.length
-          ? { "appearances.name": { $in: parsedQuery.appearanceName } }
-          : {}),
-        // Add similar filters for other array fields as needed
-      },
+      $lookup: {
+        from: "users",
+        localField: "createdBy",
+        foreignField: "_id",
+        as: "user"
+      }
     },
-    { $sort: { createdAt: -1 } },
-    { $skip: skip },
-    { $limit: limit },
+    {
+      $unwind: "$user"
+    },
     {
       $project: {
-        // Basic Info
-        _id: 1,
-        name: 1,
+        productName: 1,
+        chemicalName: 1,
         description: 1,
-        image: 1,
-        uom: 1,
+        additionalInfo: 1,
+        tradeName: 1,
+        chemicalFamily: "$chemicalFamily.name",
+        polymerType: "$polymerType.name",
+        industry: "$industry.name",
+        grade: "$grade.name",
+        manufacturingMethod: 1,
+        physicalForm: "$physicalForm.name",
+        countryOfOrigin: 1,
+        color: 1,
+        productImages: 1,
         stock: 1,
         price: 1,
-        minimum_order_quantity: 1,
-        safety_data_sheet: 1,
-        technical_data_sheet: 1,
-        min_purity: 1,
-        createdAt: 1,
-        updatedAt: 1,
-
-        // References
-        brand: "$brand",
-        createdBy: 1,
-
-        // Array references (mapped to names for easier consumption)
-        industry: {
-          $map: {
-            input: "$industries",
-            as: "industry",
-            in: "$$industry",
-          },
-        },
-        appearance: {
-          $map: {
-            input: "$appearances",
-            as: "appearance",
-            in: "$$appearance",
-          },
-        },
-        substance: {
-          $map: {
-            input: "$substances",
-            as: "substance",
-            in: "$$substance",
-          },
-        },
-        grade: {
-          $map: {
-            input: "$grades",
-            as: "grade",
-            in: "$$grade",
-          },
-        },
-        incoterms: {
-          $map: {
-            input: "$incoterms",
-            as: "incoterm",
-            in: "$$incoterm",
-          },
-        },
-        product_family: {
-          $map: {
-            input: "$productFamilies",
-            as: "family",
-            in: "$$family",
-          },
-        },
-      },
-    },
+        uom: 1,
+        incoterms: "$incoterms.name",
+        recyclable: 1,
+        fdaApproved: 1,
+        bioDegradable: 1,
+        medicalGrade: 1,
+        product_family: "$productfamilie.name",
+        createdBy: {
+          name: { $concat: ["$user.firstName", " ", "$user.lastName"] },
+          email: "$user.email",
+          company: "$user.company",
+          website: "$user.website",
+          phone: "$user.phone"
+        }
+      }
+    }
   ];
 
-  const countAggregation = [
-    ...baseAggregation,
-    {
-      $match: {
-        ...(createdBy
-          ? { createdBy: new mongoose.Types.ObjectId(createdBy) }
-          : {}),
-        ...searchQuery,
-        // Same filters as in the main aggregation
-        ...(parsedQuery.brandName?.length
-          ? { "brand.name": { $in: parsedQuery.brandName } }
-          : {}),
-        ...(parsedQuery.industryName?.length
-          ? { "industries.name": { $in: parsedQuery.industryName } }
-          : {}),
-      },
-    },
-    { $count: "totalCount" },
-  ];
-
-  const [products, countResult] = await Promise.all([
-    Product.aggregate(aggregation),
-    Product.aggregate(countAggregation),
-  ]);
-
-  const totalProducts = countResult.length > 0 ? countResult[0].totalCount : 0;
-
-  return { products, totalProducts };
+  return pipeline;
 };

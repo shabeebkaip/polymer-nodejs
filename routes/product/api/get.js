@@ -1,53 +1,103 @@
 import express from "express";
-import { getProductAgg } from "../aggregation/product.aggregation.js";
-import { verifyToken } from "../../../middlewares/login.auth.js";
+import Product from "../../../models/product.js";
+import { ObjectId } from "mongodb"; 
+import { productAggregation } from "../aggregation/product.aggregation.js";
 
 const productGet = express.Router();
 
-productGet.post("", verifyToken, async (req, res) => {
+productGet.post("/", async (req, res) => {
   try {
-    const {
-      name,
-      categoryName,
-      brandName,
-      chemicalFamilyName,
-      subCategoryName,
-    } = req.body;
-    const page = parseInt(req.body.page) || 1;
-    const limit = parseInt(req.body.limit) || 10;
+    const matchStage = buildMatchStage(req.body);
 
-    const parsedQuery = {
-      search: name || "",
-      categoryName: Array.isArray(categoryName) ? categoryName : [],
-      brandName: Array.isArray(brandName) ? brandName : [],
-      chemicalFamilyName: Array.isArray(chemicalFamilyName)
-        ? chemicalFamilyName
-        : [],
-      subCategoryName: Array.isArray(subCategoryName) ? subCategoryName : [],
-      createdBy: req.body.userId, 
-    };
+    const pipeline = [
+      { $match: matchStage },
+      ...productAggregation()
+    ];
 
-    const { products, totalProducts } = await getProductAgg(
-      parsedQuery,
-      page,
-      limit
-    );
-  
-    res.status(200).json({
-      status: true,
-      message: "Products fetched successfully",
-      products: products,
-      totalProducts: totalProducts,
-      page: page,
-      limit: limit,
-    });
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    res.status(500).json({
-      status: false,
-      message: "Internal server error",
-    });
+    const products = await Product.aggregate(pipeline);
+
+    res.json({ success: true, data: products });
+  } catch (err) {
+    console.error("Error fetching filtered products:", err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
+
+const buildMatchStage = (filters) => {
+  const matchStage = {};
+
+  if (filters.search) {
+    const searchTerm = filters.search; 
+    if (searchTerm) {
+      matchStage.productName = { $regex: searchTerm, $options: "i" };  
+    }
+  }
+
+  if (filters.chemicalFamily?.length) {
+    matchStage.chemicalFamily = { $in: filters.chemicalFamily.map(id => new ObjectId(id)) };
+  }
+
+  if (filters.polymerType?.length) {
+    matchStage.polymerType = { $in: filters.polymerType.map(id => new ObjectId(id)) };
+  }
+
+  if (filters.industry?.length) {
+    matchStage.industry = { $in: filters.industry.map(id => new ObjectId(id)) };
+  }
+
+  if (filters.grade?.length) {
+    matchStage.grade = { $in: filters.grade.map(id => new ObjectId(id)) };
+  }
+
+  if (filters.physicalForm?.length) {
+    matchStage.physicalForm = { $in: filters.physicalForm.map(id => new ObjectId(id)) };
+  }
+
+  if (filters.countryOfOrigin?.length) {
+    matchStage.countryOfOrigin = { $in: filters.countryOfOrigin };
+  }
+
+  if (filters.uom?.length) {
+    matchStage.uom = { $in: filters.uom };
+  }
+
+  if (filters.priceTerms) {
+    matchStage.priceTerms = filters.priceTerms;
+  }
+
+  if (filters.incoterms?.length) {
+    matchStage.incoterms = { $in: filters.incoterms.map(id => new ObjectId(id)) };
+  }
+
+  if (filters.paymentTerms?.length) {
+    matchStage.paymentTerms = { $in: filters.paymentTerms.map(id => new ObjectId(id)) };
+  }
+
+  if (filters.packagingType?.length) {
+    matchStage.packagingType = { $in: filters.packagingType.map(id => new ObjectId(id)) };
+  }
+
+  if (filters.recyclable !== undefined) {
+    matchStage.recyclable = filters.recyclable;
+  }
+
+  if (filters.bioDegradable !== undefined) {
+    matchStage.bioDegradable = filters.bioDegradable;
+  }
+
+  if (filters.fdaApproved !== undefined) {
+    matchStage.fdaApproved = filters.fdaApproved;
+  }
+
+  if (filters.medicalGrade !== undefined) {
+    matchStage.medicalGrade = filters.medicalGrade;
+  }
+
+  if (filters.createdBy?.length) {
+    matchStage.createdBy = { $in: filters.createdBy.map(id => new ObjectId(id)) };
+  }
+
+  return matchStage;
+};
 
 export default productGet;
