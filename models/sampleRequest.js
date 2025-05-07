@@ -4,7 +4,7 @@ const sampleRequestSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Auth",
+      ref: "user",
       required: true,
     },
     product: {
@@ -16,26 +16,6 @@ const sampleRequestSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 1,
-    },
-    purchase_plan: {
-      type: String,
-      required: true,
-      enum: ["immediate", "3_months", "6_months", "1_year", "testing"], // example values
-    },
-    application: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    expected_annual_volume: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-    industry: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Industry",
-      required: true,
     },
     uom: {
       type: String,
@@ -54,12 +34,62 @@ const sampleRequestSchema = new mongoose.Schema(
         "Gallon",
         "Quart",
         "Pint",
-      ], // example units
+      ],
+    },
+    streetName: {
+      type: String,
+      required: true,
+      trim: true,
     },
     address: {
       type: String,
       required: true,
       trim: true,
+    },
+    postCode: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    city: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    country: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    phone: {
+      type: Number,
+    },
+    purchase_plan: {
+      type: String,
+      required: true,
+      enum: ["immediate", "3_months", "6_months", "1_year", "testing"],
+    },
+    grade: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "grade",
+    },
+    application: {
+      type: String,
+      trim: true,
+    },
+    expected_annual_volume: {
+      type: Number,
+      min: 0,
+    },
+    industry: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Industry",
+    },
+    orderDate: {
+      type: Date,
+    },
+    neededBy: {
+      type: Date,
     },
     status: {
       type: String,
@@ -70,6 +100,7 @@ const sampleRequestSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+   
   },
   { timestamps: true }
 );

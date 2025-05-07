@@ -2,6 +2,22 @@ export const productAggregation = (filters = {}) => {
   const pipeline = [
     {
       $lookup: {
+        from: "users",
+        localField: "createdBy",
+        foreignField: "_id",
+        as: "user"
+      }
+    },
+    {
+      $unwind: "$user"
+    },
+    {
+      $match: {
+        "user.verification": "approved"
+      }
+    },
+    {
+      $lookup: {
         from: "industries",
         localField: "industry",
         foreignField: "_id",
@@ -64,17 +80,6 @@ export const productAggregation = (filters = {}) => {
         foreignField: "_id",
         as: "productfamilie"
       }
-    },
-    {
-      $lookup: {
-        from: "users",
-        localField: "createdBy",
-        foreignField: "_id",
-        as: "user"
-      }
-    },
-    {
-      $unwind: "$user"
     },
     {
       $project: {

@@ -21,6 +21,9 @@ import physicalFormRouter from "./physicalForm/physicalForm.js";
 import polymerTypeRouter from "./polymerType/polimerType.js";
 import packagingTypeRouter from "./packagingType/packagingType.js";
 import paymentTermsRouter from "./paymentTerms/paymentTerms.js";
+import sampleRequestRouter from "./request/api/sample.js";
+import sampleRouter from "./sampleRequest/sampleRequest.js";
+import quoteRouter from "./quoteRequest/quoteRequest.js";
 
 const router = express.Router();
 
@@ -46,6 +49,10 @@ router.use("/physical-form", physicalFormRouter);
 router.use("/packaging-type", packagingTypeRouter);
 router.use("/polymer-type", polymerTypeRouter);
 router.use("/payment-terms", paymentTermsRouter);
+router.use("/sample-request", sampleRouter);
+router.use("/quote-request", quoteRouter);
+
+
 
 
 export default router;
