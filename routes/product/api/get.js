@@ -8,20 +8,45 @@ const productGet = express.Router();
 productGet.post("/", async (req, res) => {
   try {
     const matchStage = buildMatchStage(req.body);
+    const page = Number(req.body.page) || 1;
+    const limit = Number(req.body.limit) || 10;
+    const skip = (page - 1) * limit;
 
     const pipeline = [
       { $match: matchStage },
-      ...productAggregation()
+      ...productAggregation(),
+      { $skip: skip },
+      { $limit: limit }
     ];
 
-    const products = await Product.aggregate(pipeline);
+    const countPipeline = [
+      { $match: matchStage },
+      { $count: "total" }
+    ];
 
-    res.json({ success: true, data: products });
+    const [products, totalCountResult] = await Promise.all([
+      Product.aggregate(pipeline),
+      Product.aggregate(countPipeline)
+    ]);
+
+    const total = totalCountResult[0]?.total || 0;
+
+    res.json({
+      success: true,
+      data: products,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (err) {
     console.error("Error fetching filtered products:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
+
 
 const buildMatchStage = (filters) => {
   const matchStage = {};
