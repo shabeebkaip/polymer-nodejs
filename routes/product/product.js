@@ -4,6 +4,7 @@ import productDelete from "./api/delete.js";
 import productGet from "./api/get.js";
 import productUpdate from "./api/update.js";
 import productFilter from "./api/filter.js";
+import productDetail from "./api/detail.js";
 // import productEntity from "./api/productEntity.js";
 
 
@@ -14,6 +15,8 @@ productRouter.use("/delete", productDelete);
 productRouter.use("/list", productGet);
 productRouter.use("/edit", productUpdate);
 productRouter.use("/filter", productFilter);
+productRouter.use("/detail", productDetail);
+
 
 // productRouter.use("/entity", productEntity);
 
