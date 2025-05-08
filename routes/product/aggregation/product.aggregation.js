@@ -82,30 +82,93 @@ export const productAggregation = (filters = {}) => {
       }
     },
     {
+      $lookup: {
+        from: "packagingtypes",
+        localField: "packagingType",
+        foreignField: "_id",
+        as: "packageType"
+      }
+    },
+    {
       $project: {
         productName: 1,
         chemicalName: 1,
         description: 1,
         additionalInfo: 1,
         tradeName: 1,
-        chemicalFamily: "$chemicalFamily.name",
-        polymerType: "$polymerType.name",
-        industry: "$industry.name",
-        grade: "$grade.name",
+        chemicalFamily: {
+          _id: "$chemicalFamily._id",
+          name: "$chemicalFamily.name"
+        },
+        polymerType: {
+          _id: "$polymerType._id",
+          name: "$polymerType.name"
+        },
+        industry: {
+          $map: {
+            input: "$industry",
+            as: "ind",
+            in: {
+              id: "$$ind._id",
+              name: "$$ind.name"
+            }
+          }
+        },
+        grade: {
+          $map: {
+            input: "$grade",
+            as: "g",
+            in: {
+              id: "$$g._id",
+              name: "$$g.name"
+            }
+          }
+        },
+        physicalForm: {
+          _id: "$physicalForm._id",
+          name: "$physicalForm.name"
+        },
         manufacturingMethod: 1,
-        physicalForm: "$physicalForm.name",
         countryOfOrigin: 1,
         color: 1,
         productImages: 1,
         stock: 1,
         price: 1,
         uom: 1,
-        incoterms: "$incoterms.name",
+        incoterms: {
+          $map: {
+            input: "$incoterms",
+            as: "term",
+            in: {
+              id: "$$term._id",
+              name: "$$term.name"
+            }
+          }
+        },
         recyclable: 1,
         fdaApproved: 1,
         bioDegradable: 1,
         medicalGrade: 1,
-        product_family: "$productfamilie.name",
+        product_family: {
+          $map: {
+            input: "$productfamilie",
+            as: "pf",
+            in: {
+              id: "$$pf._id",
+              name: "$$pf.name"
+            }
+          }
+        },
+        packageType: {
+          $map: {
+            input: "$packageType",
+            as: "pt",
+            in: {
+              id: "$$pt._id",
+              name: "$$pt.name"
+            }
+          }
+        },
         createdBy: {
           name: { $concat: ["$user.firstName", " ", "$user.lastName"] },
           email: "$user.email",

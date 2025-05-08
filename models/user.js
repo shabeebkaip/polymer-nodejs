@@ -45,7 +45,7 @@ const schema = new Schema({
   },
   user_type:{
     type: String,
-    enum:["buyer", "seller"],
+    enum:["buyer", "seller", "superAdmin"],
     default: "buyer",
   },
   verification: {

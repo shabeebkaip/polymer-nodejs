@@ -6,9 +6,12 @@ const userList = express.Router();
 userList.get("/", async (req, res) => {
   const { type, page = 1, limit = 10 } = req.query;
 
-  const filter = type ? { user_type: type } : {};
   const pageNumber = parseInt(page);
   const pageSize = parseInt(limit);
+
+  const filter = type
+    ? { user_type: type, verification: "approved" }
+    : {}; 
 
   try {
     const users = await User.find(filter)
