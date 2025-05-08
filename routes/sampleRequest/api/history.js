@@ -18,7 +18,6 @@ getUserSamples.get("/", authenticateUser, async (req, res) => {
     const userRequests = await SampleRequest.find({ user: userId })
       .populate({ path: "product", select: "productName" }) 
       .populate({ path: "grade", select: "name" })   
-      .populate({ path: "industry", select: "name" })
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });

@@ -41,6 +41,9 @@ const sampleRequestSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    phone: {
+      type: Number,
+    },
     address: {
       type: String,
       required: true,
@@ -61,14 +64,6 @@ const sampleRequestSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    phone: {
-      type: Number,
-    },
-    purchase_plan: {
-      type: String,
-      required: true,
-      enum: ["immediate", "3_months", "6_months", "1_year", "testing"],
-    },
     grade: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "grade",
@@ -81,26 +76,36 @@ const sampleRequestSchema = new mongoose.Schema(
       type: Number,
       min: 0,
     },
-    industry: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Industry",
-    },
     orderDate: {
       type: Date,
     },
+    samplePrice: {
+      type: String
+    },
+    forFree: {
+      type: Boolean
+    },
     neededBy: {
       type: Date,
-    },
-    status: {
-      type: String,
-      enum: ["pending", "approved", "rejected", "fulfilled"],
-      default: "pending",
     },
     message: {
       type: String,
       trim: true,
     },
-   
+    request_document: {
+      type: String
+    },
+    // purchase_plan: {
+    //   type: String,
+    //   required: true,
+    //   enum: ["immediate", "3_months", "6_months", "1_year", "testing"],
+    // },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected", "fulfilled"],
+      default: "pending",
+    },
+
   },
   { timestamps: true }
 );

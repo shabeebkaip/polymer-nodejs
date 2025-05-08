@@ -30,6 +30,10 @@ const schema = new Schema({
     type: String,
     required: false,
   },
+  country_code:{
+    type:String,
+    required:true
+  },
   phone:{
     type:Number,
     required:true,

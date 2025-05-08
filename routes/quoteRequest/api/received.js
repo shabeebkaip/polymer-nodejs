@@ -15,7 +15,8 @@ recivedRouter.get("/", authenticateUser, async (req, res) => {
     const requests = await QuoteRequest.find({ product: { $in: productIds } })
       .populate({ path: "product", select: "productName" })
       .populate({ path: "grade", select: "name" })
-      .populate({ path: "industry", select: "name" })
+      .populate({ path: "incoterm", select: "name" })
+      .populate({ path: "packagingType", select: "name" })   
       .populate({ path: "user", select: "firstName lastName company" })
       .sort({ createdAt: -1 });
 

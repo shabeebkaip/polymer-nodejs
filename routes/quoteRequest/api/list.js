@@ -18,7 +18,8 @@ getAllQuotesRequests.get("/", async (req, res) => {
             .sort({ createdAt: -1 })
             .populate({ path: "product", select: "productName" })
             .populate({ path: "grade", select: "name" })
-            .populate({ path: "industry", select: "name" })
+            .populate({ path: "incoterm", select: "name" })
+            .populate({ path: "packagingType", select: "name" })   
             .populate({ path: "user", select: "firstName lastName company" }) 
             
         res.status(200).json({

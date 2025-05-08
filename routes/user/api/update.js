@@ -13,6 +13,7 @@ userEdit.put("/", authenticateUser, async (req, res) => {
         lastName,
         company,
         website,
+        country_code,
         phone,
         industry,
         address,
@@ -58,6 +59,7 @@ userEdit.put("/", authenticateUser, async (req, res) => {
       existingUser.lastName = lastName;
       existingUser.company = company;
       existingUser.website = website;
+      existingUser.country_code = country_code;
       existingUser.phone = phone;
       existingUser.industry = industry;
       existingUser.address = address;

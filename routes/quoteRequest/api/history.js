@@ -18,7 +18,8 @@ getUserQuotes.get("/", authenticateUser, async (req, res) => {
     const userRequests = await QuoteRequest.find({ user: userId })
       .populate({ path: "product", select: "productName" }) 
       .populate({ path: "grade", select: "name" })   
-      .populate({ path: "industry", select: "name" })
+      .populate({ path: "incoterm", select: "name" })
+      .populate({ path: "packagingType", select: "name" })   
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
