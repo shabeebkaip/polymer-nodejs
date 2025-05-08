@@ -65,7 +65,8 @@ userRegister.post("/register", async (req, res) => {
       location,
       vat_number: user_type === "seller" ? vat_number : undefined,
       company_logo: user_type === "seller" ? company_logo : undefined,
-      user_type 
+      user_type,
+      verification: user_type === "superAdmin" ? "approved" : undefined
     });
 
     await newUser.save();

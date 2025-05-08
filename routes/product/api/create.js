@@ -4,7 +4,7 @@ import {authenticateUser,authorizeRoles} from '../../../middlewares/verify.token
 
 const productCreate = express.Router();
 
-productCreate.post("/",authenticateUser,authorizeRoles("seller", "superadmin"),
+productCreate.post("/", authenticateUser, authorizeRoles("seller", "superAdmin"),
   async (req, res) => {
     try {
       const productData = {
