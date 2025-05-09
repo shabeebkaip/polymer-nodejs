@@ -7,7 +7,7 @@ categoryUpdate.put('/:id', async (req, res) => {
     try {
         const { id } = req.params
         const data = req.body
-        console.log(data);
+        // console.log(data);
         
         const categories = await Category.findByIdAndUpdate(id,data)
         if (!categories) {

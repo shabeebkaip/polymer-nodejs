@@ -7,8 +7,10 @@ getGrade.get("", async (req, res) => {
   try {
     const { page, limit } = req.query;
 
+    const sort = { _id: -1 };
+
     if (!page && !limit) {
-      const grades = await Grade.find({});
+      const grades = await Grade.find({}).sort(sort);
       return res.status(200).json({
         message: "Grades fetched successfully",
         success: true,

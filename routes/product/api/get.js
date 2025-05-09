@@ -16,7 +16,8 @@ productGet.post("/", async (req, res) => {
       { $match: matchStage },
       ...productAggregation(),
       { $skip: skip },
-      { $limit: limit }
+      { $limit: limit },
+      { $sort: { _id: -1 } },
     ];
 
     const countPipeline = [

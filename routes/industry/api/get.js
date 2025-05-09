@@ -6,9 +6,10 @@ const getIndustry = express.Router();
 getIndustry.get("", async (req, res) => {
   try {
     const { page, limit } = req.query;
+    const sort = { _id: -1 };
 
     if (!page && !limit) {
-      const industries = await Industry.find();
+      const industries = await Industry.find().sort(sort);
       return res.status(200).json({
         message: "Industries fetched successfully",
         success: true,

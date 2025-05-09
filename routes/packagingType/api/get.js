@@ -6,9 +6,10 @@ const getPackagingType = express.Router();
 getPackagingType.get("", async (req, res) => {
   try {
     const { page, limit } = req.query;
+    const sort = { _id: -1 };
 
     if (!page && !limit) {
-      const packagingType = await PackagingType.find();
+      const packagingType = await PackagingType.find().sort(sort);
       return res.status(200).json({
         message: "Packaging types fetched successfully",
         success: true,

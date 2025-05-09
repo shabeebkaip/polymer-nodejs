@@ -8,7 +8,7 @@ chemicalFamilyUpdate.put('/:id', async (req, res) => {
     try {
         const { id } = req.params
         const data = req.body
-        console.log(data);
+        // console.log(data);
         
         const chemical = await ChemicalFamily.findByIdAndUpdate(id,data)
         if (!chemical) {

@@ -7,8 +7,10 @@ getIncoterm.get("", async (req, res) => {
   try {
     const { page, limit } = req.query;
 
+    const sort = { _id: -1 };
+
     if (!page && !limit) {
-      const incoterms = await Incoterm.find({});
+      const incoterms = await Incoterm.find({}).sort(sort);
       return res.status(200).json({
         message: "Incoterms fetched successfully",
         success: true,

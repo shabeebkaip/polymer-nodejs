@@ -7,8 +7,10 @@ getPhysicalForm.get("", async (req, res) => {
   try {
     const { page, limit } = req.query;
 
+    const sort = { _id: -1 };
+
     if (!page && !limit) {
-      const physicalForm = await PhysicalForm.find();
+      const physicalForm = await PhysicalForm.find().sort(sort);
       return res.status(200).json({
         message: "Physical Form fetched successfully",
         success: true,
