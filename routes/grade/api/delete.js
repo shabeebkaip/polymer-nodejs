@@ -9,7 +9,7 @@ gradeDelete.delete("/:id", async (req, res) => {
     await Grade.findByIdAndDelete(id);
     res.status(200).json({
       message: "grade deleted successfully",
-      status: true,
+      success: true,
     
     });
   } catch (error) {

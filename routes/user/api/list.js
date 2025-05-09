@@ -9,20 +9,28 @@ userList.get("/", async (req, res) => {
   const pageNumber = parseInt(page);
   const pageSize = parseInt(limit);
 
+  const baseFilter = { user_type: { $ne: "superAdmin" } };
+
   const filter = type
-    ? { user_type: type, verification: "approved" }
-    : {}; 
+    ? { ...baseFilter, user_type: type, verification: "approved" }
+    : baseFilter;
 
   try {
     const users = await User.find(filter)
+      .sort({ _id: -1 })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize);
 
     const total = await User.countDocuments(filter);
 
+    const modifiedUsers = users.map(user => ({
+      ...user.toObject(),
+      name: `${user.firstName} ${user.lastName}`
+    }));
+
     res.status(200).json({
       success: true,
-      data: users,
+      data: modifiedUsers,
       total,
       page: pageNumber,
       totalPages: Math.ceil(total / pageSize),
@@ -32,5 +40,6 @@ userList.get("/", async (req, res) => {
     res.status(500).json({ message: "Server error while fetching users" });
   }
 });
+
 
 export default userList;

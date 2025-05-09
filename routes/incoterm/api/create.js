@@ -10,7 +10,7 @@ incotermCreate.post("", async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Incoterm created successfully",
-      status: true,
+      success: true,
       chemical: newIncoterm,
     });
   } catch (error) {
