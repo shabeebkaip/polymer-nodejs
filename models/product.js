@@ -5,12 +5,7 @@ const productSchema = new Schema(
     productName: { type: String, required: true },
     chemicalName: { type: String, required: true },
     description: { type: String, required: false },
-    additionalInfo: [
-      {
-        title: { type: String, required: false },
-        description: { type: String, required: false },
-      }
-    ],
+    additionalInfo: [Schema.Types.Mixed],
     tradeName: { type: String, required: false },
     chemicalFamily: { type: Schema.Types.ObjectId, ref: "chemicalFamily", required: true },
     polymerType: { type: Schema.Types.ObjectId, ref: "polymerType", required: true },
