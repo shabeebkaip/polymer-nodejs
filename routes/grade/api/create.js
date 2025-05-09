@@ -8,6 +8,7 @@ createGrade.post("", async (req, res) => {
     const newGrade = new Grade(req.body);
     await newGrade.save();
     res.status(200).json({
+      success: true,
       message: "Grade created successfully",
       status: true,
       data: newGrade,

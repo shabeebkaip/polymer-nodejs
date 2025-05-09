@@ -23,6 +23,7 @@ getAllQuotesRequests.get("/", async (req, res) => {
             .populate({ path: "user", select: "firstName lastName company" }) 
             
         res.status(200).json({
+            success: true,
             data: requests,
             total: totalRequests,
             page,

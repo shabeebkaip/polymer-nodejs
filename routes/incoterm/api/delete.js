@@ -10,6 +10,8 @@ incotermDelete.delete("/:id", async (req, res) => {
     res.status(200).json({
       message: "incoterm deleted successfully",
       status: true,
+      success: true,
+
     
     });
   } catch (error) {

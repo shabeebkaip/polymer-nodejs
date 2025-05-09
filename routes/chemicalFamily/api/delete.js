@@ -8,6 +8,7 @@ chemicalFamilyDelete.delete("/:id", async (req, res) => {
     const { id } = req.params;
     await ChemicalFamily.findByIdAndDelete(id);
     res.status(200).json({
+      success: true,
       message: "chemical family deleted successfully",
       status: true,
     

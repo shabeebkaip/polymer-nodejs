@@ -15,6 +15,7 @@ gradeDelete.delete("/:id", async (req, res) => {
   } catch (error) {
     console.log("Error deleting grade", error);
     res.status(500).json({
+      success: true,
       message: "Error deleting grade",
       success: false,
       statusCode: 500,

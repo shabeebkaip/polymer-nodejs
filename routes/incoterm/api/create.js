@@ -8,6 +8,7 @@ incotermCreate.post("", async (req, res) => {
     const newIncoterm = new Incoterm(req.body);
     await newIncoterm.save();
     res.status(200).json({
+      success: true,
       message: "Incoterm created successfully",
       status: true,
       chemical: newIncoterm,

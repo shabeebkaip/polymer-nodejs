@@ -21,6 +21,7 @@ userList.get("/", async (req, res) => {
     const total = await User.countDocuments(filter);
 
     res.status(200).json({
+      success: true,
       data: users,
       total,
       page: pageNumber,

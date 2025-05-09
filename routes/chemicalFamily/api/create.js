@@ -8,6 +8,7 @@ chemicalFamilyCreate.post("", async (req, res) => {
     const newChemical = new ChemicalFamily(req.body);
     await newChemical.save();
     res.status(200).json({
+      success: true,
       message: "Chemical family created successfully",
       status: true,
       chemical: newChemical,

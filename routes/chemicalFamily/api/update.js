@@ -14,7 +14,8 @@ chemicalFamilyUpdate.put('/:id', async (req, res) => {
         if (!chemical) {
             return res.status(404).json({ status: false, message: "Not found" })
         }
-        res.status(200).json({ status: true, message: "Updated succesfully" })
+        res.status(200).json({   success: true,
+            status: true, message: "Updated succesfully" })
 
     } catch (error) {
         res.status(500).json({ status: false, message: "Internal server error" })
