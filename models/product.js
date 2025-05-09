@@ -15,7 +15,12 @@ const productSchema = new Schema(
     physicalForm: { type: Schema.Types.ObjectId, ref: "physicalForm", required: true },
     countryOfOrigin: { type: String, required: false },
     color: { type: String, required: false },
-    productImages: [{ type: String }],
+    productImages: [{
+      id: { type: String, required: true },
+      name: { type: String, required: true },
+      type: { type: String, required: true },
+      fileUrl: { type: String, required: true }
+    }],    
     density: { type: Number, required: false },
     mfi: { type: Number, required: false },
     tensileStrength: { type: Number, required: false },
