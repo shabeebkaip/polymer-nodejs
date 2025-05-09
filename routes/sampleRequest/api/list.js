@@ -17,11 +17,23 @@ getAllSampleRequests.get("/", async (req, res) => {
             .sort({ createdAt: -1 })
             .populate({ path: "product", select: "productName" })
             .populate({ path: "grade", select: "name" })
-            .populate({ path: "user", select: "firstName lastName company" }) 
+            .populate({ path: "user", select: "firstName lastName company email" }) 
+
+            const updatedRequests = requests.map(request => {
+                const reqObj = request.toObject(); 
+                if (reqObj.user) {
+                  reqObj.user.name = `${reqObj.user.firstName} ${reqObj.user.lastName}`.trim();
+                  delete reqObj.user.firstName;
+                  delete reqObj.user.lastName;
+                }
+          
+                return reqObj;
+              });
+        
             
         res.status(200).json({
             success: true,
-            data: requests,
+            data: updatedRequests,
             total: totalRequests,
             page,
             totalPages: Math.ceil(totalRequests / limit),

@@ -20,11 +20,23 @@ getAllQuotesRequests.get("/", async (req, res) => {
             .populate({ path: "grade", select: "name" })
             .populate({ path: "incoterm", select: "name" })
             .populate({ path: "packagingType", select: "name" })   
-            .populate({ path: "user", select: "firstName lastName company" }) 
+            .populate({ path: "user", select: "firstName lastName company email" }) 
+
+            
+      const updatedRequests = requests.map(request => {
+        const reqObj = request.toObject(); 
+        if (reqObj.user) {
+          reqObj.user.name = `${reqObj.user.firstName} ${reqObj.user.lastName}`.trim();
+          delete reqObj.user.firstName;
+          delete reqObj.user.lastName;
+        }
+  
+        return reqObj;
+      });
             
         res.status(200).json({
             success: true,
-            data: requests,
+            data: updatedRequests,
             total: totalRequests,
             page,
             totalPages: Math.ceil(totalRequests / limit),

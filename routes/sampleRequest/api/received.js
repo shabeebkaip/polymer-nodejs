@@ -15,12 +15,24 @@ recivedRouter.get("/", authenticateUser, async (req, res) => {
     const requests = await SampleRequest.find({ product: { $in: productIds } })
       .populate({ path: "product", select: "productName" })
       .populate({ path: "grade", select: "name" })
-      .populate({ path: "user", select: "firstName lastName company" })
+      .populate({ path: "user", select: "firstName lastName company email" })
       .sort({ createdAt: -1 });
 
+      const updatedRequests = requests.map(request => {
+        const reqObj = request.toObject(); 
+        if (reqObj.user) {
+          reqObj.user.name = `${reqObj.user.firstName} ${reqObj.user.lastName}`.trim();
+          delete reqObj.user.firstName;
+          delete reqObj.user.lastName;
+        }
+  
+        return reqObj;
+      });
+
+
     res.status(200).json({
-      total: requests.length,
-      data: requests,
+      total: updatedRequests.length,
+      data: updatedRequests,
     });
   } catch (err) {
     console.error("Error fetching requests for seller's products:", err);
