@@ -4,7 +4,7 @@ import { Schema } from "mongoose";
 const schema = new Schema(
   {
     name: { type: String, required: true },
-    description:{
+    fullForm:{
       type: String,
       required: true
     },
