@@ -12,7 +12,7 @@ userList.get("/", async (req, res) => {
   const baseFilter = {};
 
   const filter = type
-    ? { ...baseFilter, user_type: type, verification: "approved" }
+    ? { ...baseFilter, user_type: type }
     : baseFilter;
 
   try {

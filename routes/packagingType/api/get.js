@@ -32,7 +32,7 @@ getPackagingType.get("", async (req, res) => {
     const skip = (pageNumber - 1) * limitNumber;
 
     const [packagingType, totalCount] = await Promise.all([
-      PackagingType.find().skip(skip).limit(limitNumber),
+      PackagingType.find().sort(sort).skip(skip).limit(limitNumber),
       PackagingType.countDocuments(),
     ]);
 

@@ -33,7 +33,7 @@ chemicalFamilyGet.get("/", async (req, res) => {
     const skip = (pageNumber - 1) * limitNumber;
 
     const [chemicalFamily, totalCount] = await Promise.all([
-      ChemicalFamily.find({}).skip(skip).limit(limitNumber),
+      ChemicalFamily.find({}).sort(sort).skip(skip).limit(limitNumber),
       ChemicalFamily.countDocuments({}),
     ]);
 

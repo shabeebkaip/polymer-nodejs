@@ -33,7 +33,7 @@ getPaymentTerms.get("", async (req, res) => {
     const skip = (pageNumber - 1) * limitNumber;
 
     const [paymentTerms, totalCount] = await Promise.all([
-      PaymentTerms.find().skip(skip).limit(limitNumber),
+      PaymentTerms.find().sort(sort).skip(skip).limit(limitNumber),
       PaymentTerms.countDocuments(),
     ]);
 

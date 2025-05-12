@@ -33,7 +33,7 @@ getIncoterm.get("", async (req, res) => {
     const skip = (pageNumber - 1) * limitNumber;
 
     const [incoterms, totalCount] = await Promise.all([
-      Incoterm.find().skip(skip).limit(limitNumber),
+      Incoterm.find().sort(sort).skip(skip).limit(limitNumber),
       Incoterm.countDocuments(),
     ]);
 

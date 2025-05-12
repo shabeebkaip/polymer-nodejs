@@ -33,7 +33,7 @@ getPhysicalForm.get("", async (req, res) => {
     const skip = (pageNumber - 1) * limitNumber;
 
     const [physicalForm, totalCount] = await Promise.all([
-      PhysicalForm.find().skip(skip).limit(limitNumber),
+      PhysicalForm.find().sort(sort).skip(skip).limit(limitNumber),
       PhysicalForm.countDocuments(),
     ]);
 

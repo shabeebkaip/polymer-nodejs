@@ -34,7 +34,7 @@ getPolymerType.get("", async (req, res) => {
     const skip = (pageNumber - 1) * limitNumber;
 
     const [PolymerTypes, totalCount] = await Promise.all([
-      PolymerType.find({}).skip(skip).limit(limitNumber),
+      PolymerType.find({}).sort(sort).skip(skip).limit(limitNumber),
       PolymerType.countDocuments({}),
     ]);
 

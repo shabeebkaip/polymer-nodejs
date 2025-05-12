@@ -32,7 +32,7 @@ getIndustry.get("", async (req, res) => {
     const skip = (pageNumber - 1) * limitNumber;
 
     const [industries, totalCount] = await Promise.all([
-      Industry.find().skip(skip).limit(limitNumber),
+      Industry.find().sort(sort).skip(skip).limit(limitNumber),
       Industry.countDocuments(),
     ]);
 

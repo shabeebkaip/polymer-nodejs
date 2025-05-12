@@ -33,7 +33,7 @@ getGrade.get("", async (req, res) => {
     const skip = (pageNumber - 1) * limitNumber;
 
     const [grades, totalCount] = await Promise.all([
-      Grade.find({}).skip(skip).limit(limitNumber),
+      Grade.find({}).sort(sort).skip(skip).limit(limitNumber),
       Grade.countDocuments({}),
     ]);
 

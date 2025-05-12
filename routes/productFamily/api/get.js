@@ -31,9 +31,10 @@ productFamilyGet.get("", async (req, res) => {
     const skip = (pageNumber - 1) * limitNumber;
 
     const [products, totalCount] = await Promise.all([
-      productFamily.find().skip(skip).limit(limitNumber),
+      productFamily.find().sort(sort).skip(skip).limit(limitNumber),
       productFamily.countDocuments(),
     ]);
+    
 
     const totalPages = Math.ceil(totalCount / limitNumber);
 
