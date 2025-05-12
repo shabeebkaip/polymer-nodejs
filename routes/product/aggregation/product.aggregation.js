@@ -11,11 +11,11 @@ export const productAggregation = (filters = {}) => {
     {
       $unwind: "$user"
     },
-    {
-      $match: {
-        "user.verification": "approved"
-      }
-    },
+    // {
+    //   $match: {
+    //     "user.verification": "approved"
+    //   }
+    // },
     {
       $lookup: {
         from: "industries",

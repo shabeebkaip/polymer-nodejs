@@ -1,5 +1,7 @@
 import express from "express";
 import User from "../../../models/user.js";
+import Product from "../../../models/product.js";
+import { productAggregation } from "../../product/aggregation/product.aggregation.js";
 
 const sellerList = express.Router();
 
@@ -9,29 +11,59 @@ sellerList.get("/list", async (req, res) => {
   const pageNumber = parseInt(page);
   const pageSize = parseInt(limit);
 
-  const filter = {
-    user_type: "seller",
-    verification: "approved"
-  };
-
   try {
-    const users = await User.find(filter)
-      .sort({ _id: -1 })
-      .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize);
+    const matchStage = {
+      user_type: "seller",
+      verification: "approved"
+    };
 
-    const total = await User.countDocuments(filter);
+    const usersWithProducts = await User.aggregate([
+      { $match: matchStage },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "createdBy",
+          as: "products"
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $skip: (pageNumber - 1) * pageSize },
+      { $limit: pageSize }
+    ]);
+
+    const enrichedUsers = [];
+
+    for (const user of usersWithProducts) {
+      const productIds = user.products.map((p) => p._id);
+
+      let enrichedProducts = [];
+
+      if (productIds.length > 0) {
+        enrichedProducts = await Product.aggregate([
+          { $match: { _id: { $in: productIds } } },
+          ...productAggregation()
+        ]);
+      }
+
+      enrichedUsers.push({
+        ...user,
+        products: enrichedProducts
+      });
+    }
+
+    const total = await User.countDocuments(matchStage);
 
     res.status(200).json({
       success: true,
-      data: users,
+      data: enrichedUsers,
       total,
       page: pageNumber,
-      totalPages: Math.ceil(total / pageSize),
+      totalPages: Math.ceil(total / pageSize)
     });
   } catch (error) {
-    console.error("Error fetching users:", error);
-    res.status(500).json({ message: "Server error while fetching users" });
+    console.error("Error fetching sellers with enriched products:", error);
+    res.status(500).json({ message: "Server error while fetching sellers" });
   }
 });
 

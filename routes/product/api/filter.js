@@ -53,96 +53,112 @@ productFilter.get('/', async (req, res) => {
                 name: "chemicalFamily",
                 displayName: "Chemical Family",
                 component: "multiLookup",
+                filterType:"array",
                 data: chemicalfamilies
             },
             {
                 name: "polymerType",
                 displayName: "Polymer Type",
                 component: "multiLookup",
+                filterType:"array",
                 data: polymertypes
             },
             {
                 name: "industry",
                 displayName: "Industry Application",
                 component: "multiLookup",
+                filterType:"array",
                 data: industries
             },
             {
                 name: "grade",
                 displayName: "Application Grade",
                 component: "multiLookup",
+                filterType:"array",
                 data: grades
             },
             {
                 name: "physicalForm",
                 displayName: "Physical Form",
                 component: "multiLookup",
+                filterType:"array",
                 data: physicalForms
             },
             {
                 name: "countryOfOrigin",
                 displayName: "Country of Origin",
                 component: "multiLookup",
+                filterType:"array",
                 data: countries
             },
             {
                 name: "uom",
                 displayName: "Unit of Measure (UOM)",
                 component: "multiLookup",
+                filterType:"array",
                 data: uoms
             },
             {
                 name: "priceTerms",
                 displayName: "Price Terms",
                 component: "multiLookup",
+                filterType:"array",
                 data: priceTerms
             },
             {
                 name: "incoterms",
                 displayName: "Incoterms",
                 component: "multiLookup",
+                filterType:"array",
                 data: incoterms
             },
             {
                 name: "paymentTerms",
                 displayName: "Payment Terms",
                 component: "multiLookup",
+                filterType:"array",
                 data: paymentTerms
             },
             {
                 name: "packagingType",
                 displayName: "Packaging Type",
                 component: "multiLookup",
+                filterType:"array",
                 data: packagingTypes
             },
             {
                 name: 'recyclable',
                 displayName: 'Recyclable',
                 component: "lookup",
+                filterType:"boolean",
                 data: [true, false]
             },
             {
                 name: 'bioDegradable',
                 displayName: 'Biodegradable',
                 component: "lookup",
+                filterType:"boolean",
                 data: [true, false]
             },
             {
                 name: 'fdaApproved',
                 displayName: 'FDA Approved',
                 component: "lookup",
+                filterType:"boolean",
                 data: [true, false]
             },
             {
                 name: 'medicalGrade',
                 displayName: 'Medical Grade Certified',
                 component: "lookup",
+                filterType:"boolean",
                 data: [true, false]
             },
             {
                 name: "createdBy",
                 displayName: "Created By",
                 component: "multiLookup",
+                filterType:"array",
                 data: usersWithFullName
             }
         ];
