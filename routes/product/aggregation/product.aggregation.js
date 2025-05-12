@@ -172,7 +172,7 @@ export const productAggregation = (filters = {}) => {
           _id: "$paymentTerms._id",
           name: "$paymentTerms.name"
         },
-        packageType: {
+        packagingType: {
           $map: {
             input: "$packageType",
             as: "pt",
