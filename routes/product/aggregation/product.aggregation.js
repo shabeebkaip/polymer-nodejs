@@ -90,6 +90,17 @@ export const productAggregation = (filters = {}) => {
       }
     },
     {
+      $lookup: {
+        from: "paymentterms",
+        localField: "paymentTerms",
+        foreignField: "_id",
+        as: "paymentTerms"
+      }
+    },
+    {
+      $unwind: "$paymentTerms"
+    },
+    {
       $project: {
         productName: 1,
         chemicalName: 1,
@@ -131,7 +142,6 @@ export const productAggregation = (filters = {}) => {
         manufacturingMethod: 1,
         countryOfOrigin: 1,
         color: 1,
-
         productImages: 1,
         density: 1,
         mfi: 1,
@@ -139,11 +149,9 @@ export const productAggregation = (filters = {}) => {
         elongationAtBreak: 1,
         shoreHardness: 1,
         waterAbsorption: 1,
-
         safety_data_sheet: 1,
         technical_data_sheet: 1,
         certificate_of_analysis: 1,
-
         minimum_order_quantity: 1,
         stock: 1,
         uom: 1,
@@ -159,6 +167,24 @@ export const productAggregation = (filters = {}) => {
             }
           }
         },
+        leadTime: 1,
+        paymentTerms: {
+          _id: "$paymentTerms._id",
+          name: "$paymentTerms.name"
+        },
+        packageType: {
+          $map: {
+            input: "$packageType",
+            as: "pt",
+            in: {
+              id: "$$pt._id",
+              name: "$$pt.name"
+            }
+          }
+        },
+        packagingWeight: 1,
+        storageConditions: 1,
+        shelfLife: 1,    
         recyclable: 1,
         fdaApproved: 1,
         bioDegradable: 1,
@@ -170,16 +196,6 @@ export const productAggregation = (filters = {}) => {
             in: {
               id: "$$pf._id",
               name: "$$pf.name"
-            }
-          }
-        },
-        packageType: {
-          $map: {
-            input: "$packageType",
-            as: "pt",
-            in: {
-              id: "$$pt._id",
-              name: "$$pt.name"
             }
           }
         },
