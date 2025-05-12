@@ -1,19 +1,18 @@
 import express from "express";
 import User from "../../../models/user.js";
 
-const userList = express.Router();
+const buyerList = express.Router();
 
-userList.get("/", async (req, res) => {
-  const { type, page = 1, limit = 10 } = req.query;
+buyerList.get("/list", async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
 
   const pageNumber = parseInt(page);
   const pageSize = parseInt(limit);
 
-  const baseFilter = {};
-
-  const filter = type
-    ? { ...baseFilter, user_type: type, verification: "approved" }
-    : baseFilter;
+  const filter = {
+    user_type: "buyer",
+    // verification: "approved"
+  };
 
   try {
     const users = await User.find(filter)
@@ -23,14 +22,9 @@ userList.get("/", async (req, res) => {
 
     const total = await User.countDocuments(filter);
 
-    const modifiedUsers = users.map(user => ({
-      ...user.toObject(),
-      name: `${user.firstName} ${user.lastName}`
-    }));
-
     res.status(200).json({
       success: true,
-      data: modifiedUsers,
+      data: users,
       total,
       page: pageNumber,
       totalPages: Math.ceil(total / pageSize),
@@ -41,4 +35,4 @@ userList.get("/", async (req, res) => {
   }
 });
 
-export default userList;
+export default buyerList;
