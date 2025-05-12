@@ -131,10 +131,24 @@ export const productAggregation = (filters = {}) => {
         manufacturingMethod: 1,
         countryOfOrigin: 1,
         color: 1,
+
         productImages: 1,
+        density: 1,
+        mfi: 1,
+        tensileStrength: 1,
+        elongationAtBreak: 1,
+        shoreHardness: 1,
+        waterAbsorption: 1,
+
+        safety_data_sheet: 1,
+        technical_data_sheet: 1,
+        certificate_of_analysis: 1,
+
+        minimum_order_quantity: 1,
         stock: 1,
-        price: 1,
         uom: 1,
+        price: 1,
+        priceTerms: 1,
         incoterms: {
           $map: {
             input: "$incoterms",
