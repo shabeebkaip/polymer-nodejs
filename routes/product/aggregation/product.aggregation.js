@@ -120,7 +120,7 @@ export const productAggregation = (filters = {}) => {
             input: "$industry",
             as: "ind",
             in: {
-              id: "$$ind._id",
+              _id: "$$ind._id",
               name: "$$ind.name"
             }
           }
@@ -130,7 +130,7 @@ export const productAggregation = (filters = {}) => {
             input: "$grade",
             as: "g",
             in: {
-              id: "$$g._id",
+              _id: "$$g._id",
               name: "$$g.name"
             }
           }
@@ -162,7 +162,7 @@ export const productAggregation = (filters = {}) => {
             input: "$incoterms",
             as: "term",
             in: {
-              id: "$$term._id",
+              _id: "$$term._id",
               name: "$$term.name"
             }
           }
@@ -177,7 +177,7 @@ export const productAggregation = (filters = {}) => {
             input: "$packageType",
             as: "pt",
             in: {
-              id: "$$pt._id",
+              _id: "$$pt._id",
               name: "$$pt.name"
             }
           }
@@ -194,7 +194,7 @@ export const productAggregation = (filters = {}) => {
             input: "$productfamilie",
             as: "pf",
             in: {
-              id: "$$pf._id",
+              _id: "$$pf._id",
               name: "$$pf.name"
             }
           }
