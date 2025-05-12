@@ -203,8 +203,10 @@ export const productAggregation = (filters = {}) => {
           name: { $concat: ["$user.firstName", " ", "$user.lastName"] },
           email: "$user.email",
           company: "$user.company",
+          company_logo: "$user.company_logo",
           website: "$user.website",
-          phone: "$user.phone"
+          phone: "$user.phone",
+          address:"$user.address"
         }
       }
     }
