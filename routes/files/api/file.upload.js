@@ -20,15 +20,14 @@ fileUpload.post('/', async (req, res) => {
 
   try {
 
-    const mimeType = mime.lookup(file.name) || '';
-    const isPDF = mimeType === 'application/pdf';
+    const fileType = file.mimetype.split('/')[0];
 
 
     const result = await cloudinary.uploader.upload(
       file.tempFilePath || file.path,
       {
         folder: 'polymer',
-        resource_type: isPDF ? 'raw' : 'auto',
+       resource_type: fileType === 'video' ? 'video' : fileType === 'audio' ? 'video' : 'image',
       }
     );
 

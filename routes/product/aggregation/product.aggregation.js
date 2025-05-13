@@ -8,9 +8,7 @@ export const productAggregation = (filters = {}) => {
         as: "user"
       }
     },
-    {
-      $unwind: "$user"
-    },
+    { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
     // {
     //   $match: {
     //     "user.verification": "approved"
@@ -32,9 +30,7 @@ export const productAggregation = (filters = {}) => {
         as: "chemicalFamily"
       }
     },
-    {
-      $unwind: "$chemicalFamily"
-    },
+    { $unwind: { path: "$chemicalFamily", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: "polymertypes",
@@ -43,9 +39,7 @@ export const productAggregation = (filters = {}) => {
         as: "polymerType"
       }
     },
-    {
-      $unwind: "$polymerType"
-    },
+    { $unwind: { path: "$polymerType", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: "grades",
@@ -70,9 +64,7 @@ export const productAggregation = (filters = {}) => {
         as: "physicalForm"
       }
     },
-    {
-      $unwind: "$physicalForm"
-    },
+    { $unwind: { path: "$physicalForm", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: "productfamilies",
@@ -97,9 +89,7 @@ export const productAggregation = (filters = {}) => {
         as: "paymentTerms"
       }
     },
-    {
-      $unwind: "$paymentTerms"
-    },
+    { $unwind: { path: "$paymentTerms", preserveNullAndEmptyArrays: true } },
     {
       $project: {
         productName: 1,

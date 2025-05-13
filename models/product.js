@@ -27,9 +27,24 @@ const productSchema = new Schema(
     elongationAtBreak: { type: Number, required: false },
     shoreHardness: { type: Number, required: false },
     waterAbsorption: { type: Number, required: false },
-    safety_data_sheet: { type: String, required: false },
-    technical_data_sheet: { type: String, required: false },
-    certificate_of_analysis: { type: String, required: false },
+    safety_data_sheet: {
+      id: { type: String, required: true },
+      name: { type: String, required: true },
+      type: { type: String, required: true },
+      fileUrl: { type: String, required: true }
+    },
+    technical_data_sheet: {
+      id: { type: String, required: true },
+      name: { type: String, required: true },
+      type: { type: String, required: true },
+      fileUrl: { type: String, required: true }
+    },
+    certificate_of_analysis: {
+      id: { type: String, required: true },
+      name: { type: String, required: true },
+      type: { type: String, required: true },
+      fileUrl: { type: String, required: true }
+    },
     minimum_order_quantity: { type: Number, required: true },
     stock: { type: Number, required: true },
     uom: { type: String, required: true },
