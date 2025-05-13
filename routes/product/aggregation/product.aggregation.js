@@ -206,7 +206,10 @@ export const productAggregation = (filters = {}) => {
           company_logo: "$user.company_logo",
           website: "$user.website",
           phone: "$user.phone",
-          address:"$user.address"
+          address:"$user.address",
+          location:"$user.location",
+          _id: "$user._id"
+
         }
       }
     }
