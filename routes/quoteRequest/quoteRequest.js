@@ -3,7 +3,7 @@ import createQuote from './api/create.js'
 import getUserQuotes from './api/history.js'
 import recivedRouter from './api/received.js'
 import getAllQuotesRequests from './api/list.js'
-import updateQuoteStatus from './api/status.upadete.js'
+import updateQuoteStatus from './api/status.update.js'
 
 const quoteRouter = express.Router()
 quoteRouter.use('/create', createQuote)

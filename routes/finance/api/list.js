@@ -16,17 +16,19 @@ financeListRouter.get("/", async (req, res) => {
       .limit(limit)
       .sort({ createdAt: -1 })
       .populate({ path: "productId", select: "productName" })
-      .populate({ path: "userId", select: "firstName lastName company email" });
+      .populate({ path: "userId", select: "firstName lastName company email" }) 
 
-    const updatedRequests = requests.map((request) => {
-      const reqObj = request.toObject();
-      if (reqObj.user) {
-        reqObj.user.name = `${reqObj.user.firstName} ${reqObj.user.lastName}`.trim();
-        delete reqObj.user.firstName;
-        delete reqObj.user.lastName;
-      }
-      return reqObj;
-    });
+            
+      const updatedRequests = requests.map(request => {
+        const reqObj = request.toObject(); 
+        if (reqObj.userId) {
+          reqObj.userId.name = `${reqObj.userId.firstName} ${reqObj.userId.lastName}`.trim();
+          delete reqObj.userId.firstName;
+          delete reqObj.userId.lastName;
+        }
+  
+        return reqObj;
+      });
 
     res.status(200).json({
       success: true,
