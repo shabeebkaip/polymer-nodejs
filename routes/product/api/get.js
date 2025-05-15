@@ -15,10 +15,11 @@ productGet.post("/", async (req, res) => {
     const pipeline = [
       { $match: matchStage },
       ...productAggregation(),
+      { $sort: { createdAt: -1, _id: -1 } },
       { $skip: skip },
       { $limit: limit },
-      { $sort: { _id: -1 } },
     ];
+    
 
     const countPipeline = [
       { $match: matchStage },
