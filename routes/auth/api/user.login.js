@@ -6,7 +6,8 @@ const userLogin = express.Router()
 
 userLogin.post('/login', validate, verify, authenticate, createJwt, async (req,res) => {
     try {
-    const { email, password } = req.body;
+      const email = req.body.email?.toLowerCase();
+      const password = req.body.password;
 
     if (!email || !password) {
       return res.status(400).json({

@@ -16,7 +16,14 @@ getUserQuotes.get("/", authenticateUser, async (req, res) => {
     const total = await QuoteRequest.countDocuments({ user: userId });
 
     const userRequests = await QuoteRequest.find({ user: userId })
-      .populate({ path: "product", select: "productName" }) 
+    .populate({
+      path: "product",
+      select: "productName createdBy", 
+      populate: {
+        path: "createdBy",
+        select: "firstName lastName company email", 
+      },
+    })
       .populate({ path: "grade", select: "name" })   
       .populate({ path: "incoterm", select: "name" })
       .populate({ path: "packagingType", select: "name" })   
