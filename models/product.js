@@ -69,11 +69,6 @@ const productSchema = new Schema(
     createdBy: { type: Schema.Types.ObjectId, ref: "user", required: true },
     product_family: [{ type: Schema.Types.ObjectId, ref: "productFamily" }],
     
-    // min_purity: { type: Number, required: false },
-    // uom: { type: String, required: true },
-    // brand: { type: Schema.Types.ObjectId, ref: "Brand" },
-    // appearance: [{ type: Schema.Types.ObjectId, ref: "Appearance" }],
-    // substance: [{ type: Schema.Types.ObjectId, ref: "Substance" }],
   },
   
   { timestamps: true }

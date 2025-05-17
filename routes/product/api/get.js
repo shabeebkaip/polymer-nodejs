@@ -123,6 +123,9 @@ const buildMatchStage = (filters) => {
   if (filters.createdBy?.length) {
     matchStage.createdBy = { $in: filters.createdBy.map(id => new ObjectId(id)) };
   }
+  if(filters.product_family?.length) {
+    matchStage.product_family = { $in: filters.product_family.map(id => new ObjectId(id)) };
+  }
 
   return matchStage;
 };
