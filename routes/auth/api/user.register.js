@@ -18,7 +18,24 @@ const isCompanyEmail = (email) => {
 
 userRegister.post("/register", async (req, res) => {
   try {
-    const { firstName, lastName, company, email, password, website, phone, country_code, industry, address, location, vat_number, company_logo, user_type } = req.body;
+    let {
+      firstName,
+      lastName,
+      company,
+      email,
+      password,
+      website,
+      phone,
+      country_code,
+      industry,
+      address,
+      location,
+      vat_number,
+      company_logo,
+      user_type,
+    } = req.body;
+
+    email = email?.toLowerCase();
 
     if (!firstName || !lastName || !company || !email || !password || !website || !phone) {
       return res.status(400).json({

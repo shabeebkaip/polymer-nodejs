@@ -16,8 +16,18 @@ getUserSamples.get("/", authenticateUser, async (req, res) => {
     const total = await SampleRequest.countDocuments({ user: userId });
 
     const userRequests = await SampleRequest.find({ user: userId })
-      .populate({ path: "product", select: "productName" }) 
-      .populate({ path: "grade", select: "name" })   
+      .populate({
+        path: "product",
+        select: "productName createdBy", 
+        populate: {
+          path: "createdBy",
+          select: "firstName lastName company email", 
+        },
+      })
+      .populate({
+        path: "grade",
+        select: "name",
+      })
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
@@ -34,5 +44,6 @@ getUserSamples.get("/", authenticateUser, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch user sample requests" });
   }
 });
+
 
 export default getUserSamples;
