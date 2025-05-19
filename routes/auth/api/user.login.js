@@ -24,7 +24,7 @@ userLogin.post('/login', validate, verify, authenticate, createJwt, async (req,r
       });
     }
 
-    console.log(user);
+    // console.log(user);
     
 
     res.status(200).json({

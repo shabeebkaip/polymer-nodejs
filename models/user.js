@@ -49,7 +49,7 @@ const schema = new Schema({
   },
   user_type:{
     type: String,
-    enum:["buyer", "seller", "superAdmin"],
+    enum:["buyer", "seller", "superAdmin", "expert"],
     default: "buyer",
   },
   verification: {
