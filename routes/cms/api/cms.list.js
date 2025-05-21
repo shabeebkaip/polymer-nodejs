@@ -26,6 +26,7 @@ const buildCmsResult = (cms, isArabic) => {
     const row = {
       id: cmsItem._id,
       image: cmsItem.image,
+      link: cmsItem.link,
       ar_title: cmsItem.ar_title,
       ar_description: cmsItem.ar_description,
       title: cmsItem.title,
@@ -56,12 +57,11 @@ cmsList.get('/:section?/:id?', async (req, res) => {
     }
 
     if (section && !id) {
-      console.log(' API Hit for section:', section);
+      // console.log(' API Hit for section:', section);
 
-      // Fix: Make the query case-insensitive
       const sectionData = await Cms.findOne({ section: new RegExp(`^${section}$`, 'i') });
 
-      console.log(' DB Result:', sectionData);
+      // console.log(' DB Result:', sectionData);
 
       if (!sectionData) {
         return res.status(404).json({ status: false, message: 'Section not found' });
@@ -91,7 +91,7 @@ cmsList.get('/:section?/:id?', async (req, res) => {
     }
 
     if (section && id) {
-      console.log(`API Hit for section "${section}" and ID "${id}"`);
+      // console.log(`API Hit for section "${section}" and ID "${id}"`);
       const sectionDocument = await Cms.findOne(
         { section: new RegExp(`^${section}$`, 'i'), 'content._id': id },
         { 'content.$': 1 }

@@ -1,11 +1,10 @@
 import mongoose from "mongoose";
-import generateRandomId from "../common/random.js";
 
 const schema = new mongoose.Schema({
     section: {
         type: String,
         required: true,
-        enum: ['socialMedia', 'termsAndConditions', 'privacyPolicy',],
+        enum: ['socialMedia', 'termsAndConditions', 'privacyPolicy',"BenefitsForBuyer","BenefitsForSuplier"],
     },
     content: {
         type: mongoose.Schema.Types.Mixed, 
@@ -13,17 +12,17 @@ const schema = new mongoose.Schema({
     }
 })
 
-schema.pre('save', function (next) {
-    if (Array.isArray(this.content)) {
-      this.content.forEach(item => {
-        if (!item._id) {
-            item._id = generateRandomId(); 
-        }
-        });
-    }
-    next();
-});
-schema.index({section:1})
+// schema.pre('save', function (next) {
+//     if (Array.isArray(this.content)) {
+//       this.content.forEach(item => {
+//         if (!item._id) {
+//             item._id = generateRandomId(); 
+//         }
+//         });
+//     }
+//     next();
+// });
+// schema.index({section:1})
 
 const Cms = mongoose.model('cms', schema);
 

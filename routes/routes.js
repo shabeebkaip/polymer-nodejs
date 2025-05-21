@@ -26,6 +26,7 @@ import sampleRouter from "./sampleRequest/sampleRequest.js";
 import quoteRouter from "./quoteRequest/quoteRequest.js";
 import financeRouter from "./finance/finance.js";
 import cmsRouter from "./cms/cms.js";
+import homeRouter from "./home/home.js";
 
 const router = express.Router();
 
@@ -55,6 +56,8 @@ router.use("/sample-request", sampleRouter);
 router.use("/quote-request", quoteRouter);
 router.use("/finance", financeRouter);
 router.use("/cms", cmsRouter);
+router.use("/home", homeRouter);
+
 
 
 

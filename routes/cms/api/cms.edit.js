@@ -16,7 +16,6 @@ cmsEdit.put('/:section/:id?', async (req, res) => {
         }
 
         if (id) {
-            // Update a specific item inside the content array
             const updateFields = {};
             Object.keys(content).forEach(key => {
                 if (key !== "_id") {
@@ -36,7 +35,6 @@ cmsEdit.put('/:section/:id?', async (req, res) => {
 
             return res.status(200).json({ status: true, message: 'Object updated successfully!' });
         } else if (Array.isArray(content)) {
-            // Append multiple items to the content array
             const newObjects = content.map(item => ({
                 _id: generateRandomId(6),
                 ...item,
@@ -50,7 +48,7 @@ cmsEdit.put('/:section/:id?', async (req, res) => {
 
             return res.status(200).json({ status: true, message: 'Content added to section successfully!' });
         } else {
-            // Replace the entire content field
+        
             await Cms.findOneAndUpdate(
                 { section },
                 { $set: { content } },
