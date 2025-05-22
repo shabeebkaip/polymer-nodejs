@@ -60,7 +60,7 @@ cmsCreate.post('/:section?', async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Content added to existing section',
+      message: 'added successfully',
       data: updatedSection,
     });
 

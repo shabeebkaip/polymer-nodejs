@@ -1,65 +1,94 @@
 import express from 'express';
-import generateRandomId from '../../../common/random.js';
 import Cms from '../../../models/cms.js';
+
 
 const cmsEdit = express.Router();
 
-cmsEdit.put('/:section/:id?', async (req, res) => {
-    const { section, id } = req.params;
+cmsEdit.put('/:section',(async (req, res) => {
+  try {
+    const { section } = req.params;
     const { content } = req.body;
 
-    try {
-        const existingSection = await Cms.findOne({ section });
-
-        if (!existingSection) {
-            return res.status(404).json({ status: false, message: 'Section not found' });
-        }
-
-        if (id) {
-            const updateFields = {};
-            Object.keys(content).forEach(key => {
-                if (key !== "_id") {
-                    updateFields[`content.$.${key}`] = content[key];
-                }
-            });
-
-            const updatedSingleSection = await Cms.findOneAndUpdate(
-                { section, 'content._id': id },
-                { $set: updateFields },
-                { new: true }
-            );
-
-            if (!updatedSingleSection) {
-                return res.status(404).json({ status: false, message: 'Object not found' });
-            }
-
-            return res.status(200).json({ status: true, message: 'Object updated successfully!' });
-        } else if (Array.isArray(content)) {
-            const newObjects = content.map(item => ({
-                _id: generateRandomId(6),
-                ...item,
-            }));
-
-            await Cms.findOneAndUpdate(
-                { section },
-                { $push: { content: { $each: newObjects } } },
-                { new: true }
-            );
-
-            return res.status(200).json({ status: true, message: 'Content added to section successfully!' });
-        } else {
-        
-            await Cms.findOneAndUpdate(
-                { section },
-                { $set: { content } },
-                { new: true }
-            );
-
-            return res.status(200).json({ status: true, message: 'Section updated successfully!' });
-        }
-    } catch (error) {
-        res.status(500).json({ status: false, message: 'Error updating section', error: error.message });
+    if (!content) {
+      return res.status(400).json({ status: false, message: 'Content is required' });
     }
-});
+
+    const updatedSection = await Cms.findOneAndUpdate(
+      { section },
+      { content },
+      { new: true }
+    );
+
+    if (!updatedSection) {
+      return res.status(404).json({ status: false, message: `Section "${section}" not found.` });
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: `Section "${section}" updated successfully.`,
+      data: updatedSection,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: 'Internal server error',
+      error: error.message,
+    });
+  }
+}));
+
+cmsEdit.put('/:section/:id',(async (req, res) => {
+  try {
+    const { section, id } = req.params;
+    const updates = req.body;
+
+    const sectionDoc = await Cms.findOne({ section });
+
+    if (!sectionDoc) {
+      return res.status(404).json({
+        status: false,
+        message: `Section "${section}" not found.`,
+      });
+    }
+
+    if (!Array.isArray(sectionDoc.content)) {
+      return res.status(400).json({
+        status: false,
+        message: `Section "${section}" content is not an array.`,
+      });
+    }
+
+    const contentArray = sectionDoc.content;
+    const itemIndex = contentArray.findIndex(item => item._id?.toString() === id);
+
+    if (itemIndex === -1) {
+      return res.status(404).json({
+        status: false,
+        message: `Item with id "${id}" not found in section "${section}".`,
+      });
+    }
+
+    contentArray[itemIndex] = {
+      ...contentArray[itemIndex],
+      ...updates,
+    };
+
+    sectionDoc.markModified('content');
+    await sectionDoc.save();
+
+    return res.status(200).json({
+      status: true,
+      message: `Section "${section}" updated successfully.`,
+      data: contentArray[itemIndex],
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: 'Internal server error',
+      error: error.message,
+    });
+  }
+}));
 
 export default cmsEdit;

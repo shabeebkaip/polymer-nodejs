@@ -94,41 +94,63 @@ export const productAggregation = (filters = {}) => {
       $project: {
         productName: 1,
         chemicalName: 1,
-        description: 1,
+        description: { $ifNull: [{ $trim: { input: "$description" } }, ""] },
+        ar_description: { $ifNull: [{ $trim: { input: "$ar_description" } }, ""] },
+        ger_description: { $ifNull: [{ $trim: { input: "$ger_description" } }, ""] },
+        cn_description: { $ifNull: [{ $trim: { input: "$cn_description" } }, ""] },
         additionalInfo: 1,
         tradeName: 1,
         chemicalFamily: {
           _id: "$chemicalFamily._id",
-          name: "$chemicalFamily.name"
+          name: { $ifNull: [{ $trim: { input: "$chemicalFamily.name" } }, ""] },
+          ar_name: { $ifNull: [{ $trim: { input: "$chemicalFamily.ar_name" } }, ""] },
+          ger_name: { $ifNull: [{ $trim: { input: "$chemicalFamily.ger_name" } }, ""] },
+          cn_name: { $ifNull: [{ $trim: { input: "$chemicalFamily.cn_name" } }, ""] },
         },
+    
         polymerType: {
           _id: "$polymerType._id",
-          name: "$polymerType.name"
+          name: { $ifNull: [{ $trim: { input: "$polymerType.name" } }, ""] },
+          ar_name: { $ifNull: [{ $trim: { input: "$polymerType.ar_name" } }, ""] },
+          ger_name: { $ifNull: [{ $trim: { input: "$polymerType.ger_name" } }, ""] },
+          cn_name: { $ifNull: [{ $trim: { input: "$polymerType.cn_name" } }, ""] },
         },
         industry: {
           $map: {
-            input: "$industry",
+            input: { $ifNull: ["$industry", []] },
             as: "ind",
             in: {
               _id: "$$ind._id",
-              name: "$$ind.name"
+              name: { $ifNull: [{ $trim: { input: "$$ind.name" } }, ""] },
+              ar_name: { $ifNull: [{ $trim: { input: "$$ind.ar_name" } }, ""] },
+              ger_name: { $ifNull: [{ $trim: { input: "$$ind.ger_name" } }, ""] },
+              cn_name: { $ifNull: [{ $trim: { input: "$$ind.cn_name" } }, ""] }
             }
           }
         },
+    
         grade: {
           $map: {
-            input: "$grade",
+            input: { $ifNull: ["$grade", []] },
             as: "g",
             in: {
               _id: "$$g._id",
-              name: "$$g.name"
+              name: { $ifNull: [{ $trim: { input: "$$g.name" } }, ""] },
+              ar_name: { $ifNull: [{ $trim: { input: "$$g.ar_name" } }, ""] },
+              ger_name: { $ifNull: [{ $trim: { input: "$$g.ger_name" } }, ""] },
+              cn_name: { $ifNull: [{ $trim: { input: "$$g.cn_name" } }, ""] }
             }
           }
         },
+    
         physicalForm: {
           _id: "$physicalForm._id",
-          name: "$physicalForm.name"
+          name: { $ifNull: [{ $trim: { input: "$physicalForm.name" } }, ""] },
+          ar_name: { $ifNull: [{ $trim: { input: "$physicalForm.ar_name" } }, ""] },
+          ger_name: { $ifNull: [{ $trim: { input: "$physicalForm.ger_name" } }, ""] },
+          cn_name: { $ifNull: [{ $trim: { input: "$physicalForm.cn_name" } }, ""] }
         },
+        
         manufacturingMethod: 1,
         countryOfOrigin: 1,
         color: 1,
@@ -149,29 +171,41 @@ export const productAggregation = (filters = {}) => {
         priceTerms: 1,
         incoterms: {
           $map: {
-            input: "$incoterms",
+            input: { $ifNull: ["$incoterms", []] },
             as: "term",
             in: {
               _id: "$$term._id",
-              name: "$$term.name"
+              name: { $ifNull: [{ $trim: { input: "$$term.name" } }, ""] },
+              ar_name: { $ifNull: [{ $trim: { input: "$$term.ar_name" } }, ""] },
+              ger_name: { $ifNull: [{ $trim: { input: "$$term.ger_name" } }, ""] },
+              cn_name: { $ifNull: [{ $trim: { input: "$$term.cn_name" } }, ""] }
             }
           }
         },
+    
         leadTime: 1,
         paymentTerms: {
           _id: "$paymentTerms._id",
-          name: "$paymentTerms.name"
+          name: { $ifNull: [{ $trim: { input: "$paymentTerms.name" } }, ""] },
+          ar_name: { $ifNull: [{ $trim: { input: "$paymentTerms.ar_name" } }, ""] },
+          ger_name: { $ifNull: [{ $trim: { input: "$paymentTerms.ger_name" } }, ""] },
+          cn_name: { $ifNull: [{ $trim: { input: "$paymentTerms.cn_name" } }, ""] }
         },
+    
         packagingType: {
           $map: {
-            input: "$packageType",
+            input: { $ifNull: ["$packageType", []] },
             as: "pt",
             in: {
               _id: "$$pt._id",
-              name: "$$pt.name"
+              name: { $ifNull: [{ $trim: { input: "$$pt.name" } }, ""] },
+              ar_name: { $ifNull: [{ $trim: { input: "$$pt.ar_name" } }, ""] },
+              ger_name: { $ifNull: [{ $trim: { input: "$$pt.ger_name" } }, ""] },
+              cn_name: { $ifNull: [{ $trim: { input: "$$pt.cn_name" } }, ""] }
             }
           }
         },
+    
         packagingWeight: 1,
         storageConditions: 1,
         shelfLife: 1,    
@@ -181,14 +215,18 @@ export const productAggregation = (filters = {}) => {
         medicalGrade: 1,
         product_family: {
           $map: {
-            input: "$productfamilie",
+            input: { $ifNull: ["$productfamilie", []] },
             as: "pf",
             in: {
               _id: "$$pf._id",
-              name: "$$pf.name"
+              name: { $ifNull: [{ $trim: { input: "$$pf.name" } }, ""] },
+              ar_name: { $ifNull: [{ $trim: { input: "$$pf.ar_name" } }, ""] },
+              ger_name: { $ifNull: [{ $trim: { input: "$$pf.ger_name" } }, ""] },
+              cn_name: { $ifNull: [{ $trim: { input: "$$pf.cn_name" } }, ""] }
             }
           }
         },
+        
         createdBy: {
           name: { $concat: ["$user.firstName", " ", "$user.lastName"] },
           email: "$user.email",

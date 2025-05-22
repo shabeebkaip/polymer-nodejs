@@ -27,7 +27,7 @@ export const accountCreationMail = (name, to, password) => {
             <p>You can log in to your account by clicking the link below: </p>
             <a href="${process.env.BASE_URL}">Polymer Hub</a>
             <p>Best regards,</p>
-            <p>ISA Team</p>
+            <p>Polymer Hub</p>
 
             <hr />
             <p><i>This is an auto-generated email. Please do not reply to this email.</i></p>

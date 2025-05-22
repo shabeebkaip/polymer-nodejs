@@ -120,6 +120,12 @@ const buildMatchStage = (filters) => {
     matchStage.medicalGrade = filters.medicalGrade;
   }
 
+  if (filters.company?.length) {
+    matchStage.createdBy = {
+      $in: filters.company.map(id => new ObjectId(id))
+    };
+  }
+  
   if (filters.createdBy?.length) {
     matchStage.createdBy = { $in: filters.createdBy.map(id => new ObjectId(id)) };
   }

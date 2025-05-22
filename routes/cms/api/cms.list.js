@@ -50,7 +50,7 @@ cmsList.get('/:section?/:id?', async (req, res) => {
     if (!section) {
       const sections = await Cms.find();
       return res.status(200).json({
-        status: true,
+        success: true,
         message: 'All sections retrieved successfully!',
         data: sections
       });
@@ -75,7 +75,7 @@ cmsList.get('/:section?/:id?', async (req, res) => {
         const result = buildCmsResult(paginatedContent, isArabic);
 
         return res.status(200).json({
-          status: true,
+          success: true,
           message: 'Section with paginated content fetched successfully!',
           components: result.components,
           data: result.data,
@@ -83,7 +83,7 @@ cmsList.get('/:section?/:id?', async (req, res) => {
         });
       } else {
         return res.status(200).json({
-          status: true,
+          success: true,
           message: 'Section fetched successfully!',
           data: sectionData
         });
@@ -98,11 +98,11 @@ cmsList.get('/:section?/:id?', async (req, res) => {
       );
 
       if (!sectionDocument || sectionDocument.content.length === 0) {
-        return res.status(404).json({ status: false, message: 'Object not found' });
+        return res.status(404).json({ success: false, message: 'Object not found' });
       }
 
       return res.status(200).json({
-        status: true,
+        success: true,
         message: 'Object retrieved successfully!',
         content: sectionDocument.content[0]
       });
@@ -111,7 +111,7 @@ cmsList.get('/:section?/:id?', async (req, res) => {
   } catch (error) {
     console.error(' Error in cmsList:', error);
     res.status(500).json({
-      status: false,
+      success: false,
       message: 'Error retrieving data',
       error: error.message
     });

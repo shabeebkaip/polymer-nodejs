@@ -5,6 +5,7 @@ import setPasswordRouter from './api/user.setPassword.js';
 import userLogin from './api/user.login.js';
 import userInfo from './api/user.info.js';
 import userSidebar from './api/sidebar.js';
+import changePassword from './api/user.change.password.js';
 
 const authRouter = express.Router()
 
@@ -14,5 +15,7 @@ authRouter.use('/user', setPasswordRouter )
 authRouter.use('/user', userLogin )
 authRouter.use('/user', userInfo )
 authRouter.use('/side-bar', userSidebar )
+authRouter.use('/user/change-password', changePassword )
+
 
 export default authRouter

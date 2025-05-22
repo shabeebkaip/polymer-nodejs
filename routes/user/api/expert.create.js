@@ -4,6 +4,7 @@ import User from "../../../models/user.js";
 import Auth from "../../../models/auth.js";
 import { accountCreationMail } from "../../../tools/mail.js";
 import { authenticateUser } from "../../../middlewares/verify.token.js";
+import generateRandomId from "../../../common/random.js";
 
 const expertCreate = express.Router();
 
@@ -22,7 +23,9 @@ expertCreate.post("", authenticateUser, async (req, res) => {
       email,
       country_code,
       phone,
-      password,
+      Expert_department,
+      Expert_role,
+      profile_image,
     } = req.body;
 
     const existingUser = await User.findOne({ email });
@@ -40,6 +43,9 @@ expertCreate.post("", authenticateUser, async (req, res) => {
       address: seller.address,
       country_code,
       phone,
+      Expert_department,
+      Expert_role,
+      profile_image,
       location: seller.location,
       vat_number: seller.vat_number,
       company_logo: seller.company_logo,
@@ -49,6 +55,10 @@ expertCreate.post("", authenticateUser, async (req, res) => {
     });
 
     await expertUser.save();
+
+    const companyPrefix = (seller.company || "CO").substring(0, 2).toUpperCase();
+    const randomSuffix = generateRandomId(6); 
+    const password = `${companyPrefix}${randomSuffix}`; 
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const authEntry = new Auth({

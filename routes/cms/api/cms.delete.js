@@ -10,7 +10,7 @@ cmsDelete.delete('/:section/:id', async (req, res) => {
     const sectionDocument = await Cms.findOne({ section });
 
     if (!sectionDocument) {
-      return res.status(404).json({ status: false, message: 'Section not found' });
+      return res.status(404).json({ success: false, message: 'Section not found' });
     }
 
     const initialContentLength = sectionDocument.content.length;
@@ -24,12 +24,12 @@ cmsDelete.delete('/:section/:id', async (req, res) => {
     const finalContentLength = updatedSingleSection.content.length;
 
     if (initialContentLength === finalContentLength) {
-      return res.status(404).json({ status: false, message: 'Item not found in section' });
+      return res.status(404).json({ success: false, message: 'Item not found in section' });
     }
 
-    res.status(200).json({ status: true, message: 'Deleted successfully!' });
+    res.status(200).json({ success: true, message: 'Deleted successfully!' });
   } catch (error) {
-    res.status(500).json({ status: false, message: 'Internal server error', error: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
   }
 });
 

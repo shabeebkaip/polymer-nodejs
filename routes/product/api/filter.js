@@ -23,7 +23,7 @@ productFilter.get('/', async (req, res) => {
             incoterms,
             paymentTerms,
             packagingTypes,
-            users
+            usersRaw
         ] = await Promise.all([
             ChemicalFamily.find({}, { name: 1 }).lean(),
             PolymerType.find({}, { name: 1 }).lean(),
@@ -33,14 +33,20 @@ productFilter.get('/', async (req, res) => {
             Incoterm.find({}, { name: 1 }).lean(),
             PaymentTerms.find({}, { name: 1 }).lean(),
             PackagingType.find({}, { name: 1 }).lean(),
-            User.find({ user_type: 'seller' }, { firstName: 1, lastName: 1 }).lean() 
+            User.find({ user_type: 'seller' }, { company:1 }).lean() 
         ]);
 
-
-        const usersWithFullName = users.map(user => ({
-            _id: user._id,
-            name: `${user.firstName} ${user.lastName}`  
-        }));
+        const users = usersRaw
+            .filter(user => user.company)
+            .map(user => ({
+                _id: user._id,
+                name: user.company
+            }));
+            
+        // const usersWithFullName = users.map(user => ({
+        //     _id: user._id,
+        //     name: `${user.firstName} ${user.lastName}`  
+        // }));
 
     
         const countries = await Product.distinct('countryOfOrigin');
@@ -155,11 +161,11 @@ productFilter.get('/', async (req, res) => {
                 data: [true, false]
             },
             {
-                name: "createdBy",
-                displayName: "Created By",
+                name: "company",
+                displayName: "Company",
                 component: "multiLookup",
                 filterType:"array",
-                data: usersWithFullName
+                data: users
             }
         ];
 

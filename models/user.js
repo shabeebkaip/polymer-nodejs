@@ -10,6 +10,9 @@ const schema = new Schema({
     type: String,
     required: true,
   },
+  profile_image: {
+    type: String
+  },
   company: {
     type: String,
     required: true,
@@ -18,7 +21,7 @@ const schema = new Schema({
     type: String,
     required: true,
   },
-  website:{
+  website: {
     type: String,
     required: true,
   },
@@ -30,13 +33,13 @@ const schema = new Schema({
     type: String,
     required: false,
   },
-  country_code:{
-    type:String,
-    required:true
+  country_code: {
+    type: String,
+    required: true
   },
-  phone:{
-    type:Number,
-    required:true,
+  phone: {
+    type: Number,
+    required: true,
   },
   location: {
     type: String,
@@ -47,10 +50,16 @@ const schema = new Schema({
   company_logo: {
     type: String
   },
-  user_type:{
+  user_type: {
     type: String,
-    enum:["buyer", "seller", "superAdmin", "expert"],
+    enum: ["buyer", "seller", "superAdmin", "expert"],
     default: "buyer",
+  },
+  Expert_department: {
+    type: String
+  },
+  Expert_role: {
+    type: String
   },
   verification: {
     type: String,
