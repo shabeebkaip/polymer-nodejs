@@ -25,7 +25,7 @@ cmsEdit.put('/:section',(async (req, res) => {
 
     return res.status(200).json({
       status: true,
-      message: `Section "${section}" updated successfully.`,
+      message: 'updated successfully.',
       data: updatedSection,
     });
   } catch (error) {
@@ -46,14 +46,14 @@ cmsEdit.put('/:section/:id',(async (req, res) => {
 
     if (!sectionDoc) {
       return res.status(404).json({
-        status: false,
+        success: false,
         message: `Section "${section}" not found.`,
       });
     }
 
     if (!Array.isArray(sectionDoc.content)) {
       return res.status(400).json({
-        status: false,
+        success: false,
         message: `Section "${section}" content is not an array.`,
       });
     }
@@ -63,7 +63,7 @@ cmsEdit.put('/:section/:id',(async (req, res) => {
 
     if (itemIndex === -1) {
       return res.status(404).json({
-        status: false,
+        success: false,
         message: `Item with id "${id}" not found in section "${section}".`,
       });
     }
@@ -77,14 +77,14 @@ cmsEdit.put('/:section/:id',(async (req, res) => {
     await sectionDoc.save();
 
     return res.status(200).json({
-      status: true,
-      message: `Section "${section}" updated successfully.`,
+      success: true,
+      message: 'updated successfully.',
       data: contentArray[itemIndex],
     });
 
   } catch (error) {
     return res.status(500).json({
-      status: false,
+      success: false,
       message: 'Internal server error',
       error: error.message,
     });

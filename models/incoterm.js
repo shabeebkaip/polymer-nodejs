@@ -11,23 +11,11 @@ const schema = new Schema(
       type: String,
       required: true
     },
-    ar_name: {
-      type: String,
-      required: true
-    },
     ar_fullForm: {
       type: String,
       required: true
     },
-    ger_name: {
-      type: String,
-      required: true
-    },
     ger_fullForm: {
-      type: String,
-      required: true
-    },
-    cn_name: {
       type: String,
       required: true
     },

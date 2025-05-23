@@ -176,9 +176,6 @@ export const productAggregation = (filters = {}) => {
             in: {
               _id: "$$term._id",
               name: { $ifNull: [{ $trim: { input: "$$term.name" } }, ""] },
-              ar_name: { $ifNull: [{ $trim: { input: "$$term.ar_name" } }, ""] },
-              ger_name: { $ifNull: [{ $trim: { input: "$$term.ger_name" } }, ""] },
-              cn_name: { $ifNull: [{ $trim: { input: "$$term.cn_name" } }, ""] }
             }
           }
         },
