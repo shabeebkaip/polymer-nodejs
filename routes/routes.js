@@ -28,6 +28,8 @@ import financeRouter from "./finance/finance.js";
 import cmsRouter from "./cms/cms.js";
 import homeRouter from "./home/home.js";
 import chatRouter from "./chat/chat.js";
+import bestDealRouter from "./bestDeal/bestDeal.js";
+import bulkOrderRouter from "./bulkOrder/bulkOrder.js";
 
 const router = express.Router();
 
@@ -59,6 +61,8 @@ router.use("/finance", financeRouter);
 router.use("/cms", cmsRouter);
 router.use("/home", homeRouter);
 router.use("/chat", chatRouter);
+router.use("/best-deal", bestDealRouter)
+router.use("/bulk-order", bulkOrderRouter)
 
 
 

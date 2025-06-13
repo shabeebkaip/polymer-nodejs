@@ -14,6 +14,7 @@ const buildCmsResult = (cms, isArabic) => {
     { name: "image", displayName: "Image", component: "image" },
     ...(title ? [{ name: "title", displayName: "Title", component: "text" }] : []),
     { name: "description", displayName: "Description", component: "text" },
+    { name: "name", displayName: "Name", component: "text" },
     { name: "edit", displayName: "Edit", component: "action" }
   ];
 
@@ -26,6 +27,7 @@ const buildCmsResult = (cms, isArabic) => {
     const row = {
       id: cmsItem._id,
       image: cmsItem.image,
+      name: cmsItem.name,
       link: cmsItem.link,
       ar_title: cmsItem.ar_title,
       ar_description: cmsItem.ar_description,
