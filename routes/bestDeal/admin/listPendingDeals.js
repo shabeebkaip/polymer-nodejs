@@ -1,28 +1,26 @@
+// backend/routes/bestDeal/admin/listBestDeals.js
 import express from "express";
 import BestDeal from "../../../models/bestDeal.js";
-import {
-  authenticateUser,
-  authorizeRoles,
-} from "../../../middlewares/verify.token.js";
+import { authenticateUser, authorizeRoles } from "../../../middlewares/verify.token.js";
 
-const listPendingDeals = express.Router();
+const listBestDeals = express.Router();
 
-listPendingDeals.get(
+listBestDeals.get(
   "/",
   authenticateUser,
-  authorizeRoles("superAdmin"), // 👈 This ensures only superAdmin can access
+  authorizeRoles("superAdmin"),
   async (req, res) => {
     try {
-      const pendingDeals = await BestDeal.find({ status: "pending" })
+      const bestDeals = await BestDeal.find() // ✅ Remove status filter
         .populate("productId", "productName price productImages")
-        .populate("sellerId", "name email");
+        .populate("sellerId", "firstName lastName email");
 
-      res.status(200).json(pendingDeals);
+      res.status(200).json({ success: true, data: bestDeals });
     } catch (err) {
-      console.error("Error fetching pending best deals:", err);
+      console.error("Error fetching best deals:", err);
       res.status(500).json({ message: "Server error", error: err.message });
     }
   }
 );
 
-export default listPendingDeals;
+export default listBestDeals;

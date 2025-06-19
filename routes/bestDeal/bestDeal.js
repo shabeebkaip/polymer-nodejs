@@ -16,7 +16,7 @@ bestDealRouter.use("/delete", deleteBestDeal);
 bestDealRouter.use("/list", listBestDeals);
 bestDealRouter.use("/edit", editBestDeal);
 bestDealRouter.use("/admin-list", listPendingDeals);
-bestDealRouter.use("/admin-decision", adminDecision);
+bestDealRouter.use("/admin-status", adminDecision);
 bestDealRouter.use("/admin-approved", listApprovedDeals);
 
 
