@@ -1,4 +1,3 @@
-// models/BestDeal.js
 import mongoose, { Schema } from "mongoose";
 
 const bestDealSchema = new Schema(

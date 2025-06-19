@@ -6,6 +6,8 @@ import deleteBestDeal from "./api/offer.delete.js";
 import listPendingDeals from "./admin/listPendingDeals.js";
 import adminDecision from "./admin/approveOrRejectDeal.js";
 import listApprovedDeals from "./admin/approvedDeals.js";
+import adminEditBestDeal from "./admin/adminEditBestDeal.js";
+import adminCreateBestDeal from "./admin/adminCreateBestDeal.js";
 
 
 
@@ -18,6 +20,9 @@ bestDealRouter.use("/edit", editBestDeal);
 bestDealRouter.use("/admin-list", listPendingDeals);
 bestDealRouter.use("/admin-status", adminDecision);
 bestDealRouter.use("/admin-approved", listApprovedDeals);
+bestDealRouter.use("/admin-create", adminCreateBestDeal);
+bestDealRouter.use("/admin-edit", adminEditBestDeal);
+
 
 
 export default bestDealRouter;

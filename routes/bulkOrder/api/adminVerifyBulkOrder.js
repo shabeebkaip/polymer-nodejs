@@ -11,22 +11,27 @@ adminVerifyBulkOrder.patch("/:id", authenticateUser, authorizeRoles("superAdmin"
 
     const validStatus = ["pending", "approved", "rejected"];
     if (!validStatus.includes(status)) {
-      return res.status(400).json({ error: "Invalid status." });
+      return res.status(400).json({ success: false, message: "Invalid status." });
     }
 
-    const updated = await BulkOrder.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
+    const updated = await BulkOrder.findByIdAndUpdate(id, { status }, { new: true });
 
     if (!updated) {
-      return res.status(404).json({ error: "Bulk order not found." });
+      return res.status(404).json({ success: false, message: "Bulk order not found." });
     }
 
-    res.status(200).json({ message: "Status updated.", data: updated });
+    return res.status(200).json({
+      success: true,
+      message: `Bulk order ${status} successfully.`,
+      data: updated,
+    });
   } catch (err) {
-    res.status(500).json({ error: "Failed to update bulk order status." });
+    console.error("Bulk order update error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update bulk order status.",
+      error: err.message,
+    });
   }
 });
 
