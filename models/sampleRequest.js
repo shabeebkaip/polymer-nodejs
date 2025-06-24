@@ -74,11 +74,6 @@ const sampleRequestSchema = new mongoose.Schema(
     request_document: {
       type: String
     },
-    // purchase_plan: {
-    //   type: String,
-    //   required: true,
-    //   enum: ["immediate", "3_months", "6_months", "1_year", "testing"],
-    // },
     status: {
       type: String,
       enum: ["pending", "approved", "rejected", "responded"],
