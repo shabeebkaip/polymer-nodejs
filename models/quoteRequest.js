@@ -45,16 +45,6 @@ const schema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "incoterm",
     },
-    postCode: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    city: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     country: {
       type: String,
       required: true,

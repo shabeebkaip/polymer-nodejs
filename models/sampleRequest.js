@@ -36,25 +36,10 @@ const sampleRequestSchema = new mongoose.Schema(
         "Pint",
       ],
     },
-    streetName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     phone: {
       type: Number,
     },
     address: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    postCode: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    city: {
       type: String,
       required: true,
       trim: true,
