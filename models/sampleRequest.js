@@ -64,12 +64,6 @@ const sampleRequestSchema = new mongoose.Schema(
     orderDate: {
       type: Date,
     },
-    samplePrice: {
-      type: String
-    },
-    forFree: {
-      type: Boolean
-    },
     neededBy: {
       type: Date,
     },
@@ -87,7 +81,7 @@ const sampleRequestSchema = new mongoose.Schema(
     // },
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected", "fulfilled"],
+      enum: ["pending", "approved", "rejected", "responded"],
       default: "pending",
     },
 
