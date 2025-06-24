@@ -72,14 +72,21 @@ const sampleRequestSchema = new mongoose.Schema(
       trim: true,
     },
     request_document: {
-      type: String
+      type: String,
     },
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected", "responded"],
+      enum: [
+        "pending", // Request created by buyer, waiting for supplier action
+        "responded", // Supplier responded/request acknowledged
+        "sent", // Sample sent by supplier
+        "delivered", // Sample received by buyer
+        "approved", // Buyer approved sample
+        "rejected", // Rejected by supplier or buyer
+        "cancelled", // Request cancelled by buyer or supplier
+      ],
       default: "pending",
     },
-
   },
   { timestamps: true }
 );
