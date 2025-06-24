@@ -1,4 +1,3 @@
-// adminGetUsers.js - to get users for admin dropdown
 import express from "express";
 import User from "../../../models/user.js";
 import { authenticateUser, authorizeRoles } from "../../../middlewares/verify.token.js";

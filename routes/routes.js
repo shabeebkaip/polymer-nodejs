@@ -30,6 +30,7 @@ import homeRouter from "./home/home.js";
 import chatRouter from "./chat/chat.js";
 import bestDealRouter from "./bestDeal/bestDeal.js";
 import bulkOrderRouter from "./bulkOrder/bulkOrder.js";
+// import testimonialRoutes from "./testimonials/testimonials.js";
 
 const router = express.Router();
 
@@ -63,6 +64,7 @@ router.use("/home", homeRouter);
 router.use("/chat", chatRouter);
 router.use("/best-deal", bestDealRouter)
 router.use("/bulk-order", bulkOrderRouter)
+// router.use("/testimonial", testimonialRoutes)
 
 
 

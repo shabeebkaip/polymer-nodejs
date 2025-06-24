@@ -33,6 +33,8 @@ const buildCmsResult = (cms, isArabic) => {
       ar_description: cmsItem.ar_description,
       title: cmsItem.title,
       description: cmsItem.description,
+      shortDescription: cmsItem.shortDescription,
+      fullStoryUrl: cmsItem.fullStoryUrl,
       edit: { name: "edit", icon: "edit.svg", displayName: "Edit", id: cmsItem._id }
     };
     result.data.push(row);

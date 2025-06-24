@@ -4,7 +4,7 @@ const schema = new mongoose.Schema({
     section: {
         type: String,
         required: true,
-        enum: ['socialMedia', 'termsAndConditions', 'privacyPolicy',"BenefitsForBuyer","BenefitsForSuplier", "HeroSection", "PolymerAdvantages", "FooterMailNumber"],
+        enum: ['socialMedia', 'termsAndConditions', 'privacyPolicy',"BenefitsForBuyer","BenefitsForSuplier", "HeroSection", "PolymerAdvantages", "FooterMailNumber", "Testimonials"],
     },
     content: {
         type: mongoose.Schema.Types.Mixed, 
