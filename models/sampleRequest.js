@@ -36,25 +36,10 @@ const sampleRequestSchema = new mongoose.Schema(
         "Pint",
       ],
     },
-    streetName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     phone: {
       type: Number,
     },
     address: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    postCode: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    city: {
       type: String,
       required: true,
       trim: true,
@@ -79,12 +64,6 @@ const sampleRequestSchema = new mongoose.Schema(
     orderDate: {
       type: Date,
     },
-    samplePrice: {
-      type: String
-    },
-    forFree: {
-      type: Boolean
-    },
     neededBy: {
       type: Date,
     },
@@ -93,19 +72,21 @@ const sampleRequestSchema = new mongoose.Schema(
       trim: true,
     },
     request_document: {
-      type: String
+      type: String,
     },
-    // purchase_plan: {
-    //   type: String,
-    //   required: true,
-    //   enum: ["immediate", "3_months", "6_months", "1_year", "testing"],
-    // },
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected", "fulfilled"],
+      enum: [
+        "pending", // Request created by buyer, waiting for supplier action
+        "responded", // Supplier responded/request acknowledged
+        "sent", // Sample sent by supplier
+        "delivered", // Sample received by buyer
+        "approved", // Buyer approved sample
+        "rejected", // Rejected by supplier or buyer
+        "cancelled", // Request cancelled by buyer or supplier
+      ],
       default: "pending",
     },
-
   },
   { timestamps: true }
 );

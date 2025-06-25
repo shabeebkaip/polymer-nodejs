@@ -45,16 +45,6 @@ const schema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "incoterm",
     },
-    postCode: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    city: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     country: {
       type: String,
       required: true,
@@ -79,7 +69,7 @@ const schema = new Schema(
     },
     delivery_date: {
       type: Date,
-      required: true
+      required: true,
     },
     application: {
       type: String,
@@ -93,14 +83,22 @@ const schema = new Schema(
       trim: true,
     },
     request_document: {
-      type: String
+      type: String,
     },
-    open_request:{
-      type: Boolean
+    open_request: {
+      type: Boolean,
     },
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected", "fulfilled"],
+      enum: [
+        "pending", // Buyer requested a quote, waiting for supplier response
+        "responded", // Supplier responded with a quote
+        "negotiation", // Quote is under negotiation
+        "approved", // Buyer approved the final quote
+        "rejected", // Quote or request was rejected
+        "fulfilled", // Deal completed/fulfilled
+        "cancelled", // Request was cancelled
+      ],
       default: "pending",
     },
   },
