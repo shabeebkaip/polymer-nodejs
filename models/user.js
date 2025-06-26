@@ -55,6 +55,9 @@ const schema = new Schema({
     enum: ["buyer", "seller", "superAdmin", "expert"],
     default: "buyer",
   },
+  about_us: {
+    type: String
+  },
   Expert_department: {
     type: String
   },

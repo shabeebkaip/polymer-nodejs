@@ -4,7 +4,7 @@ import getUserQuotes from './api/history.js'
 import recivedRouter from './api/received.js'
 import getAllQuotesRequests from './api/list.js'
 import updateQuoteStatus from './api/status.update.js'
-import getApprovedQuotes from './api/admin.approved.js'
+// import getApprovedQuotes from './api/admin.approved.js'
 
 const quoteRouter = express.Router()
 quoteRouter.use('/create', createQuote)
@@ -12,7 +12,7 @@ quoteRouter.use('/history', getUserQuotes)
 quoteRouter.use('/received', recivedRouter)
 quoteRouter.use('/list', getAllQuotesRequests)
 quoteRouter.use('/status', updateQuoteStatus)
-quoteRouter.use('/approved', getApprovedQuotes)
+// quoteRouter.use('/approved', getApprovedQuotes)
 
 
 
