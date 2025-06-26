@@ -60,6 +60,7 @@ productFilter.get('/', async (req, res) => {
                 displayName: "Chemical Family",
                 component: "multiLookup",
                 filterType:"array",
+                collapsible: true,
                 data: chemicalfamilies
             },
             {
@@ -67,6 +68,7 @@ productFilter.get('/', async (req, res) => {
                 displayName: "Polymer Type",
                 component: "multiLookup",
                 filterType:"array",
+                collapsible: true,
                 data: polymertypes
             },
             {
@@ -74,6 +76,7 @@ productFilter.get('/', async (req, res) => {
                 displayName: "Industry Application",
                 component: "multiLookup",
                 filterType:"array",
+                collapsible: true,
                 data: industries
             },
             {
@@ -81,6 +84,7 @@ productFilter.get('/', async (req, res) => {
                 displayName: "Application Grade",
                 component: "multiLookup",
                 filterType:"array",
+                collapsible: true,
                 data: grades
             },
             {
@@ -88,6 +92,7 @@ productFilter.get('/', async (req, res) => {
                 displayName: "Physical Form",
                 component: "multiLookup",
                 filterType:"array",
+                collapsible: true,
                 data: physicalForms
             },
             {
@@ -95,13 +100,15 @@ productFilter.get('/', async (req, res) => {
                 displayName: "Country of Origin",
                 component: "multiLookup",
                 filterType:"array",
+                collapsible: true,
                 data: countries
             },
             {
                 name: "uom",
-                displayName: "Unit of Measure (UOM)",
+                displayName: "Unit",
                 component: "multiLookup",
                 filterType:"array",
+                collapsible: true,
                 data: uoms
             },
             {
@@ -109,6 +116,7 @@ productFilter.get('/', async (req, res) => {
                 displayName: "Price Terms",
                 component: "multiLookup",
                 filterType:"array",
+                collapsible: true,
                 data: priceTerms
             },
             {
@@ -116,6 +124,7 @@ productFilter.get('/', async (req, res) => {
                 displayName: "Incoterms",
                 component: "multiLookup",
                 filterType:"array",
+                collapsible: true,
                 data: incoterms
             },
             {
@@ -123,6 +132,7 @@ productFilter.get('/', async (req, res) => {
                 displayName: "Payment Terms",
                 component: "multiLookup",
                 filterType:"array",
+                collapsible: true,
                 data: paymentTerms
             },
             {
@@ -130,6 +140,7 @@ productFilter.get('/', async (req, res) => {
                 displayName: "Packaging Type",
                 component: "multiLookup",
                 filterType:"array",
+                collapsible: true,
                 data: packagingTypes
             },
             {
@@ -137,34 +148,40 @@ productFilter.get('/', async (req, res) => {
                 displayName: 'Recyclable',
                 component: "lookup",
                 filterType:"boolean",
-                data: [true, false]
+                collapsible: true,
+                data: [yes, No]
             },
             {
                 name: 'bioDegradable',
                 displayName: 'Biodegradable',
                 component: "lookup",
                 filterType:"boolean",
-                data: [true, false]
+                collapsible: true,
+                data: [yes, No]
             },
             {
                 name: 'fdaApproved',
                 displayName: 'FDA Approved',
                 component: "lookup",
                 filterType:"boolean",
-                data: [true, false]
+                collapsible: true,
+                data: [yes, No]
             },
             {
                 name: 'medicalGrade',
                 displayName: 'Medical Grade Certified',
                 component: "lookup",
                 filterType:"boolean",
-                data: [true, false]
+                collapsible: true,
+                data: [yes, No]
             },
             {
                 name: "company",
                 displayName: "Company",
                 component: "multiLookup",
-                filterType:"array",
+                filterType: "array",
+                collapsible: true,
+                searchable: true, 
                 data: users
             }
         ];

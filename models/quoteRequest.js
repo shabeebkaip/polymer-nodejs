@@ -75,8 +75,16 @@ const schema = new Schema(
       type: String,
       trim: true,
     },
-    pricing: {
+    price: {
       type: String,
+    },
+    lead_time: {
+      type: String,
+      trim: true,
+    },
+    terms: {
+      type: String,
+      trim: true,
     },
     message: {
       type: String,
