@@ -49,6 +49,50 @@ const bulkOrderSchema = new Schema(
       enum: ["pending", "approved", "rejected"],
       default: "pending",
     },
+    // Seller status tracking
+    sellerStatus: {
+      type: String,
+      enum: [
+        "pending", // Waiting for seller response
+        "accepted", // Seller accepted the bulk order
+        "in_progress", // Order is being processed
+        "shipped", // Order has been shipped
+        "delivered", // Order has been delivered
+        "completed", // Order completed successfully
+        "cancelled", // Order was cancelled
+        "rejected", // Seller rejected the order
+      ],
+      default: "pending",
+    },
+    // Response messages from seller to buyer
+    statusMessage: [
+      {
+        status: {
+          type: String,
+          required: true,
+          enum: [
+            "pending",
+            "accepted",
+            "in_progress",
+            "shipped",
+            "delivered",
+            "completed",
+            "cancelled",
+            "rejected",
+          ],
+        },
+        message: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        date: {
+          type: Date,
+          default: Date.now,
+          required: true,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

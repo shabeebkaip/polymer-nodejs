@@ -13,6 +13,8 @@ import listApprovedQuotes from "./api/dealQuoteApprovedAdmin.js";
 import createDealQuoteRequest from "./api/dealQuoteCreateBuyer.js";
 import listAllDealQuotes from "./api/dealQuoteAdminList.js";
 import adminGetUsers from "./admin/getAdminUsers.js";
+import listDealQuotesForSeller from "./api/listDealQuoteSeller.js";
+import verifyDealQuoteBySeller from "./api/verifyDealQuote.js";
 
 
 
@@ -32,11 +34,8 @@ bestDealRouter.use("/buyer-deal-verify", verifyDealQuote);
 bestDealRouter.use("/buyer-deal-approved", listApprovedQuotes);
 bestDealRouter.use("/buyer-deal-admin", listAllDealQuotes);
 bestDealRouter.use("/admin-users", adminGetUsers);
-
-
-
-
+bestDealRouter.use("/deal-quote", listDealQuotesForSeller);
+bestDealRouter.use("/deal-quote", verifyDealQuoteBySeller);
 
 
 export default bestDealRouter;
-listApprovedDeals

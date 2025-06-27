@@ -31,14 +31,42 @@ const supplierOfferSchema = new Schema(
     message: {
       type: String,
     },
+
+    // Buyer status
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],
       default: "pending",
     },
+
     adminNote: {
       type: String,
     },
+
+    // ✅ New: Timeline of all status updates (by buyer or admin)
+    statusMessage: [
+      {
+        status: {
+          type: String,
+          enum: ["pending", "approved", "rejected"],
+          required: true,
+        },
+        message: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        date: {
+          type: Date,
+          default: Date.now,
+        },
+        updatedBy: {
+          type: String,
+          enum: ["buyer", "admin"],
+          default: "buyer",
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

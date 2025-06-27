@@ -20,10 +20,17 @@ getApprovedBulkOrders.get("/", async (req, res) => {
       return obj;
     });
 
-    res.status(200).json({ success: true, data: formatted });
+    res.status(200).json({ 
+      success: true, 
+      data: formatted,
+      count: formatted.length 
+    });
   } catch (err) {
     console.error("Approved bulk order fetch error:", err);
-    res.status(500).json({ error: "Failed to fetch approved bulk orders" });
+    res.status(500).json({ 
+      success: false,
+      error: "Failed to fetch approved bulk orders" 
+    });
   }
 });
 

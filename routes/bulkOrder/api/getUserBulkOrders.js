@@ -11,9 +11,33 @@ getUserBulkOrders.get("/", authenticateUser, async (req, res) => {
       .populate("product", "productName")
       .sort({ createdAt: -1 });
 
-    res.status(200).json(orders);
+    // Format the response to include status tracking information
+    const formattedOrders = orders.map(order => {
+      const orderObj = order.toObject();
+      return {
+        ...orderObj,
+        statusTracking: {
+          adminStatus: orderObj.status, // pending, approved, rejected
+          sellerStatus: orderObj.sellerStatus, // seller's status updates
+          lastUpdate: orderObj.statusMessage.length > 0 
+            ? orderObj.statusMessage[orderObj.statusMessage.length - 1].date 
+            : orderObj.updatedAt,
+          totalUpdates: orderObj.statusMessage.length
+        }
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      data: formattedOrders,
+      count: formattedOrders.length
+    });
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch user's bulk orders" });
+    console.error("Error fetching user's bulk orders:", err);
+    res.status(500).json({ 
+      success: false,
+      error: "Failed to fetch user's bulk orders" 
+    });
   }
 });
 
