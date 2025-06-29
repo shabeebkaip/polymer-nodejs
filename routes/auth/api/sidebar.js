@@ -138,25 +138,14 @@ userSidebar.get("", authenticateUser, async (req, res) => {
             icon: "CreditCard",
           },
           {
-            displayName: "Bulk Order",
-            route: "/bulk-order",
-            name: "bulk-order",
+            displayName: "Open Requests",
+            route: "/user/open-requests",
+            name: "open-requests",
             icon: "Truck",
           },
         ],
       },
-      {
-        displayName: "My Orders",
-        route: "/user/my-orders",
-        name: "my-orders",
-        icon: "ShoppingCart",
-      },
-      {
-        displayName: "Wishlist",
-        route: "/user/wishlist",
-        name: "wishlist",
-        icon: "Heart",
-      });
+      );
     }
 
     res.status(200).json({ data: sidebarItems });
