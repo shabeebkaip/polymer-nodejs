@@ -20,42 +20,6 @@ userSidebar.get("", authenticateUser, async (req, res) => {
         name: "profile",
         icon: "User",
       },
-      {
-        displayName: "Settings",
-        route: "/user/settings",
-        name: "settings",
-        icon: "Settings",
-      },
-      {
-        displayName: "Privacy Policy",
-        route: "/privacy-policy",
-        name: "privacyPolicy",
-        icon: "ShieldCheck",
-      },
-      {
-        displayName: "Terms & Conditions",
-        route: "/terms-and-Condition",
-        name: "termsAndCondition",
-        icon: "FileText",
-      },
-      {
-        displayName: "Dashboard",
-        route: "/user/dashboard",
-        name: "dashboard",
-        icon: "LayoutDashboard",
-      },
-      {
-        displayName: "Notifications",
-        route: "/user/notifications",
-        name: "notifications",
-        icon: "Bell",
-      },
-      {
-        displayName: "Help & Support",
-        route: "/user/support",
-        name: "support",
-        icon: "HelpCircle",
-      },
     ];
 
     if (userInfo.user_type === "expert") {
@@ -144,9 +108,50 @@ userSidebar.get("", authenticateUser, async (req, res) => {
             icon: "Truck",
           },
         ],
-      },
-      );
+      });
     }
+
+    // Add common items for all user types
+    sidebarItems.push(
+      {
+        displayName: "Settings",
+        route: "/user/settings",
+        name: "settings",
+        icon: "Settings",
+      },
+      {
+        displayName: "Privacy Policy",
+        route: "/privacy-policy",
+        name: "privacyPolicy",
+        icon: "ShieldCheck",
+      },
+      {
+        displayName: "Terms & Conditions",
+        route: "/terms-and-Condition",
+        name: "termsAndCondition",
+        icon: "FileText",
+      },
+      {
+        displayName: "Dashboard",
+        route: "/user/dashboard",
+        name: "dashboard",
+        icon: "LayoutDashboard",
+      },
+      {
+        displayName: "Notifications",
+        route: "/user/notifications",
+        name: "notifications",
+        icon: "Bell",
+      },
+      {
+        displayName: "Help & Support",
+        route: "/user/support",
+        name: "support",
+        icon: "HelpCircle",
+      }
+    );
+
+    
 
     res.status(200).json({ data: sidebarItems });
   } catch (error) {
