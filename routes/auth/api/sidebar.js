@@ -16,98 +16,146 @@ userSidebar.get("", authenticateUser, async (req, res) => {
     let sidebarItems = [
       {
         displayName: "Profile",
-        route: "/profile",
+        route: "/user/profile",
         name: "profile",
-        icon: "profileIcon.svg",
+        icon: "User",
       },
       {
         displayName: "Settings",
-        route: "/settings",
+        route: "/user/settings",
         name: "settings",
-        icon: "settingsIcon.svg",
+        icon: "Settings",
       },
       {
-        displayName: "Privacy Pollicy",
-        route: "/privacyPolicy",
+        displayName: "Privacy Policy",
+        route: "/privacy-policy",
         name: "privacyPolicy",
-        icon: "privacyPolicyIcon.svg",
+        icon: "ShieldCheck",
       },
       {
         displayName: "Terms & Conditions",
-        route: "/termsAndCondition",
+        route: "/terms-and-Condition",
         name: "termsAndCondition",
-        icon: "termsAndConditionIcon.svg",
+        icon: "FileText",
+      },
+      {
+        displayName: "Dashboard",
+        route: "/user/dashboard",
+        name: "dashboard",
+        icon: "LayoutDashboard",
+      },
+      {
+        displayName: "Notifications",
+        route: "/user/notifications",
+        name: "notifications",
+        icon: "Bell",
+      },
+      {
+        displayName: "Help & Support",
+        route: "/user/support",
+        name: "support",
+        icon: "HelpCircle",
       },
     ];
 
     if (userInfo.user_type === "expert") {
       sidebarItems.push({
         displayName: "Message",
-        route: "/message",
+        route: "/user/message",
         name: "message",
-        icon: "messageIcon.svg",
+        icon: "MessageCircle",
       });
     } else if (userInfo.user_type === "seller") {
       sidebarItems.push(
         {
           displayName: "Product",
-          route: "/product",
+          route: "/user/product",
           name: "product",
-          icon: "productIcon.svg",
+          icon: "Package",
         },
         {
-          displayName: "Enquiries",
+          displayName: "Procurement",
           route: "/enquiries",
           name: "enquiries",
-          icon: "enquiriesIcon.svg",
+          icon: "ClipboardList",
           subItems: [
             {
-              displayName: "Sample Request",
-              route: "/sample-request",
-              name: "sample-request",
-              icon: "sampleIcon.svg",
+              displayName: "Sample Request Enquiries",
+              route: "/user/sample-enquiries",
+              name: "sample-request-enquiries",
+              icon: "Flask",
             },
             {
-              displayName: "Quote Request",
-              route: "/quote-request",
-              name: "quote-request",
-              icon: "quoteIcon.svg",
+              displayName: "Quote Request Enquiries",
+              route: "/user/quote-enquiries",
+              name: "quote-request-enquiries",
+              icon: "DollarSign",
             },
           ],
         },
         {
           displayName: "Experts",
-          route: "/experts",
+          route: "/user/experts",
           name: "experts",
-          icon: "expertsIcon.svg",
+          icon: "Users",
+        },
+        {
+          displayName: "Analytics",
+          route: "/user/analytics",
+          name: "analytics",
+          icon: "TrendingUp",
+        },
+        {
+          displayName: "Orders",
+          route: "/user/orders",
+          name: "orders",
+          icon: "ShoppingBag",
         }
       );
     } else if (userInfo.user_type === "buyer") {
       sidebarItems.push({
-        displayName: "Enquiries",
-        route: "/enquiries",
-        name: "enquiries",
-        icon: "enquiriesIcon.svg",
+        displayName: "Procurement",
+        route: "/procurement",
+        name: "procurement",
+        icon: "ClipboardList",
         subItems: [
           {
             displayName: "Sample Request",
             route: "/sample-request",
             name: "sample-request",
-            icon: "sampleIcon.svg",
+            icon: "Flask",
           },
           {
             displayName: "Quote Request",
             route: "/quote-request",
             name: "quote-request",
-            icon: "quoteIcon.svg",
+            icon: "DollarSign",
           },
           {
             displayName: "Finance Request",
             route: "/finance-request",
             name: "finance-request",
-            icon: "financeIcon.svg",
+            icon: "CreditCard",
+          },
+          {
+            displayName: "Bulk Order",
+            route: "/bulk-order",
+            name: "bulk-order",
+            icon: "Truck",
           },
         ],
+      },
+      {
+        displayName: "My Orders",
+        route: "/user/my-orders",
+        name: "my-orders",
+        icon: "ShoppingCart",
+      },
+      {
+        displayName: "Wishlist",
+        route: "/user/wishlist",
+        name: "wishlist",
+        icon: "Heart",
       });
     }
 
