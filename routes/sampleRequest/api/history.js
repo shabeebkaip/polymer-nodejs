@@ -10,12 +10,34 @@ getUserSamples.get("/", authenticateUser, async (req, res) => {
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || "";
+    const status = req.query.status || "";
 
     const skip = (page - 1) * limit;
 
-    const total = await SampleRequest.countDocuments({ user: userId });
+    // Build search query
+    let searchQuery = { user: userId };
 
-    const userRequests = await SampleRequest.find({ user: userId })
+    // Add search filters
+    if (search) {
+      searchQuery.$or = [
+        { "remarks": { $regex: search, $options: "i" } },
+        { "address": { $regex: search, $options: "i" } },
+        { "pincode": { $regex: search, $options: "i" } },
+        { "city": { $regex: search, $options: "i" } },
+        { "state": { $regex: search, $options: "i" } },
+        { "country": { $regex: search, $options: "i" } }
+      ];
+    }
+
+    // Add status filter
+    if (status) {
+      searchQuery.status = status;
+    }
+
+    const total = await SampleRequest.countDocuments(searchQuery);
+
+    const userRequests = await SampleRequest.find(searchQuery)
       .populate({
         path: "product",
         select: "productName createdBy", 
@@ -38,6 +60,8 @@ getUserSamples.get("/", authenticateUser, async (req, res) => {
       page,
       totalPages: Math.ceil(total / limit),
       count: userRequests.length,
+      search,
+      status,
     });
   } catch (err) {
     console.error("Error fetching user sample requests:", err);
