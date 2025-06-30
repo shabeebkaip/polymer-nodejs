@@ -24,45 +24,15 @@ sampleRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
       })
       .populate({
         path: "product",
-        select: "productName description category subCategory brand polymerType physicalForm grade industryApplications technicalSpecifications images createdBy",
-        populate: [
-          {
-            path: "category",
-            select: "name description",
-          },
-          {
-            path: "subCategory", 
-            select: "name description",
-          },
-          {
-            path: "brand",
-            select: "name logo description",
-          },
-          {
-            path: "polymerType",
-            select: "name description",
-          },
-          {
-            path: "physicalForm",
-            select: "name description",
-          },
-          {
-            path: "grade",
-            select: "name description properties",
-          },
-          {
-            path: "industryApplications",
-            select: "name description",
-          },
-          {
-            path: "createdBy",
-            select: "firstName lastName email phone company address city state country",
-          }
-        ]
+        select: "productName chemicalName description tradeName productImages density mfi tensileStrength elongationAtBreak shoreHardness waterAbsorption countryOfOrigin color manufacturingMethod createdBy",
+        populate: {
+          path: "createdBy",
+          select: "firstName lastName email phone company address city state country",
+        }
       })
       .populate({
         path: "grade",
-        select: "name description properties specifications",
+        select: "name description",
       });
 
     if (!sampleRequest) {
