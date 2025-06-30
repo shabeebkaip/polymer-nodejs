@@ -10,12 +10,35 @@ getUserQuotes.get("/", authenticateUser, async (req, res) => {
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || "";
+    const status = req.query.status || "";
 
     const skip = (page - 1) * limit;
 
-    const total = await QuoteRequest.countDocuments({ user: userId });
+    // Build search query
+    let searchQuery = { user: userId };
 
-    const userRequests = await QuoteRequest.find({ user: userId })
+    // Add search filters
+    if (search) {
+      searchQuery.$or = [
+        { "destination": { $regex: search, $options: "i" } },
+        { "country": { $regex: search, $options: "i" } },
+        { "application": { $regex: search, $options: "i" } },
+        { "message": { $regex: search, $options: "i" } },
+        { "terms": { $regex: search, $options: "i" } },
+        { "packaging_size": { $regex: search, $options: "i" } },
+        { "lead_time": { $regex: search, $options: "i" } }
+      ];
+    }
+
+    // Add status filter
+    if (status) {
+      searchQuery.status = status;
+    }
+
+    const total = await QuoteRequest.countDocuments(searchQuery);
+
+    const userRequests = await QuoteRequest.find(searchQuery)
     .populate({
       path: "product",
       select: "productName createdBy", 
@@ -37,6 +60,8 @@ getUserQuotes.get("/", authenticateUser, async (req, res) => {
       page,
       totalPages: Math.ceil(total / limit),
       count: userRequests.length,
+      search,
+      status,
     });
   } catch (err) {
     console.error("Error fetching user quote requests:", err);
