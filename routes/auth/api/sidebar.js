@@ -85,13 +85,13 @@ userSidebar.get("", authenticateUser, async (req, res) => {
         subItems: [
           {
             displayName: "Sample Request",
-            route: "/sample-request",
+            route: "/user/sample-request",
             name: "sample-request",
             icon: "Flask",
           },
           {
             displayName: "Quote Request",
-            route: "/quote-request",
+            route: "/user/quote-request",
             name: "quote-request",
             icon: "DollarSign",
           },
