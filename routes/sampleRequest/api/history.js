@@ -55,17 +55,33 @@ getUserSamples.get("/", authenticateUser, async (req, res) => {
       .sort({ createdAt: -1 });
 
     res.status(200).json({
+      success: true,
+      message: "Sample requests retrieved successfully",
       data: userRequests,
-      total,
-      page,
-      totalPages: Math.ceil(total / limit),
-      count: userRequests.length,
-      search,
-      status,
+      meta: {
+        pagination: {
+          total,
+          page,
+          totalPages: Math.ceil(total / limit),
+          count: userRequests.length,
+          limit
+        },
+        filters: {
+          search,
+          status
+        }
+      }
     });
   } catch (err) {
     console.error("Error fetching user sample requests:", err);
-    res.status(500).json({ error: "Failed to fetch user sample requests" });
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch user sample requests",
+      error: {
+        code: "FETCH_ERROR",
+        details: err.message
+      }
+    });
   }
 });
 

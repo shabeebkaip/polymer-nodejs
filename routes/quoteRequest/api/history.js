@@ -55,17 +55,33 @@ getUserQuotes.get("/", authenticateUser, async (req, res) => {
       .sort({ createdAt: -1 });
 
     res.status(200).json({
+      success: true,
+      message: "Quote requests retrieved successfully",
       data: userRequests,
-      total,
-      page,
-      totalPages: Math.ceil(total / limit),
-      count: userRequests.length,
-      search,
-      status,
+      meta: {
+        pagination: {
+          total,
+          page,
+          totalPages: Math.ceil(total / limit),
+          count: userRequests.length,
+          limit
+        },
+        filters: {
+          search,
+          status
+        }
+      }
     });
   } catch (err) {
     console.error("Error fetching user quote requests:", err);
-    res.status(500).json({ error: "Failed to fetch user quote requests" });
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch user quote requests",
+      error: {
+        code: "FETCH_ERROR",
+        details: err.message
+      }
+    });
   }
 });
 
