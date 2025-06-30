@@ -10,7 +10,7 @@ import sampleRequestDetailRouter from './api/detail.js'
 const sampleRouter = express.Router()
 sampleRouter.use('/create', createSample)
 sampleRouter.use('/history', getUserSamples)
-sampleRouter.use('/history/:id', sampleRequestDetailRouter) // Assuming this is for getting a specific sample request by ID
+sampleRouter.use('/history', sampleRequestDetailRouter) // Assuming this is for getting a specific sample request by ID
 sampleRouter.use('/received', recivedRouter)
 sampleRouter.use('/list', getAllSampleRequests)
 sampleRouter.use('/status', updateSampleStatus)
