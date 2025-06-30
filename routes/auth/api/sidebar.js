@@ -85,25 +85,25 @@ userSidebar.get("", authenticateUser, async (req, res) => {
         subItems: [
           {
             displayName: "Sample Request",
-            route: "/user/sample-request",
+            route: "/user/sample-requests",
             name: "sample-request",
             icon: "Flask",
           },
           {
             displayName: "Quote Request",
-            route: "/user/quote-request",
+            route: "/user/quote-requests",
             name: "quote-request",
             icon: "DollarSign",
           },
           {
             displayName: "Finance Request",
-            route: "/user/finance-request",
+            route: "/user/finance-requests",
             name: "finance-request",
             icon: "CreditCard",
           },
           {
             displayName: "Open Requests",
-            route: "/user/open-requests",
+            route: "/user/open-product-requests",
             name: "open-requests",
             icon: "Truck",
           },
