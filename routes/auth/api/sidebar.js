@@ -97,7 +97,7 @@ userSidebar.get("", authenticateUser, async (req, res) => {
           },
           {
             displayName: "Finance Request",
-            route: "/finance-request",
+            route: "/user/finance-request",
             name: "finance-request",
             icon: "CreditCard",
           },
