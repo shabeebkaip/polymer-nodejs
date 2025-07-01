@@ -102,8 +102,8 @@ userSidebar.get("", authenticateUser, async (req, res) => {
             icon: "CreditCard",
           },
           {
-            displayName: "Open Requests",
-            route: "/user/open-product-requests",
+            displayName: "Product Requests History",
+            route: "/user/product-requests-history",
             name: "open-requests",
             icon: "Truck",
           },
