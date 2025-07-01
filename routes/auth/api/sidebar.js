@@ -151,8 +151,6 @@ userSidebar.get("", authenticateUser, async (req, res) => {
       }
     );
 
-    
-
     res.status(200).json({ data: sidebarItems });
   } catch (error) {
     console.error("Sidebar Error:", error);
