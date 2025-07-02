@@ -58,6 +58,8 @@ const bulkOrderSchema = new Schema(
     },
     request_document: {
       type: String,
+      enum: ["yes", "no"],
+      required: true,
     },
     status: {
       type: String,
