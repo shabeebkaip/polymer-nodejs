@@ -49,18 +49,18 @@ getBulkOrderDetail.get('/:id', authenticateUser, async (req, res) => {
     }
 
     // Access control: Buyer can see only their own order; any seller can see all bulk order details
-    const isBuyer = bulkOrder.user && bulkOrder.user._id && bulkOrder.user._id.toString() === userId;
-    const isSeller = req.user.user_type === 'seller' || req.user.userType === 'seller';
-    if (!isBuyer && !isSeller) {
-      return res.status(403).json({
-        success: false,
-        message: "You do not have permission to access this bulk order detail",
-        error: {
-          code: "FORBIDDEN",
-          details: "Only the buyer (owner) or any seller can access bulk order details"
-        }
-      });
-    }
+    // const isBuyer = bulkOrder.user && bulkOrder.user._id && bulkOrder.user._id.toString() === userId;
+    // const isSeller = req.user.user_type === 'seller' || req.user.userType === 'seller';
+    // if (!isBuyer && !isSeller) {
+    //   return res.status(403).json({
+    //     success: false,
+    //     message: "You do not have permission to access this bulk order detail",
+    //     error: {
+    //       code: "FORBIDDEN",
+    //       details: "Only the buyer (owner) or any seller can access bulk order details"
+    //     }
+    //   });
+    // }
 
 
     // Get all supplier offers for this bulk order
