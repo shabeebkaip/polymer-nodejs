@@ -27,7 +27,7 @@ adminEditBestDeal.put(
         return res.status(400).json({ success: false, error: "Invalid seller found." });
       }
 
-      // ❌ Prevent editing if seller is not superAdmin (i.e., a seller)
+      //  Prevent editing if seller is not superAdmin (i.e., a seller)
       if (seller.user_type !== "superAdmin") {
         return res.status(403).json({
           success: false,

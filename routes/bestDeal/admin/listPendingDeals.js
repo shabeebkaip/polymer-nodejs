@@ -21,7 +21,7 @@ listBestDeals.get(
         .limit(limit)
         .sort({ createdAt: -1 })
         .populate("productId", "productName price productImages")
-        .populate("sellerId", "firstName lastName email user_type"); // ✅ Include user_type
+        .populate("sellerId", "firstName lastName email user_type");
 
       const formatted = bestDeals.map((deal) => {
         const obj = deal.toObject();
