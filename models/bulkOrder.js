@@ -21,6 +21,21 @@ const bulkOrderSchema = new Schema(
     uom: {
       type: String,
       required: true,
+      enum: [
+        "Kilogram",
+        "Gram",
+        "Milligram",
+        "Metric Ton",
+        "Pound",
+        "Ounce",
+        "Liter",
+        "Milliliter",
+        "Cubic Meter",
+        "Cubic Centimeter",
+        "Gallon",
+        "Quart",
+        "Pint",
+      ],
     },
     city: {
       type: String,

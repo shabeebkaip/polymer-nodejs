@@ -23,7 +23,8 @@ const bestDealSchema = new Schema(
     },
     adminNote: {
       type: String
-    }
+    },
+    
   },
   { timestamps: true }
 );
