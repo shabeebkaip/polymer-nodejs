@@ -62,6 +62,17 @@ getBulkOrderDetail.get('/:id', authenticateUser, async (req, res) => {
       });
     }
 
+
+    // Get all supplier offers for this bulk order
+    const SupplierOfferRequest = (await import("../../../models/supplierOfferRequest.js")).default;
+    const offers = await SupplierOfferRequest.find({ bulkOrderId: id })
+      .populate("supplierId", "firstName lastName email company")
+      .populate({
+        path: "bulkOrderId",
+        select: "product quantity uom city country delivery_date"
+      })
+      .sort({ createdAt: -1 });
+
     // Format the response to include status tracking information
     const orderObj = bulkOrder.toObject();
     const formattedOrder = {
@@ -79,8 +90,11 @@ getBulkOrderDetail.get('/:id', authenticateUser, async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Bulk order details retrieved successfully",
-      data: formattedOrder,
+      message: "Bulk order details and supplier offers retrieved successfully",
+      data: {
+        order: formattedOrder,
+        offers
+      }
     });
 
   } catch (error) {
