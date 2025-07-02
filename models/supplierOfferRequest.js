@@ -32,6 +32,14 @@ const supplierOfferSchema = new Schema(
       type: String,
     },
 
+    // Document upload field (optional)
+    offerDocument: {
+      id: { type: String },
+      name: { type: String },
+      type: { type: String },
+      fileUrl: { type: String },
+    },
+
     // Buyer status
     status: {
       type: String,
