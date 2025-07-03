@@ -20,7 +20,20 @@ recivedRouter.get("/", authenticateUser, async (req, res) => {
     // Build search query
     let searchQuery = { product: { $in: productIds } };
     if (search) {
+      // First, find products that match the search term
+      const matchingProducts = await Product.find({
+        createdBy: sellerId,
+        $or: [
+          { productName: { $regex: search, $options: "i" } },
+          { chemicalName: { $regex: search, $options: "i" } },
+          { tradeName: { $regex: search, $options: "i" } }
+        ]
+      }).select("_id");
+      
+      const searchProductIds = matchingProducts.map(p => p._id);
+      
       searchQuery.$or = [
+        { product: { $in: searchProductIds } }, // Search by product name
         { remarks: { $regex: search, $options: "i" } },
         { address: { $regex: search, $options: "i" } },
         { pincode: { $regex: search, $options: "i" } },
