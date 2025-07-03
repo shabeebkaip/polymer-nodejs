@@ -83,4 +83,70 @@ recivedRouter.get("/", authenticateUser, async (req, res) => {
   }
 });
 
+
+recivedRouter.get("/:id", authenticateUser, async (req, res) => {
+  try {
+    const sellerId = req.user.id;
+    const { id } = req.params;
+
+    // Find all products owned by this seller
+    const sellerProducts = await Product.find({ createdBy: sellerId }).select("_id");
+    const productIds = sellerProducts.map(p => p._id.toString());
+
+    // Find the sample request and ensure it is for a product owned by this seller
+    const sampleRequest = await SampleRequest.findById(id)
+      .populate({
+        path: "product",
+        select: "productName chemicalName description tradeName productImages density mfi tensileStrength elongationAtBreak shoreHardness waterAbsorption countryOfOrigin color manufacturingMethod createdBy",
+        populate: {
+          path: "createdBy",
+          select: "firstName lastName email phone company address city state country",
+        }
+      })
+      .populate({
+        path: "grade",
+        select: "name description",
+      })
+      .populate({
+        path: "user",
+        select: "firstName lastName email phone company address city state country pincode userType",
+      });
+
+    if (!sampleRequest || !productIds.includes(sampleRequest.product._id.toString())) {
+      return res.status(404).json({
+        success: false,
+        message: "Sample request not found or you do not have access to this request",
+        error: {
+          code: "NOT_FOUND",
+          details: "No such sample request for your products"
+        }
+      });
+    }
+
+    // Format user name
+    const reqObj = sampleRequest.toObject();
+    if (reqObj.user) {
+      reqObj.user.name = `${reqObj.user.firstName} ${reqObj.user.lastName}`.trim();
+      delete reqObj.user.firstName;
+      delete reqObj.user.lastName;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Sample request detail retrieved successfully",
+      data: reqObj
+    });
+  } catch (err) {
+    console.error("Error fetching sample request detail for seller:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch sample request detail for seller",
+      error: {
+        code: "FETCH_ERROR",
+        details: err.message
+      }
+    });
+  }
+});
+
 export default recivedRouter;
