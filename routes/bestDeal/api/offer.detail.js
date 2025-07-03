@@ -49,18 +49,18 @@ getBestDealDetail.get('/:id', authenticateUser, async (req, res) => {
     }
 
     // Access control: Seller can see only their own deals; any buyer can see all best deal details
-    const isSeller = bestDeal.sellerId && bestDeal.sellerId._id && bestDeal.sellerId._id.toString() === userId;
-    const isBuyer = req.user.user_type === 'buyer' || req.user.userType === 'buyer';
-    if (!isSeller && !isBuyer) {
-      return res.status(403).json({
-        success: false,
-        message: "You do not have permission to access this best deal detail",
-        error: {
-          code: "FORBIDDEN",
-          details: "Only the seller (owner) or any buyer can access best deal details"
-        }
-      });
-    }
+    // const isSeller = bestDeal.sellerId && bestDeal.sellerId._id && bestDeal.sellerId._id.toString() === userId;
+    // const isBuyer = req.user.user_type === 'buyer' || req.user.userType === 'buyer';
+    // if (!isSeller && !isBuyer) {
+    //   return res.status(403).json({
+    //     success: false,
+    //     message: "You do not have permission to access this best deal detail",
+    //     error: {
+    //       code: "FORBIDDEN",
+    //       details: "Only the seller (owner) or any buyer can access best deal details"
+    //     }
+    //   });
+    // }
 
     // Get all deal quote requests for this best deal
     const dealQuoteRequests = await DealQuoteRequest.find({ bestDealId: id })
