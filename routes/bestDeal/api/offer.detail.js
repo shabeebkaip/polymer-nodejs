@@ -1,55 +1,14 @@
-import express from "express";
-import BestDeal from "../../../models/bestDeal.js";
-import { authenticateUser, authorizeRoles } from "../../../middlewares/verify.token.js";
+import express from 'express';
+import BestDeal from '../../../models/bestDeal.js';
+import DealQuoteRequest from '../../../models/dealQuoteRequest.js';
+import { authenticateUser } from '../../../middlewares/verify.token.js';
 
-const listBestDeals = express.Router();
+const getBestDealDetail = express.Router();
 
-listBestDeals.get(
-  "/",
-  authenticateUser,
-  authorizeRoles("superAdmin"),
-  async (req, res) => {
-    try {
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
-      const skip = (page - 1) * limit;
-
-      const totalDeals = await BestDeal.countDocuments();
-
-      const bestDeals = await BestDeal.find()
-        .skip(skip)
-        .limit(limit)
-        .sort({ createdAt: -1 })
-        .populate("productId", "productName price productImages")
-        .populate("sellerId", "firstName lastName email user_type");
-
-      const formatted = bestDeals.map((deal) => {
-        const obj = deal.toObject();
-        if (obj.sellerId) {
-          obj.sellerId.name = `${obj.sellerId.firstName} ${obj.sellerId.lastName}`;
-          delete obj.sellerId.firstName;
-          delete obj.sellerId.lastName;
-        }
-        return obj;
-      });
-
-      res.status(200).json({
-        success: true,
-        data: formatted,
-        total: totalDeals,
-        page,
-        totalPages: Math.ceil(totalDeals / limit),
-      });
-    } catch (err) {
-      console.error("Error fetching best deals:", err);
-      res.status(500).json({ message: "Server error", error: err.message });
-    }
-  }
-);
-
-listBestDeals.get("/:id", authenticateUser, authorizeRoles("superAdmin"), async (req, res) => {
+getBestDealDetail.get('/:id', authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user.id;
 
     // Validate ObjectId
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
@@ -89,8 +48,21 @@ listBestDeals.get("/:id", authenticateUser, authorizeRoles("superAdmin"), async 
       });
     }
 
+    // Access control: Seller can see only their own deals; any buyer can see all best deal details
+    const isSeller = bestDeal.sellerId && bestDeal.sellerId._id && bestDeal.sellerId._id.toString() === userId;
+    const isBuyer = req.user.user_type === 'buyer' || req.user.userType === 'buyer';
+    if (!isSeller && !isBuyer) {
+      return res.status(403).json({
+        success: false,
+        message: "You do not have permission to access this best deal detail",
+        error: {
+          code: "FORBIDDEN",
+          details: "Only the seller (owner) or any buyer can access best deal details"
+        }
+      });
+    }
+
     // Get all deal quote requests for this best deal
-    const DealQuoteRequest = (await import("../../../models/dealQuoteRequest.js")).default;
     const dealQuoteRequests = await DealQuoteRequest.find({ bestDealId: id })
       .populate({
         path: "buyerId",
@@ -133,8 +105,6 @@ listBestDeals.get("/:id", authenticateUser, authorizeRoles("superAdmin"), async 
       }
     });
   }
-})
+}); 
 
-
-
-export default listBestDeals;
+export default getBestDealDetail;
