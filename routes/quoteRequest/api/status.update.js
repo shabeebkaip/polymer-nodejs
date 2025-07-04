@@ -13,7 +13,7 @@ updateQuoteStatus.patch(
       const { id } = req.params;
       const { status } = req.body;
 
-      const allowedStatuses = ["pending", "approved", "rejected"];
+      const allowedStatuses = ["pending", "approved", "rejected", "responded", "negotiation", "fulfilled", "cancelled"];
       if (!allowedStatuses.includes(status)) {
         return res.status(400).json({ success: false, message: "Invalid status value provided." });
       }
