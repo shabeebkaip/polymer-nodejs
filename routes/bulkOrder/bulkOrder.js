@@ -14,6 +14,7 @@ import adminProductList from "./api/adminProductList.js";
 import getSupplierOffersForBuyer from "./api/getSupplierOffersBuyer.js";
 import verifySupplierOfferByBuyer from "./api/verifySupplierOfferBuyer.js";
 import getBulkOrderDetail from "./api/getBulkOrderDetail.js";
+import getSupplierSubmittedOffersHistory from "./api/getSupplierSubmittedOffersHistory.js";
 
 
 const bulkOrderRouter = express.Router();
@@ -25,6 +26,7 @@ bulkOrderRouter.use("/user-list", getBulkOrderDetail);
 bulkOrderRouter.use("/verify-status", adminVerifyBulkOrder);
 bulkOrderRouter.use("/admin-approved", getApprovedBulkOrders);
 bulkOrderRouter.use("/supplier-offer", createSupplierOffer);
+bulkOrderRouter.use("/supplier-offer/history", getSupplierSubmittedOffersHistory ), 
 
 bulkOrderRouter.use("/supplier-offer", listSupplierOffers);
 bulkOrderRouter.use("/get-supplier", getSupplierOffersForBuyer);
