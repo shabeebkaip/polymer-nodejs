@@ -28,6 +28,7 @@ const productSchema = new Schema(
     mfi: { type: Number, required: false },
     tensileStrength: { type: Number, required: false },
     elongationAtBreak: { type: Number, required: false },
+    flexuralModulus : { type: Number, required: false },
     shoreHardness: { type: Number, required: false },
     waterAbsorption: { type: Number, required: false },
     safety_data_sheet: {
