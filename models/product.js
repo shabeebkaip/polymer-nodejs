@@ -59,7 +59,7 @@ const productSchema = new Schema(
       default: "fixed",
     },
     incoterms: [{ type: Schema.Types.ObjectId, ref: "Incoterms", required: true }],
-    leadTime: { type: Date, required: false },
+    leadTime: { type: String, required: false },
     paymentTerms: { type: Schema.Types.ObjectId, ref: "paymentTerms" },
     packagingType: [{ type: Schema.Types.ObjectId, ref: "packagingType" }],
     packagingWeight: { type: String, required: false },
