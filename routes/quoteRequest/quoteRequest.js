@@ -13,7 +13,7 @@ quoteRouter.use('/history', getUserQuotes)
 quoteRouter.use('/received', recivedRouter)
 quoteRouter.use('/list', getAllQuotesRequests)
 quoteRouter.use('/status', updateQuoteStatus)
-quoteRouter.use('/history', quoteRequestDetailRouter)
+quoteRouter.use('/detail', quoteRequestDetailRouter)
 // quoteRouter.use('/approved', getApprovedQuotes)
 
 
