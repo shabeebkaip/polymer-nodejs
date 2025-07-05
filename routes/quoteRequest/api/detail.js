@@ -96,7 +96,7 @@ quoteRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
     
     // Enhanced response structure
     const responseData = {
-      id: formattedResponse.id,
+      _id: formattedResponse.id,
       requestType: formattedResponse.requestType,
       status: formattedResponse.status,
       message: formattedResponse.message,
@@ -106,7 +106,7 @@ quoteRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
       
       // User information (buyer/requester)
       requester: formattedResponse.buyerId ? {
-        id: formattedResponse.buyerId._id,
+        _id: formattedResponse.buyerId._id,
         name: `${formattedResponse.buyerId.firstName} ${formattedResponse.buyerId.lastName}`,
         email: formattedResponse.buyerId.email,
         phone: formattedResponse.buyerId.phone,
@@ -125,7 +125,7 @@ quoteRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
       ...(formattedResponse.requestType === 'product_quote' ? {
         quoteType: 'Product Quote',
         product: formattedResponse.product ? {
-          id: formattedResponse.product._id,
+          _id: formattedResponse.product._id,
           productName: formattedResponse.product.productName,
           chemicalName: formattedResponse.product.chemicalName,
           tradeName: formattedResponse.product.tradeName,
@@ -135,12 +135,12 @@ quoteRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
           color: formattedResponse.product.color,
           manufacturingMethod: formattedResponse.product.manufacturingMethod,
           category: formattedResponse.product.category ? {
-            id: formattedResponse.product.category._id,
+            _id: formattedResponse.product.category._id,
             name: formattedResponse.product.category.name,
             description: formattedResponse.product.category.description
           } : null,
           subCategory: formattedResponse.product.subCategory ? {
-            id: formattedResponse.product.subCategory._id,
+            _id: formattedResponse.product.subCategory._id,
             name: formattedResponse.product.subCategory.name,
             description: formattedResponse.product.subCategory.description
           } : null,
@@ -153,7 +153,7 @@ quoteRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
             waterAbsorption: formattedResponse.product.waterAbsorption
           },
           creator: formattedResponse.product.createdBy ? {
-            id: formattedResponse.product.createdBy._id,
+            _id: formattedResponse.product.createdBy._id,
             name: `${formattedResponse.product.createdBy.firstName} ${formattedResponse.product.createdBy.lastName}`,
             company: formattedResponse.product.createdBy.company,
             email: formattedResponse.product.createdBy.email
@@ -180,7 +180,7 @@ quoteRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
       } : {
         quoteType: 'Deal Quote',
         bestDeal: formattedResponse.bestDealId ? {
-          id: formattedResponse.bestDealId._id,
+          _id: formattedResponse.bestDealId._id,
           title: formattedResponse.bestDealId.title,
           description: formattedResponse.bestDealId.description,
           offerPrice: formattedResponse.bestDealId.offerPrice,
@@ -190,7 +190,7 @@ quoteRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
           adminNote: formattedResponse.bestDealId.adminNote,
           createdAt: formattedResponse.bestDealId.createdAt,
           product: formattedResponse.bestDealId.productId ? {
-            id: formattedResponse.bestDealId.productId._id,
+            _id: formattedResponse.bestDealId.productId._id,
             productName: formattedResponse.bestDealId.productId.productName,
             chemicalName: formattedResponse.bestDealId.productId.chemicalName,
             tradeName: formattedResponse.bestDealId.productId.tradeName,
@@ -198,12 +198,12 @@ quoteRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
             countryOfOrigin: formattedResponse.bestDealId.productId.countryOfOrigin,
             color: formattedResponse.bestDealId.productId.color,
             category: formattedResponse.bestDealId.productId.category ? {
-              id: formattedResponse.bestDealId.productId.category._id,
+              _id: formattedResponse.bestDealId.productId.category._id,
               name: formattedResponse.bestDealId.productId.category.name,
               description: formattedResponse.bestDealId.productId.category.description
             } : null,
             subCategory: formattedResponse.bestDealId.productId.subCategory ? {
-              id: formattedResponse.bestDealId.productId.subCategory._id,
+              _id: formattedResponse.bestDealId.productId.subCategory._id,
               name: formattedResponse.bestDealId.productId.subCategory.name,
               description: formattedResponse.bestDealId.productId.subCategory.description
             } : null
@@ -228,6 +228,16 @@ quoteRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
           ? formattedResponse.delivery_date 
           : formattedResponse.deliveryDeadline,
         statusUpdates: formattedResponse.statusMessage?.length || 0
+      },
+
+      // Additional user-focused metadata (admin perspective)
+      metadata: {
+        canEdit: ['pending', 'responded', 'negotiation'].includes(formattedResponse.status),
+        canCancel: ['pending', 'responded', 'negotiation'].includes(formattedResponse.status),
+        canUpdateStatus: true, // Admin can always update status
+        nextActions: getAdminNextActions(formattedResponse.status),
+        estimatedProcessingTime: getEstimatedProcessingTime(formattedResponse.requestType, formattedResponse.status),
+        requiresAttention: ['pending', 'negotiation'].includes(formattedResponse.status)
       }
     };
 
@@ -248,3 +258,36 @@ quoteRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
 });
 
 export default quoteRequestDetailRouter;
+
+// Helper functions for admin-focused metadata
+function getAdminNextActions(status) {
+  const actionMap = {
+    'pending': ['Review request', 'Respond to quote', 'Request more info'],
+    'responded': ['Follow up', 'Update pricing', 'Set negotiation'],
+    'negotiation': ['Continue negotiation', 'Finalize terms', 'Escalate'],
+    'accepted': ['Process order', 'Arrange production', 'Update timeline'],
+    'in_progress': ['Monitor progress', 'Update customer', 'Prepare shipping'],
+    'shipped': ['Track shipment', 'Confirm delivery', 'Follow up'],
+    'delivered': ['Confirm receipt', 'Process payment', 'Get feedback'],
+    'completed': ['Archive', 'Generate report', 'Follow up for reorder'],
+    'rejected': ['Archive', 'Analyze reason', 'Improve process'],
+    'cancelled': ['Archive', 'Analyze reason', 'Follow up']
+  };
+  return actionMap[status] || ['Review status', 'Contact customer'];
+}
+
+function getEstimatedProcessingTime(requestType, status) {
+  const timeMap = {
+    'pending': requestType === 'product_quote' ? '1-3 business days' : '1-2 business days',
+    'responded': '24-48 hours for customer review',
+    'negotiation': '2-5 business days',
+    'accepted': '1-2 weeks processing',
+    'in_progress': '2-4 weeks production',
+    'shipped': '3-10 business days delivery',
+    'delivered': 'Complete',
+    'completed': 'Complete',
+    'rejected': 'N/A',
+    'cancelled': 'N/A'
+  };
+  return timeMap[status] || 'Contact support for timeline';
+}
