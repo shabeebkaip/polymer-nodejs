@@ -1,7 +1,7 @@
 import express from 'express';
 import BestDeal from '../../../models/bestDeal.js';
-import DealQuoteRequest from '../../../models/dealQuoteRequest.js';
 import { authenticateUser } from '../../../middlewares/verify.token.js';
+import UnifiedQuoteRequest from '../../../models/unifiedQuoteRequest.js';
 
 const getBestDealDetail = express.Router();
 
@@ -47,41 +47,121 @@ getBestDealDetail.get('/:id', authenticateUser, async (req, res) => {
         }
       });
     }
-
-    // Access control: Seller can see only their own deals; any buyer can see all best deal details
-    // const isSeller = bestDeal.sellerId && bestDeal.sellerId._id && bestDeal.sellerId._id.toString() === userId;
-    // const isBuyer = req.user.user_type === 'buyer' || req.user.userType === 'buyer';
-    // if (!isSeller && !isBuyer) {
-    //   return res.status(403).json({
-    //     success: false,
-    //     message: "You do not have permission to access this best deal detail",
-    //     error: {
-    //       code: "FORBIDDEN",
-    //       details: "Only the seller (owner) or any buyer can access best deal details"
-    //     }
-    //   });
-    // }
-
-    // Get all deal quote requests for this best deal
-    const dealQuoteRequests = await DealQuoteRequest.find({ bestDealId: id })
+    // Get all deal quote requests for this best deal using unified model
+    const dealQuoteRequests = await UnifiedQuoteRequest.find({ 
+      bestDealId: id,
+      requestType: "deal_quote"
+    })
       .populate({
         path: "buyerId",
         select: "firstName lastName email phone company address city state country pincode userType",
       })
       .populate({
         path: "bestDealId",
-        select: "productId sellerId offerPrice status"
+        select: "productId sellerId offerPrice status",
+        populate: {
+          path: "productId",
+          select: "productName chemicalName tradeName"
+        }
       })
       .sort({ createdAt: -1 });
 
-    // Format the response to include status tracking information
+    // Format quote requests for unified response
+    const formattedQuoteRequests = dealQuoteRequests.map(request => {
+      const requestObj = request.toObject();
+      return {
+        id: requestObj._id,
+        requestType: requestObj.requestType,
+        buyer: requestObj.buyerId ? {
+          id: requestObj.buyerId._id,
+          name: `${requestObj.buyerId.firstName} ${requestObj.buyerId.lastName}`,
+          email: requestObj.buyerId.email,
+          phone: requestObj.buyerId.phone,
+          company: requestObj.buyerId.company,
+          location: `${requestObj.buyerId.city || ''}, ${requestObj.buyerId.country || ''}`.replace(/^, |, $/, ''),
+          userType: requestObj.buyerId.userType
+        } : null,
+        dealDetails: {
+          desiredQuantity: requestObj.desiredQuantity,
+          shippingCountry: requestObj.shippingCountry,
+          paymentTerms: requestObj.paymentTerms,
+          deliveryDeadline: requestObj.deliveryDeadline,
+          message: requestObj.message
+        },
+        status: requestObj.status,
+        statusHistory: requestObj.statusMessage || [],
+        timeline: {
+          requested: requestObj.createdAt,
+          lastUpdate: requestObj.updatedAt,
+          deadline: requestObj.deliveryDeadline
+        },
+        createdAt: requestObj.createdAt,
+        updatedAt: requestObj.updatedAt
+      };
+    });
+
+    // Format the response to include comprehensive deal information
     const dealObj = bestDeal.toObject();
     const formattedDeal = {
-      ...dealObj,
+      id: dealObj._id,
+      productId: dealObj.productId?._id,
+      sellerId: dealObj.sellerId?._id,
+      offerPrice: dealObj.offerPrice,
+      status: dealObj.status,
+      adminNote: dealObj.adminNote,
+      createdAt: dealObj.createdAt,
+      updatedAt: dealObj.updatedAt,
+      seller: dealObj.sellerId ? {
+        id: dealObj.sellerId._id,
+        name: `${dealObj.sellerId.firstName} ${dealObj.sellerId.lastName}`,
+        email: dealObj.sellerId.email,
+        phone: dealObj.sellerId.phone,
+        company: dealObj.sellerId.company,
+        location: `${dealObj.sellerId.city || ''}, ${dealObj.sellerId.country || ''}`.replace(/^, |, $/, ''),
+        address: {
+          full: dealObj.sellerId.address,
+          city: dealObj.sellerId.city,
+          state: dealObj.sellerId.state,
+          country: dealObj.sellerId.country,
+          pincode: dealObj.sellerId.pincode
+        },
+        userType: dealObj.sellerId.userType
+      } : null,
+      product: dealObj.productId ? {
+        id: dealObj.productId._id,
+        productName: dealObj.productId.productName,
+        chemicalName: dealObj.productId.chemicalName,
+        tradeName: dealObj.productId.tradeName,
+        description: dealObj.productId.description,
+        productImages: dealObj.productId.productImages || [],
+        countryOfOrigin: dealObj.productId.countryOfOrigin,
+        color: dealObj.productId.color,
+        manufacturingMethod: dealObj.productId.manufacturingMethod,
+        specifications: {
+          density: dealObj.productId.density,
+          mfi: dealObj.productId.mfi,
+          tensileStrength: dealObj.productId.tensileStrength,
+          elongationAtBreak: dealObj.productId.elongationAtBreak,
+          shoreHardness: dealObj.productId.shoreHardness,
+          waterAbsorption: dealObj.productId.waterAbsorption
+        },
+        creator: dealObj.productId.createdBy ? {
+          id: dealObj.productId.createdBy._id,
+          name: `${dealObj.productId.createdBy.firstName} ${dealObj.productId.createdBy.lastName}`,
+          company: dealObj.productId.createdBy.company,
+          email: dealObj.productId.createdBy.email
+        } : null
+      } : null,
       statusTracking: {
         adminStatus: dealObj.status, // pending, approved, rejected
         lastUpdate: dealObj.updatedAt,
-        totalRequests: dealQuoteRequests.length
+        totalRequests: formattedQuoteRequests.length,
+        requestBreakdown: {
+          pending: formattedQuoteRequests.filter(req => req.status === 'pending').length,
+          accepted: formattedQuoteRequests.filter(req => req.status === 'accepted').length,
+          rejected: formattedQuoteRequests.filter(req => req.status === 'rejected').length,
+          completed: formattedQuoteRequests.filter(req => req.status === 'completed').length
+        }
       }
     };
 
@@ -90,7 +170,13 @@ getBestDealDetail.get('/:id', authenticateUser, async (req, res) => {
       message: "Best deal details and quote requests retrieved successfully",
       data: {
         deal: formattedDeal,
-        quoteRequests: dealQuoteRequests
+        quoteRequests: formattedQuoteRequests,
+        summary: {
+          totalQuoteRequests: formattedQuoteRequests.length,
+          dealStatus: dealObj.status,
+          isActive: dealObj.status === 'approved',
+          recentRequests: formattedQuoteRequests.slice(0, 5) // Last 5 requests
+        }
       }
     });
 
