@@ -6,10 +6,6 @@ const getApprovedBulkOrders = express.Router();
 
 getApprovedBulkOrders.get("/", async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-
     // Get query filters for opportunities
     const { priority, location, productType, hasOffers } = req.query;
 
@@ -24,9 +20,6 @@ getApprovedBulkOrders.get("/", async (req, res) => {
       ];
     }
 
-    // Get total count for pagination
-    const totalOrders = await BulkOrder.countDocuments(query);
-
     const approvedOrders = await BulkOrder.find(query)
       .populate({
         path: "product", 
@@ -40,8 +33,6 @@ getApprovedBulkOrders.get("/", async (req, res) => {
         path: "user", 
         select: "firstName lastName company email phone city country userType"
       })
-      .skip(skip)
-      .limit(limit)
       .sort({ createdAt: -1 });
 
     // Get offer counts for each order
@@ -162,13 +153,6 @@ getApprovedBulkOrders.get("/", async (req, res) => {
       message: "Buyer opportunities retrieved successfully",
       data: opportunities,
       meta: {
-        pagination: {
-          total: totalOrders,
-          page,
-          totalPages: Math.ceil(totalOrders / limit),
-          count: opportunities.length,
-          limit
-        },
         filters: {
           priority: priority || 'ALL',
           location: location || '',
