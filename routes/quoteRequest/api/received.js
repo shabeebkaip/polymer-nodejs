@@ -87,7 +87,7 @@ recivedRouter.get("/", authenticateUser, async (req, res) => {
       const buyer = formatted.buyerId;
       if (buyer) {
         formatted.buyer = {
-          id: buyer._id,
+          _id: buyer._id,
           name: `${buyer.firstName} ${buyer.lastName}`.trim(),
           company: buyer.company,
           email: buyer.email,
@@ -98,7 +98,7 @@ recivedRouter.get("/", authenticateUser, async (req, res) => {
       }
       
       return {
-        id: formatted._id,
+        _id: formatted._id,
         requestType: formatted.requestType,
         status: formatted.status,
         message: formatted.message,
@@ -106,7 +106,7 @@ recivedRouter.get("/", authenticateUser, async (req, res) => {
         updatedAt: formatted.updatedAt,
         buyer: formatted.buyer,
         product: formatted.product ? {
-          id: formatted.product._id,
+          _id: formatted.product._id,
           productName: formatted.product.productName,
           chemicalName: formatted.product.chemicalName,
           tradeName: formatted.product.tradeName,
@@ -300,7 +300,7 @@ recivedRouter.get("/:id", authenticateUser, async (req, res) => {
     
     // Enhanced response structure for sellers
     const responseData = {
-      id: formattedResponse._id,
+      _id: formattedResponse._id,
       requestType: formattedResponse.requestType,
       status: formattedResponse.status,
       message: formattedResponse.message,
@@ -310,7 +310,7 @@ recivedRouter.get("/:id", authenticateUser, async (req, res) => {
       
       // Buyer information
       buyer: buyer ? {
-        id: buyer._id,
+        _id: buyer._id,
         name: `${buyer.firstName} ${buyer.lastName}`.trim(),
         email: buyer.email,
         phone: buyer.phone,
@@ -327,7 +327,7 @@ recivedRouter.get("/:id", authenticateUser, async (req, res) => {
       
       // Product information (seller's product)
       product: formattedResponse.product ? {
-        id: formattedResponse.product._id,
+        _id: formattedResponse.product._id,
         productName: formattedResponse.product.productName,
         chemicalName: formattedResponse.product.chemicalName,
         tradeName: formattedResponse.product.tradeName,
@@ -337,12 +337,12 @@ recivedRouter.get("/:id", authenticateUser, async (req, res) => {
         color: formattedResponse.product.color,
         manufacturingMethod: formattedResponse.product.manufacturingMethod,
         category: formattedResponse.product.category ? {
-          id: formattedResponse.product.category._id,
+          _id: formattedResponse.product.category._id,
           name: formattedResponse.product.category.name,
           description: formattedResponse.product.category.description
         } : null,
         subCategory: formattedResponse.product.subCategory ? {
-          id: formattedResponse.product.subCategory._id,
+          _id: formattedResponse.product.subCategory._id,
           name: formattedResponse.product.subCategory.name,
           description: formattedResponse.product.subCategory.description
         } : null,
