@@ -124,7 +124,7 @@ getUserQuotes.get("/", authenticateUser, async (req, res) => {
       
       // Base data common to both types
       const baseData = {
-        id: requestObj._id,
+        _id: requestObj._id,
         requestType: requestObj.requestType,
         status: requestObj.status,
         message: requestObj.message,
