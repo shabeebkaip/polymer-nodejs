@@ -4,6 +4,36 @@ import UnifiedQuoteRequest from "../../../models/unifiedQuoteRequest.js";
 
 const getUserQuotes = express.Router();
 
+// Helper functions for unified fields
+const getStatusIcon = (status) => {
+  const icons = {
+    pending: '⏳',
+    responded: '💬',
+    negotiation: '🤝',
+    accepted: '✅',
+    in_progress: '🔄',
+    shipped: '🚚',
+    delivered: '📦',
+    completed: '🎉',
+    rejected: '❌',
+    cancelled: '🚫'
+  };
+  return icons[status] || '❓';
+};
+
+const getPriorityLevel = (deliveryDate) => {
+  if (!deliveryDate) return 'normal';
+  
+  const now = new Date();
+  const delivery = new Date(deliveryDate);
+  const daysUntilDelivery = Math.ceil((delivery - now) / (1000 * 60 * 60 * 24));
+  
+  if (daysUntilDelivery <= 7) return 'urgent';
+  if (daysUntilDelivery <= 14) return 'high';
+  if (daysUntilDelivery <= 30) return 'medium';
+  return 'normal';
+};
+
 getUserQuotes.get("/", authenticateUser, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -16,12 +46,9 @@ getUserQuotes.get("/", authenticateUser, async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    // Build search query for unified model - user can be buyerId or user field
+    // Build search query for unified model - only use buyerId field
     let searchQuery = { 
-      $or: [
-        { buyerId: userId }, // For deal quotes
-        { user: userId }     // For product quotes (legacy field)
-      ]
+      buyerId: userId // Unified field for all quote types
     };
 
     // Add request type filter
@@ -86,8 +113,7 @@ getUserQuotes.get("/", authenticateUser, async (req, res) => {
       .populate({ path: "grade", select: "name" })   
       .populate({ path: "incoterm", select: "name" })
       .populate({ path: "packagingType", select: "name" })
-      .populate({ path: "user", select: "firstName lastName company email" })
-      .populate({ path: "buyerId", select: "firstName lastName company email" })
+      .populate({ path: "buyerId", select: "firstName lastName company email" }) // Only buyerId, remove user
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
@@ -113,7 +139,7 @@ getUserQuotes.get("/", authenticateUser, async (req, res) => {
           ...baseData,
           quoteType: 'Product Quote',
           product: requestObj.product,
-          user: requestObj.user,
+          buyer: requestObj.buyerId, // Use buyerId instead of user
           quantity: requestObj.quantity,
           uom: requestObj.uom,
           destination: requestObj.destination,
@@ -131,7 +157,11 @@ getUserQuotes.get("/", authenticateUser, async (req, res) => {
             quantity: requestObj.quantity,
             deliveryDate: requestObj.delivery_date,
             location: requestObj.country,
-            productInfo: requestObj.product?.productName || 'Product Quote'
+            productInfo: requestObj.product?.productName || 'Product Quote',
+            type: 'product_quote',
+            title: requestObj.product?.productName || 'Product Quote',
+            statusIcon: getStatusIcon(requestObj.status),
+            priorityLevel: getPriorityLevel(requestObj.delivery_date)
           }
         };
       } else {
@@ -150,7 +180,11 @@ getUserQuotes.get("/", authenticateUser, async (req, res) => {
             quantity: requestObj.desiredQuantity,
             deliveryDate: requestObj.deliveryDeadline,
             location: requestObj.shippingCountry,
-            productInfo: requestObj.bestDealId?.productId?.productName || 'Deal Quote'
+            productInfo: requestObj.bestDealId?.productId?.productName || 'Deal Quote',
+            type: 'deal_quote',
+            title: requestObj.bestDealId?.productId?.productName || 'Deal Quote',
+            statusIcon: getStatusIcon(requestObj.status),
+            priorityLevel: getPriorityLevel(requestObj.deliveryDeadline)
           }
         };
       }
@@ -164,9 +198,20 @@ getUserQuotes.get("/", authenticateUser, async (req, res) => {
       statusBreakdown: {
         pending: formattedRequests.filter(req => req.status === 'pending').length,
         responded: formattedRequests.filter(req => req.status === 'responded').length,
+        negotiation: formattedRequests.filter(req => req.status === 'negotiation').length,
         accepted: formattedRequests.filter(req => req.status === 'accepted').length,
+        in_progress: formattedRequests.filter(req => req.status === 'in_progress').length,
+        shipped: formattedRequests.filter(req => req.status === 'shipped').length,
+        delivered: formattedRequests.filter(req => req.status === 'delivered').length,
         completed: formattedRequests.filter(req => req.status === 'completed').length,
-        rejected: formattedRequests.filter(req => req.status === 'rejected').length
+        rejected: formattedRequests.filter(req => req.status === 'rejected').length,
+        cancelled: formattedRequests.filter(req => req.status === 'cancelled').length
+      },
+      priorityBreakdown: {
+        urgent: formattedRequests.filter(req => req.unified?.priorityLevel === 'urgent').length,
+        high: formattedRequests.filter(req => req.unified?.priorityLevel === 'high').length,
+        medium: formattedRequests.filter(req => req.unified?.priorityLevel === 'medium').length,
+        normal: formattedRequests.filter(req => req.unified?.priorityLevel === 'normal').length
       }
     };
 
