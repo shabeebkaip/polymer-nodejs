@@ -88,12 +88,11 @@ listBestDeals.get("/", authenticateUser, async (req, res) => {
       data: formattedDeals,
       meta: {
         pagination: {
-          page,
-          limit,
           total: filteredDeals.length,
+          page,
           totalPages: Math.ceil(filteredDeals.length / limit),
-          hasNext: page * limit < filteredDeals.length,
-          hasPrev: page > 1
+          count: formattedDeals.length,
+          limit
         },
         filters: {
           status: status || 'all'
