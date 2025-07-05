@@ -1,6 +1,6 @@
 import express from "express";
 import { authenticateUser } from "../../../middlewares/verify.token.js";
-import getSellerBestDeals from "../aggregations/getSellerBestDeals.js";
+import BestDeal from "../../../models/bestDeal.js";
 
 const listBestDeals = express.Router();
 
@@ -11,75 +11,48 @@ listBestDeals.get("/", authenticateUser, async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const status = req.query.status; // pending, approved, rejected
 
-    const bestDeals = await getSellerBestDeals(sellerId);
-
-    // Apply status filter if provided
-    let filteredDeals = bestDeals;
+    // Build query
+    let query = { sellerId };
     if (status && status !== 'all') {
-      filteredDeals = bestDeals.filter(deal => deal.status === status);
+      query.status = status;
     }
 
-    // Apply pagination
-    const skip = (page - 1) * limit;
-    const paginatedDeals = filteredDeals.slice(skip, skip + limit);
+    // Get total count for pagination
+    const total = await BestDeal.countDocuments(query);
 
-    // Format the response
-    const formattedDeals = paginatedDeals.map(deal => ({
-      id: deal._id,
-      offerPrice: deal.offerPrice,
-      status: deal.status,
-      adminNote: deal.adminNote,
-      createdAt: deal.createdAt,
-      updatedAt: deal.updatedAt,
-      product: {
-        id: deal.productDetails._id,
-        productName: deal.productDetails.productName,
-        chemicalName: deal.productDetails.chemicalName,
-        tradeName: deal.productDetails.tradeName,
-        description: deal.productDetails.description,
-        productImages: deal.productDetails.productImages || [],
-        originalPrice: deal.productDetails.price,
-        stock: deal.productDetails.stock,
-        uom: deal.productDetails.uom,
-        minimumOrderQuantity: deal.productDetails.minimum_order_quantity,
-        countryOfOrigin: deal.productDetails.countryOfOrigin,
-        color: deal.productDetails.color,
-        specifications: {
-          density: deal.productDetails.density,
-          mfi: deal.productDetails.mfi,
-          tensileStrength: deal.productDetails.tensileStrength,
-          elongationAtBreak: deal.productDetails.elongationAtBreak,
-          shoreHardness: deal.productDetails.shoreHardness,
-          waterAbsorption: deal.productDetails.waterAbsorption
-        },
-        certifications: {
-          recyclable: deal.productDetails.recyclable,
-          bioDegradable: deal.productDetails.bioDegradable,
-          fdaApproved: deal.productDetails.fdaApproved,
-          medicalGrade: deal.productDetails.medicalGrade
-        },
-        storage: {
-          conditions: deal.productDetails.storageConditions,
-          shelfLife: deal.productDetails.shelfLife,
-          packagingWeight: deal.productDetails.packagingWeight
-        }
-      },
-      dealInfo: {
-        discountPercentage: deal.productDetails.price ? 
-          Math.round(((deal.productDetails.price - deal.offerPrice) / deal.productDetails.price) * 100) : 0,
-        savings: deal.productDetails.price ? 
-          (deal.productDetails.price - deal.offerPrice) : 0,
-        isActive: deal.status === 'approved',
-        statusIcon: getStatusIcon(deal.status)
-      }
-    }));
+    // Apply pagination and populate
+    const skip = (page - 1) * limit;
+    const bestDeals = await BestDeal.find(query)
+      .populate('productId', '_id productName')
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    // Format the response - spread deal info at root level
+    const formattedDeals = bestDeals.map(deal => {
+      const dealObj = deal.toObject();
+      
+      return {
+        id: dealObj._id,
+        productId: dealObj.productId?._id,
+        productName: dealObj.productId?.productName,
+        offerPrice: dealObj.offerPrice,
+        status: dealObj.status,
+        adminNote: dealObj.adminNote,
+        createdAt: dealObj.createdAt,
+        updatedAt: dealObj.updatedAt,
+        isActive: dealObj.status === 'approved',
+        statusIcon: getStatusIcon(dealObj.status)
+      };
+    });
 
     // Calculate summary statistics
+    const allDeals = await BestDeal.find({ sellerId });
     const summary = {
-      total: filteredDeals.length,
-      active: filteredDeals.filter(deal => deal.status === 'approved').length,
-      pending: filteredDeals.filter(deal => deal.status === 'pending').length,
-      rejected: filteredDeals.filter(deal => deal.status === 'rejected').length
+      total: allDeals.length,
+      active: allDeals.filter(deal => deal.status === 'approved').length,
+      pending: allDeals.filter(deal => deal.status === 'pending').length,
+      rejected: allDeals.filter(deal => deal.status === 'rejected').length
     };
 
     res.status(200).json({
@@ -88,9 +61,9 @@ listBestDeals.get("/", authenticateUser, async (req, res) => {
       data: formattedDeals,
       meta: {
         pagination: {
-          total: filteredDeals.length,
+          total,
           page,
-          totalPages: Math.ceil(filteredDeals.length / limit),
+          totalPages: Math.ceil(total / limit),
           count: formattedDeals.length,
           limit
         },
