@@ -32,6 +32,7 @@ import bestDealRouter from "./bestDeal/bestDeal.js";
 import bulkOrderRouter from "./bulkOrder/bulkOrder.js";
 import shippingMethodRouter from "./shippingMethod/shippingMethod.js";
 import dashboardRouter from "./dashboard/dashboard.js";
+import unifiedQuoteRoutes from "./quote/api/unifiedQuotes.js";
 // import testimonialRoutes from "./testimonials/testimonials.js";
 
 const router = express.Router();
@@ -68,6 +69,7 @@ router.use("/best-deal", bestDealRouter)
 router.use("/bulk-order", bulkOrderRouter)
 router.use("/shipping-method", shippingMethodRouter)
 router.use("/dashboard", dashboardRouter)
+router.use("/quote", unifiedQuoteRoutes)
 
 
 
