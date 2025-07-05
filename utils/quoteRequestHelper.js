@@ -8,9 +8,9 @@ export class QuoteRequestHelper {
   static createProductQuote(data) {
     return {
       requestType: "product_quote",
-      buyerId: data.user || data.buyerId,
+      buyerId: data.buyerId || data.user, // Support both field names
       product: data.product,
-      quantity: data.quantity,
+      quantity: parseInt(data.quantity), // Ensure number
       uom: data.uom,
       country: data.country,
       destination: data.destination,
@@ -19,15 +19,15 @@ export class QuoteRequestHelper {
       incoterm: data.incoterm,
       packagingType: data.packagingType,
       packaging_size: data.packaging_size,
-      expected_annual_volume: data.expected_annual_volume,
+      expected_annual_volume: data.expected_annual_volume ? parseInt(data.expected_annual_volume) : undefined,
       application: data.application,
       message: data.message,
-      price: data.price,
+      price: data.price || data.pricing, // Handle both field names
       lead_time: data.lead_time,
       terms: data.terms,
       request_document: data.request_document,
       open_request: data.open_request,
-      sourceSection: "product_detail"
+      sourceSection: data.sourceSection || "product_detail"
     };
   }
   

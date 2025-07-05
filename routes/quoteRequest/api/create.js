@@ -27,8 +27,9 @@ createQuote.post("/", authenticateUser, async (req, res) => {
     if (requestType === 'product_quote') {
       unifiedData = QuoteRequestHelper.createProductQuote({
         ...requestData,
-        user: req.user.id, // For backward compatibility
-        buyerId: req.user.id // Unified field
+        buyerId: req.user.id, // Use unified field only
+        // Map pricing field if it exists
+        price: requestData.pricing || requestData.price
       });
     } else if (requestType === 'deal_quote') {
       unifiedData = QuoteRequestHelper.createDealQuote({
@@ -59,8 +60,7 @@ createQuote.post("/", authenticateUser, async (req, res) => {
           select: 'productName chemicalName'
         }
       },
-      { path: 'user', select: 'firstName lastName company email' },
-      { path: 'buyerId', select: 'firstName lastName company email' },
+      { path: 'buyerId', select: 'firstName lastName company email' }, // Only use buyerId, not user
       { path: 'grade', select: 'name' },
       { path: 'incoterm', select: 'name' },
       { path: 'packagingType', select: 'name' }
@@ -83,13 +83,18 @@ createQuote.post("/", authenticateUser, async (req, res) => {
         // Type-specific data
         ...(requestType === 'product_quote' ? {
           product: formattedResponse.product,
-          user: formattedResponse.user,
+          buyer: formattedResponse.buyerId, // Use buyerId instead of user
           quantity: formattedResponse.quantity,
           uom: formattedResponse.uom,
           destination: formattedResponse.destination,
           country: formattedResponse.country,
           delivery_date: formattedResponse.delivery_date,
-          application: formattedResponse.application
+          application: formattedResponse.application,
+          packaging_size: formattedResponse.packaging_size,
+          expected_annual_volume: formattedResponse.expected_annual_volume,
+          grade: formattedResponse.grade,
+          incoterm: formattedResponse.incoterm,
+          packagingType: formattedResponse.packagingType
         } : {
           bestDeal: formattedResponse.bestDealId,
           buyer: formattedResponse.buyerId,
