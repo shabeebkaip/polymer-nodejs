@@ -33,38 +33,18 @@ quoteRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
       })
       .populate({
         path: "product",
-        select: "productName chemicalName description tradeName productImages density mfi tensileStrength elongationAtBreak shoreHardness waterAbsorption countryOfOrigin color manufacturingMethod createdBy category subCategory",
-        populate: [
-          {
-            path: "createdBy",
-            select: "firstName lastName email phone company address city state country",
-          },
-          {
-            path: "category",
-            select: "name description",
-          },
-          {
-            path: "subCategory",
-            select: "name description",
-          }
-        ]
+        select: "productName chemicalName description tradeName productImages density mfi tensileStrength elongationAtBreak shoreHardness waterAbsorption countryOfOrigin color manufacturingMethod createdBy",
+        populate: {
+          path: "createdBy",
+          select: "firstName lastName email phone company address city state country",
+        }
       })
       .populate({
         path: "bestDealId",
         select: "offerPrice status adminNote createdAt dealPrice originalPrice title description",
         populate: {
           path: "productId",
-          select: "productName chemicalName tradeName productImages countryOfOrigin color category subCategory",
-          populate: [
-            {
-              path: "category",
-              select: "name description",
-            },
-            {
-              path: "subCategory", 
-              select: "name description",
-            }
-          ]
+          select: "productName chemicalName tradeName productImages countryOfOrigin color"
         }
       })
       .populate({
@@ -134,16 +114,6 @@ quoteRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
           countryOfOrigin: formattedResponse.product.countryOfOrigin,
           color: formattedResponse.product.color,
           manufacturingMethod: formattedResponse.product.manufacturingMethod,
-          category: formattedResponse.product.category ? {
-            _id: formattedResponse.product.category._id,
-            name: formattedResponse.product.category.name,
-            description: formattedResponse.product.category.description
-          } : null,
-          subCategory: formattedResponse.product.subCategory ? {
-            _id: formattedResponse.product.subCategory._id,
-            name: formattedResponse.product.subCategory.name,
-            description: formattedResponse.product.subCategory.description
-          } : null,
           specifications: {
             density: formattedResponse.product.density,
             mfi: formattedResponse.product.mfi,
@@ -196,17 +166,7 @@ quoteRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
             tradeName: formattedResponse.bestDealId.productId.tradeName,
             productImages: formattedResponse.bestDealId.productId.productImages || [],
             countryOfOrigin: formattedResponse.bestDealId.productId.countryOfOrigin,
-            color: formattedResponse.bestDealId.productId.color,
-            category: formattedResponse.bestDealId.productId.category ? {
-              _id: formattedResponse.bestDealId.productId.category._id,
-              name: formattedResponse.bestDealId.productId.category.name,
-              description: formattedResponse.bestDealId.productId.category.description
-            } : null,
-            subCategory: formattedResponse.bestDealId.productId.subCategory ? {
-              _id: formattedResponse.bestDealId.productId.subCategory._id,
-              name: formattedResponse.bestDealId.productId.subCategory.name,
-              description: formattedResponse.bestDealId.productId.subCategory.description
-            } : null
+            color: formattedResponse.bestDealId.productId.color
           } : null
         } : null,
         orderDetails: {
