@@ -22,18 +22,11 @@ quoteRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
       });
     }
 
-    // Find quote request - check both user fields for unified model
+    // Find quote request - only use buyerId field for unified model
     const quoteRequest = await UnifiedQuoteRequest.findOne({ 
       _id: id,
-      $or: [
-        { user: userId },     // For product quotes (legacy field)
-        { buyerId: userId }   // For deal quotes (unified field)
-      ]
+      buyerId: userId // Only use buyerId field
     })
-      .populate({
-        path: "user",
-        select: "firstName lastName email phone company address city state country pincode userType",
-      })
       .populate({
         path: "buyerId",
         select: "firstName lastName email phone company address city state country pincode userType",
@@ -112,20 +105,20 @@ quoteRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
       statusHistory: formattedResponse.statusMessage || [],
       
       // User information (buyer/requester)
-      requester: formattedResponse.user || formattedResponse.buyerId ? {
-        id: (formattedResponse.user || formattedResponse.buyerId)?._id,
-        name: `${(formattedResponse.user || formattedResponse.buyerId)?.firstName} ${(formattedResponse.user || formattedResponse.buyerId)?.lastName}`,
-        email: (formattedResponse.user || formattedResponse.buyerId)?.email,
-        phone: (formattedResponse.user || formattedResponse.buyerId)?.phone,
-        company: (formattedResponse.user || formattedResponse.buyerId)?.company,
+      requester: formattedResponse.buyerId ? {
+        id: formattedResponse.buyerId._id,
+        name: `${formattedResponse.buyerId.firstName} ${formattedResponse.buyerId.lastName}`,
+        email: formattedResponse.buyerId.email,
+        phone: formattedResponse.buyerId.phone,
+        company: formattedResponse.buyerId.company,
         address: {
-          full: (formattedResponse.user || formattedResponse.buyerId)?.address,
-          city: (formattedResponse.user || formattedResponse.buyerId)?.city,
-          state: (formattedResponse.user || formattedResponse.buyerId)?.state,
-          country: (formattedResponse.user || formattedResponse.buyerId)?.country,
-          pincode: (formattedResponse.user || formattedResponse.buyerId)?.pincode
+          full: formattedResponse.buyerId.address,
+          city: formattedResponse.buyerId.city,
+          state: formattedResponse.buyerId.state,
+          country: formattedResponse.buyerId.country,
+          pincode: formattedResponse.buyerId.pincode
         },
-        userType: (formattedResponse.user || formattedResponse.buyerId)?.userType
+        userType: formattedResponse.buyerId.userType
       } : null,
       
       // Type-specific data

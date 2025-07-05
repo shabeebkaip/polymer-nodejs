@@ -73,10 +73,6 @@ recivedRouter.get("/", authenticateUser, async (req, res) => {
       .populate({ path: "incoterm", select: "name" })
       .populate({ path: "packagingType", select: "name" })   
       .populate({ 
-        path: "user", 
-        select: "firstName lastName company email phone"
-      })
-      .populate({ 
         path: "buyerId", 
         select: "firstName lastName company email phone"
       })
@@ -87,8 +83,8 @@ recivedRouter.get("/", authenticateUser, async (req, res) => {
     const formattedRequests = requests.map(request => {
       const formatted = QuoteRequestHelper.formatUnifiedResponse(request);
       
-      // Get the buyer information (could be in user or buyerId field)
-      const buyer = formatted.user || formatted.buyerId;
+      // Get the buyer information from buyerId field only
+      const buyer = formatted.buyerId;
       if (buyer) {
         formatted.buyer = {
           id: buyer._id,
@@ -97,8 +93,7 @@ recivedRouter.get("/", authenticateUser, async (req, res) => {
           email: buyer.email,
           phone: buyer.phone
         };
-        // Clean up original fields
-        delete formatted.user;
+        // Clean up original field
         delete formatted.buyerId;
       }
       
@@ -282,10 +277,6 @@ recivedRouter.get("/:id", authenticateUser, async (req, res) => {
         select: "name description",
       })
       .populate({
-        path: "user",
-        select: "firstName lastName email phone company address city state country pincode userType",
-      })
-      .populate({
         path: "buyerId",
         select: "firstName lastName email phone company address city state country pincode userType",
       });
@@ -304,8 +295,8 @@ recivedRouter.get("/:id", authenticateUser, async (req, res) => {
     // Format response using helper
     const formattedResponse = QuoteRequestHelper.formatUnifiedResponse(quoteRequest);
     
-    // Get the buyer information (could be in user or buyerId field)
-    const buyer = formattedResponse.user || formattedResponse.buyerId;
+    // Get the buyer information from buyerId field only
+    const buyer = formattedResponse.buyerId;
     
     // Enhanced response structure for sellers
     const responseData = {
