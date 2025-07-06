@@ -74,131 +74,187 @@ quoteRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
     // Format response using helper
     const formattedResponse = QuoteRequestHelper.formatUnifiedResponse(quoteRequest);
     
-    // Enhanced response structure
+    // Standardized response structure matching history API
+    const requestObj = quoteRequest.toObject();
+    
+    // Standardized base structure for both types (same as history API)
     const responseData = {
-      _id: formattedResponse.id,
-      requestType: formattedResponse.requestType,
-      status: formattedResponse.status,
-      message: formattedResponse.message,
-      createdAt: formattedResponse.createdAt,
-      updatedAt: formattedResponse.updatedAt,
-      statusHistory: formattedResponse.statusMessage || [],
+      _id: requestObj._id,
+      requestType: requestObj.requestType,
+      status: requestObj.status,
+      message: requestObj.message,
+      createdAt: requestObj.createdAt,
+      updatedAt: requestObj.updatedAt,
+      statusMessage: requestObj.statusMessage || [],
       
-      // User information (buyer/requester)
-      requester: formattedResponse.buyerId ? {
-        _id: formattedResponse.buyerId._id,
-        name: `${formattedResponse.buyerId.firstName} ${formattedResponse.buyerId.lastName}`,
-        email: formattedResponse.buyerId.email,
-        phone: formattedResponse.buyerId.phone,
-        company: formattedResponse.buyerId.company,
+      // Standardized fields that work for both types
+      productName: null,
+      productId: null,
+      company: null,
+      companyId: null,
+      quantity: null,
+      unit: null,
+      destination: null,
+      deliveryDate: null,
+      grade: null,
+      
+      // Buyer information (consistent for both)
+      buyer: requestObj.buyerId ? {
+        _id: requestObj.buyerId._id,
+        firstName: requestObj.buyerId.firstName,
+        lastName: requestObj.buyerId.lastName,
+        name: `${requestObj.buyerId.firstName} ${requestObj.buyerId.lastName}`,
+        company: requestObj.buyerId.company,
+        email: requestObj.buyerId.email,
+        phone: requestObj.buyerId.phone,
         address: {
-          full: formattedResponse.buyerId.address,
-          city: formattedResponse.buyerId.city,
-          state: formattedResponse.buyerId.state,
-          country: formattedResponse.buyerId.country,
-          pincode: formattedResponse.buyerId.pincode
+          full: requestObj.buyerId.address,
+          city: requestObj.buyerId.city,
+          state: requestObj.buyerId.state,
+          country: requestObj.buyerId.country,
+          pincode: requestObj.buyerId.pincode
         },
-        userType: formattedResponse.buyerId.userType
+        userType: requestObj.buyerId.userType
       } : null,
       
-      // Type-specific data
-      ...(formattedResponse.requestType === 'product_quote' ? {
-        quoteType: 'Product Quote',
-        product: formattedResponse.product ? {
-          _id: formattedResponse.product._id,
-          productName: formattedResponse.product.productName,
-          chemicalName: formattedResponse.product.chemicalName,
-          tradeName: formattedResponse.product.tradeName,
-          description: formattedResponse.product.description,
-          productImages: formattedResponse.product.productImages || [],
-          countryOfOrigin: formattedResponse.product.countryOfOrigin,
-          color: formattedResponse.product.color,
-          manufacturingMethod: formattedResponse.product.manufacturingMethod,
-          specifications: {
-            density: formattedResponse.product.density,
-            mfi: formattedResponse.product.mfi,
-            tensileStrength: formattedResponse.product.tensileStrength,
-            elongationAtBreak: formattedResponse.product.elongationAtBreak,
-            shoreHardness: formattedResponse.product.shoreHardness,
-            waterAbsorption: formattedResponse.product.waterAbsorption
-          },
-          creator: formattedResponse.product.createdBy ? {
-            _id: formattedResponse.product.createdBy._id,
-            name: `${formattedResponse.product.createdBy.firstName} ${formattedResponse.product.createdBy.lastName}`,
-            company: formattedResponse.product.createdBy.company,
-            email: formattedResponse.product.createdBy.email
-          } : null
-        } : null,
-        orderDetails: {
-          quantity: formattedResponse.quantity,
-          uom: formattedResponse.uom,
-          destination: formattedResponse.destination,
-          country: formattedResponse.country,
-          deliveryDate: formattedResponse.delivery_date,
-          application: formattedResponse.application,
-          packagingSize: formattedResponse.packaging_size,
-          expectedAnnualVolume: formattedResponse.expected_annual_volume,
-          leadTime: formattedResponse.lead_time,
-          terms: formattedResponse.terms,
-          price: formattedResponse.price
-        },
-        specifications: {
-          grade: formattedResponse.grade,
-          incoterm: formattedResponse.incoterm,
-          packagingType: formattedResponse.packagingType
-        }
-      } : {
-        quoteType: 'Deal Quote',
-        bestDeal: formattedResponse.bestDealId ? {
-          _id: formattedResponse.bestDealId._id,
-          title: formattedResponse.bestDealId.title,
-          description: formattedResponse.bestDealId.description,
-          offerPrice: formattedResponse.bestDealId.offerPrice,
-          dealPrice: formattedResponse.bestDealId.dealPrice,
-          originalPrice: formattedResponse.bestDealId.originalPrice,
-          status: formattedResponse.bestDealId.status,
-          adminNote: formattedResponse.bestDealId.adminNote,
-          createdAt: formattedResponse.bestDealId.createdAt,
-          product: formattedResponse.bestDealId.productId ? {
-            _id: formattedResponse.bestDealId.productId._id,
-            productName: formattedResponse.bestDealId.productId.productName,
-            chemicalName: formattedResponse.bestDealId.productId.chemicalName,
-            tradeName: formattedResponse.bestDealId.productId.tradeName,
-            productImages: formattedResponse.bestDealId.productId.productImages || [],
-            countryOfOrigin: formattedResponse.bestDealId.productId.countryOfOrigin,
-            color: formattedResponse.bestDealId.productId.color
-          } : null
-        } : null,
-        orderDetails: {
-          desiredQuantity: formattedResponse.desiredQuantity,
-          shippingCountry: formattedResponse.shippingCountry,
-          paymentTerms: formattedResponse.paymentTerms,
-          deliveryDeadline: formattedResponse.deliveryDeadline
-        }
-      }),
-      
-      // Unified fields for easier frontend handling
-      unified: formattedResponse.unified,
-      
-      // Timeline and tracking
-      timeline: {
-        requested: formattedResponse.createdAt,
-        lastUpdate: formattedResponse.updatedAt,
-        deadline: formattedResponse.requestType === 'product_quote' 
-          ? formattedResponse.delivery_date 
-          : formattedResponse.deliveryDeadline,
-        statusUpdates: formattedResponse.statusMessage?.length || 0
-      },
-
-      // Additional user-focused metadata (admin perspective)
-      metadata: {
-        canEdit: ['pending', 'responded', 'negotiation'].includes(formattedResponse.status),
-        canCancel: ['pending', 'responded', 'negotiation'].includes(formattedResponse.status),
-        canUpdateStatus: true, // Admin can always update status
-        nextActions: getAdminNextActions(formattedResponse.status),
-        estimatedProcessingTime: getEstimatedProcessingTime(formattedResponse.requestType, formattedResponse.status),
-        requiresAttention: ['pending', 'negotiation'].includes(formattedResponse.status)
+      // Unified fields (consistent for both)
+      unified: {
+        statusIcon: getStatusIcon(requestObj.status),
+        priorityLevel: null
       }
+    };
+
+    // Type-specific data mapping to standardized fields
+    if (requestObj.requestType === 'product_quote') {
+      responseData.quoteType = 'Product Quote';
+      responseData.productName = requestObj.product?.productName || 'N/A';
+      responseData.productId = requestObj.product?._id || null;
+      responseData.company = requestObj.product?.createdBy?.company || 'N/A';
+      responseData.companyId = requestObj.product?.createdBy?._id || null;
+      responseData.quantity = requestObj.quantity || 'N/A';
+      responseData.unit = requestObj.uom || 'N/A';
+      responseData.destination = requestObj.destination || requestObj.country || 'N/A';
+      responseData.deliveryDate = requestObj.delivery_date;
+      responseData.grade = requestObj.grade?.name || 'N/A';
+      
+      // Additional product-specific details
+      responseData.productQuote = {
+        product: {
+          _id: requestObj.product?._id,
+          productName: requestObj.product?.productName,
+          chemicalName: requestObj.product?.chemicalName,
+          tradeName: requestObj.product?.tradeName,
+          description: requestObj.product?.description,
+          productImages: requestObj.product?.productImages || [],
+          countryOfOrigin: requestObj.product?.countryOfOrigin,
+          color: requestObj.product?.color,
+          manufacturingMethod: requestObj.product?.manufacturingMethod,
+          specifications: {
+            density: requestObj.product?.density,
+            mfi: requestObj.product?.mfi,
+            tensileStrength: requestObj.product?.tensileStrength,
+            elongationAtBreak: requestObj.product?.elongationAtBreak,
+            shoreHardness: requestObj.product?.shoreHardness,
+            waterAbsorption: requestObj.product?.waterAbsorption
+          },
+          creator: requestObj.product?.createdBy ? {
+            _id: requestObj.product.createdBy._id,
+            name: `${requestObj.product.createdBy.firstName} ${requestObj.product.createdBy.lastName}`,
+            company: requestObj.product.createdBy.company,
+            email: requestObj.product.createdBy.email,
+            phone: requestObj.product.createdBy.phone,
+            address: {
+              full: requestObj.product.createdBy.address,
+              city: requestObj.product.createdBy.city,
+              state: requestObj.product.createdBy.state,
+              country: requestObj.product.createdBy.country
+            }
+          } : null
+        },
+        application: requestObj.application,
+        terms: requestObj.terms,
+        packaging_size: requestObj.packaging_size,
+        expected_annual_volume: requestObj.expected_annual_volume,
+        lead_time: requestObj.lead_time,
+        incoterm: requestObj.incoterm,
+        packagingType: requestObj.packagingType,
+        price: requestObj.price
+      };
+      
+      responseData.unified.quantity = requestObj.quantity;
+      responseData.unified.deliveryDate = requestObj.delivery_date;
+      responseData.unified.location = requestObj.country;
+      responseData.unified.productInfo = requestObj.product?.productName || 'Product Quote';
+      responseData.unified.type = 'product_quote';
+      responseData.unified.title = requestObj.product?.productName || 'Product Quote';
+      responseData.unified.priorityLevel = getPriorityLevel(requestObj.delivery_date);
+      
+    } else {
+      // deal_quote
+      responseData.quoteType = 'Deal Quote';
+      responseData.productName = requestObj.bestDealId?.productId?.productName || 'N/A';
+      responseData.productId = requestObj.bestDealId?.productId?._id || null;
+      responseData.company = 'N/A'; // Deal quotes don't have a direct company
+      responseData.companyId = null;
+      responseData.quantity = requestObj.desiredQuantity || 'N/A';
+      responseData.unit = 'N/A'; // Deal quotes don't specify unit
+      responseData.destination = requestObj.shippingCountry || 'N/A';
+      responseData.deliveryDate = requestObj.deliveryDeadline;
+      responseData.grade = 'N/A'; // Deal quotes don't have grade
+      
+      // Additional deal-specific details
+      responseData.dealQuote = {
+        bestDeal: {
+          _id: requestObj.bestDealId?._id,
+          title: requestObj.bestDealId?.title,
+          description: requestObj.bestDealId?.description,
+          offerPrice: requestObj.bestDealId?.offerPrice,
+          dealPrice: requestObj.bestDealId?.dealPrice,
+          originalPrice: requestObj.bestDealId?.originalPrice,
+          status: requestObj.bestDealId?.status,
+          adminNote: requestObj.bestDealId?.adminNote,
+          createdAt: requestObj.bestDealId?.createdAt,
+          product: requestObj.bestDealId?.productId ? {
+            _id: requestObj.bestDealId.productId._id,
+            productName: requestObj.bestDealId.productId.productName,
+            chemicalName: requestObj.bestDealId.productId.chemicalName,
+            tradeName: requestObj.bestDealId.productId.tradeName,
+            productImages: requestObj.bestDealId.productId.productImages || [],
+            countryOfOrigin: requestObj.bestDealId.productId.countryOfOrigin,
+            color: requestObj.bestDealId.productId.color
+          } : null
+        },
+        paymentTerms: requestObj.paymentTerms,
+        offerPrice: requestObj.bestDealId?.offerPrice
+      };
+      
+      responseData.unified.quantity = requestObj.desiredQuantity;
+      responseData.unified.deliveryDate = requestObj.deliveryDeadline;
+      responseData.unified.location = requestObj.shippingCountry;
+      responseData.unified.productInfo = requestObj.bestDealId?.productId?.productName || 'Deal Quote';
+      responseData.unified.type = 'deal_quote';
+      responseData.unified.title = requestObj.bestDealId?.productId?.productName || 'Deal Quote';
+      responseData.unified.priorityLevel = getPriorityLevel(requestObj.deliveryDeadline);
+    }
+
+    // Timeline and tracking
+    responseData.timeline = {
+      requested: requestObj.createdAt,
+      lastUpdate: requestObj.updatedAt,
+      deadline: requestObj.requestType === 'product_quote' 
+        ? requestObj.delivery_date 
+        : requestObj.deliveryDeadline,
+      statusUpdates: requestObj.statusMessage?.length || 0
+    };
+
+    // Additional user-focused metadata (admin perspective)
+    responseData.metadata = {
+      canEdit: ['pending', 'responded', 'negotiation'].includes(requestObj.status),
+      canCancel: ['pending', 'responded', 'negotiation'].includes(requestObj.status),
+      canUpdateStatus: true, // Admin can always update status
+      nextActions: getAdminNextActions(requestObj.status),
+      estimatedProcessingTime: getEstimatedProcessingTime(requestObj.requestType, requestObj.status),
+      requiresAttention: ['pending', 'negotiation'].includes(requestObj.status)
     };
 
     res.status(200).json({
@@ -218,6 +274,37 @@ quoteRequestDetailRouter.get('/:id', authenticateUser, async (req, res) => {
 });
 
 export default quoteRequestDetailRouter;
+
+// Helper functions for status and priority (same as history API)
+function getStatusIcon(status) {
+  const statusIconMap = {
+    'pending': '⏳',
+    'responded': '💬',
+    'negotiation': '🤝',
+    'accepted': '✅',
+    'in_progress': '⚙️',
+    'shipped': '🚚',
+    'delivered': '📦',
+    'completed': '🎉',
+    'rejected': '❌',
+    'cancelled': '🚫'
+  };
+  return statusIconMap[status] || '❓';
+}
+
+function getPriorityLevel(deliveryDate) {
+  if (!deliveryDate) return 'normal';
+  
+  const now = new Date();
+  const delivery = new Date(deliveryDate);
+  const daysDiff = Math.ceil((delivery - now) / (1000 * 60 * 60 * 24));
+  
+  if (daysDiff < 0) return 'urgent'; // Past due
+  if (daysDiff <= 7) return 'urgent';
+  if (daysDiff <= 14) return 'high';
+  if (daysDiff <= 30) return 'medium';
+  return 'normal';
+}
 
 // Helper functions for admin-focused metadata
 function getAdminNextActions(status) {
