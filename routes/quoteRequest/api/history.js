@@ -120,76 +120,111 @@ getUserQuotes.get("/", authenticateUser, async (req, res) => {
       .limit(limit)
       .sort({ createdAt: -1 });
 
-    // Format the response to handle both quote types
+    // Format the response to handle both quote types with standardized structure
     const formattedRequests = userRequests.map(request => {
       const requestObj = request.toObject();
       
-      // Base data common to both types
-      const baseData = {
+      // Standardized base structure for both types
+      const standardizedData = {
         _id: requestObj._id,
         requestType: requestObj.requestType,
         status: requestObj.status,
         message: requestObj.message,
         createdAt: requestObj.createdAt,
         updatedAt: requestObj.updatedAt,
-        statusMessage: requestObj.statusMessage || []
+        statusMessage: requestObj.statusMessage || [],
+        
+        // Standardized fields that work for both types
+        productName: null,
+        productId: null,
+        company: null,
+        companyId: null,
+        quantity: null,
+        unit: null,
+        destination: null,
+        deliveryDate: null,
+        grade: null,
+        
+        // Buyer information (consistent for both)
+        buyer: requestObj.buyerId ? {
+          _id: requestObj.buyerId._id,
+          firstName: requestObj.buyerId.firstName,
+          lastName: requestObj.buyerId.lastName,
+          name: `${requestObj.buyerId.firstName} ${requestObj.buyerId.lastName}`,
+          company: requestObj.buyerId.company,
+          email: requestObj.buyerId.email
+        } : null,
+        
+        // Unified fields (consistent for both)
+        unified: {
+          statusIcon: getStatusIcon(requestObj.status),
+          priorityLevel: null
+        }
       };
 
-      // Type-specific formatting
+      // Type-specific data mapping to standardized fields
       if (requestObj.requestType === 'product_quote') {
-        return {
-          ...baseData,
-          quoteType: 'Product Quote',
+        standardizedData.quoteType = 'Product Quote';
+        standardizedData.productName = requestObj.product?.productName || 'N/A';
+        standardizedData.productId = requestObj.product?._id || null;
+        standardizedData.company = requestObj.product?.createdBy?.company || 'N/A';
+        standardizedData.companyId = requestObj.product?.createdBy?._id || null;
+        standardizedData.quantity = requestObj.quantity || 'N/A';
+        standardizedData.unit = requestObj.uom || 'N/A';
+        standardizedData.destination = requestObj.destination || requestObj.country || 'N/A';
+        standardizedData.deliveryDate = requestObj.delivery_date;
+        standardizedData.grade = requestObj.grade?.name || 'N/A';
+        
+        // Additional product-specific details
+        standardizedData.productQuote = {
           product: requestObj.product,
-          buyer: requestObj.buyerId, // Use buyerId instead of user
-          quantity: requestObj.quantity,
-          uom: requestObj.uom,
-          destination: requestObj.destination,
-          country: requestObj.country,
-          delivery_date: requestObj.delivery_date,
           application: requestObj.application,
           terms: requestObj.terms,
           packaging_size: requestObj.packaging_size,
           lead_time: requestObj.lead_time,
-          grade: requestObj.grade,
           incoterm: requestObj.incoterm,
           packagingType: requestObj.packagingType,
-          // Unified fields for easier frontend handling
-          unified: {
-            quantity: requestObj.quantity,
-            deliveryDate: requestObj.delivery_date,
-            location: requestObj.country,
-            productInfo: requestObj.product?.productName || 'Product Quote',
-            type: 'product_quote',
-            title: requestObj.product?.productName || 'Product Quote',
-            statusIcon: getStatusIcon(requestObj.status),
-            priorityLevel: getPriorityLevel(requestObj.delivery_date)
-          }
+          price: requestObj.price
         };
+        
+        standardizedData.unified.quantity = requestObj.quantity;
+        standardizedData.unified.deliveryDate = requestObj.delivery_date;
+        standardizedData.unified.location = requestObj.country;
+        standardizedData.unified.productInfo = requestObj.product?.productName || 'Product Quote';
+        standardizedData.unified.type = 'product_quote';
+        standardizedData.unified.title = requestObj.product?.productName || 'Product Quote';
+        standardizedData.unified.priorityLevel = getPriorityLevel(requestObj.delivery_date);
+        
       } else {
         // deal_quote
-        return {
-          ...baseData,
-          quoteType: 'Deal Quote',
+        standardizedData.quoteType = 'Deal Quote';
+        standardizedData.productName = requestObj.bestDealId?.productId?.productName || 'N/A';
+        standardizedData.productId = requestObj.bestDealId?.productId?._id || null;
+        standardizedData.company = 'N/A'; // Deal quotes don't have a direct company
+        standardizedData.companyId = null;
+        standardizedData.quantity = requestObj.desiredQuantity || 'N/A';
+        standardizedData.unit = 'N/A'; // Deal quotes don't specify unit
+        standardizedData.destination = requestObj.shippingCountry || 'N/A';
+        standardizedData.deliveryDate = requestObj.deliveryDeadline;
+        standardizedData.grade = 'N/A'; // Deal quotes don't have grade
+        
+        // Additional deal-specific details
+        standardizedData.dealQuote = {
           bestDeal: requestObj.bestDealId,
-          buyer: requestObj.buyerId,
-          desiredQuantity: requestObj.desiredQuantity,
-          shippingCountry: requestObj.shippingCountry,
           paymentTerms: requestObj.paymentTerms,
-          deliveryDeadline: requestObj.deliveryDeadline,
-          // Unified fields for easier frontend handling
-          unified: {
-            quantity: requestObj.desiredQuantity,
-            deliveryDate: requestObj.deliveryDeadline,
-            location: requestObj.shippingCountry,
-            productInfo: requestObj.bestDealId?.productId?.productName || 'Deal Quote',
-            type: 'deal_quote',
-            title: requestObj.bestDealId?.productId?.productName || 'Deal Quote',
-            statusIcon: getStatusIcon(requestObj.status),
-            priorityLevel: getPriorityLevel(requestObj.deliveryDeadline)
-          }
+          offerPrice: requestObj.bestDealId?.offerPrice
         };
+        
+        standardizedData.unified.quantity = requestObj.desiredQuantity;
+        standardizedData.unified.deliveryDate = requestObj.deliveryDeadline;
+        standardizedData.unified.location = requestObj.shippingCountry;
+        standardizedData.unified.productInfo = requestObj.bestDealId?.productId?.productName || 'Deal Quote';
+        standardizedData.unified.type = 'deal_quote';
+        standardizedData.unified.title = requestObj.bestDealId?.productId?.productName || 'Deal Quote';
+        standardizedData.unified.priorityLevel = getPriorityLevel(requestObj.deliveryDeadline);
       }
+
+      return standardizedData;
     });
 
     // Calculate summary statistics
