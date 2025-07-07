@@ -142,39 +142,38 @@ productChatRouter.get('/messages/:productId', authenticateUser, async (req, res)
                 { productId: productId } // Filter by product context
             ]
         })
-        .populate('senderId', 'firstName lastName company profile_image')
-        .populate('receiverId', 'firstName lastName company profile_image')
         .sort({ createdAt: 1 })
         .skip(skip)
         .limit(parseInt(limit));
 
-        // Get total count for pagination
-        const totalMessages = await Message.countDocuments({
-            $and: [
-                {
-                    $or: [
-                        { senderId: buyerId.toString(), receiverId: sellerId.toString() },
-                        { senderId: sellerId.toString(), receiverId: buyerId.toString() }
-                    ]
-                },
-                { productId: productId }
-            ]
+        // Fetch user info for all unique senderIds and receiverIds
+        const userIds = Array.from(new Set([
+            ...messages.map(m => m.senderId.toString()),
+            ...messages.map(m => m.receiverId.toString())
+        ]));
+        const users = await User.find({ _id: { $in: userIds } }, 'firstName lastName company profile_image');
+        const userMap = {};
+        users.forEach(u => {
+            userMap[u._id.toString()] = u;
         });
 
         // Format messages
-        const formattedMessages = messages.map(msg => ({
-            _id: msg._id,
-            message: msg.message,
-            senderId: msg.senderId._id,
-            receiverId: msg.receiverId._id,
-            senderName: `${msg.senderId.firstName} ${msg.senderId.lastName}`,
-            senderCompany: msg.senderId.company,
-            senderImage: msg.senderId.profile_image,
-            isFromBuyer: msg.senderId._id.toString() === buyerId.toString(),
-            isRead: msg.isRead,
-            createdAt: msg.createdAt,
-            productId: msg.productId
-        }));
+        const formattedMessages = messages.map(msg => {
+            const sender = userMap[msg.senderId.toString()] || {};
+            return {
+                _id: msg._id,
+                message: msg.message,
+                senderId: msg.senderId,
+                receiverId: msg.receiverId,
+                senderName: sender.firstName && sender.lastName ? `${sender.firstName} ${sender.lastName}` : '',
+                senderCompany: sender.company || '',
+                senderImage: sender.profile_image || '',
+                isFromBuyer: msg.senderId.toString() === buyerId.toString(),
+                isRead: msg.isRead,
+                createdAt: msg.createdAt,
+                productId: msg.productId
+            };
+        });
 
         // Mark messages from seller as read
         await Message.updateMany({
