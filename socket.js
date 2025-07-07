@@ -1,6 +1,9 @@
 import Message from "./models/message.js";
 import User from "./models/user.js";
 
+// Track online users: { userId: socketId }
+const onlineUsers = {};
+
 export default function initSocket(io) {
     io.on('connection', (socket) => {
         console.log('Socket Connected:', socket.id);
@@ -8,7 +11,10 @@ export default function initSocket(io) {
         // Join user to their personal room
         socket.on('join', (userId) => {
             socket.join(userId);
-            console.log(`User ${userId} joined their room`);
+            onlineUsers[userId] = socket.id;
+            console.log(`User ${userId} joined their room (online)`);
+            // Optionally, broadcast status to others
+            io.emit('userOnlineStatus', { userId, isOnline: true });
         });
 
         // Join a specific quote chat room
@@ -247,7 +253,25 @@ export default function initSocket(io) {
             }
         });
 
+        // Add a socket event to check if a user is online
+        socket.on('checkUserOnline', (userId, callback) => {
+            const isOnline = !!onlineUsers[userId];
+            if (typeof callback === 'function') {
+                callback({ userId, isOnline });
+            } else {
+                socket.emit('userOnlineStatus', { userId, isOnline });
+            }
+        });
+
         socket.on('disconnect', () => {
+            // Remove user from onlineUsers
+            for (const [userId, sockId] of Object.entries(onlineUsers)) {
+                if (sockId === socket.id) {
+                    delete onlineUsers[userId];
+                    io.emit('userOnlineStatus', { userId, isOnline: false });
+                    break;
+                }
+            }
             console.log('Socket disconnected:', socket.id);
         });
     });

@@ -146,6 +146,19 @@ productChatRouter.get('/messages/:productId', authenticateUser, async (req, res)
         .skip(skip)
         .limit(parseInt(limit));
 
+        // Get total count for pagination
+        const totalMessages = await Message.countDocuments({
+            $and: [
+                {
+                    $or: [
+                        { senderId: buyerId.toString(), receiverId: sellerId.toString() },
+                        { senderId: sellerId.toString(), receiverId: buyerId.toString() }
+                    ]
+                },
+                { productId: productId }
+            ]
+        });
+
         // Fetch user info for all unique senderIds and receiverIds
         const userIds = Array.from(new Set([
             ...messages.map(m => m.senderId.toString()),
