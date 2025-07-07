@@ -36,10 +36,20 @@ const io = new Server(server, { cors: { origin: "*" } });
 app.use(cors());
 app.use(express.json());
 
+// Serve static files for testing
+app.use('/public', express.static('public'));
 
+// Test page route
+app.get('/chat-test', (req, res) => {
+  res.sendFile('public/chat-test.html', { root: '.' });
+});
 
 app.use("/api", router);
 
 initSocket(io);
 
-app.listen(port, () => console.log(`Server connected at ${port}`));
+server.listen(port, () => {
+  console.log(`🚀 Server connected at http://localhost:${port}`);
+  console.log(`🧪 Chat test page: http://localhost:${port}/chat-test`);
+  console.log(`📡 Socket.IO ready for connections`);
+});

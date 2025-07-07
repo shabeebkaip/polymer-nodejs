@@ -25,7 +25,43 @@ productDetail.get("/:id", async (req, res) => {
       return res.status(404).json({ success: false, message: "Product not found" });
     }
 
-    res.json({ success: true, data: products[0] });
+    const product = products[0];
+
+    // Enhanced response with chat functionality
+    const enhancedProduct = {
+      ...product,
+      // Chat functionality for frontend integration
+      chatEnabled: true,
+      chatInfo: {
+        productId: product._id,
+        sellerId: product.createdBy._id,
+        sellerName: product.createdBy.name,
+        sellerCompany: product.createdBy.company,
+        productName: product.productName,
+        // Frontend can use this to determine if user can chat with supplier
+        canChat: product.createdBy._id ? true : false,
+        // API endpoints for frontend integration
+        endpoints: {
+          getSellerInfo: `/api/chat/product/seller-info/${product._id}`,
+          getMessages: `/api/chat/product/messages/${product._id}`,
+          sendMessage: `/api/chat/product/send-message/${product._id}`,
+          conversations: '/api/chat/product/conversations'
+        },
+        // Socket.IO events for real-time chat
+        socketEvents: {
+          joinRoom: 'joinProductChat',
+          sendMessage: 'sendProductMessage',
+          receiveMessage: 'receiveProductMessage',
+          typing: 'typing',
+          roomName: `product_${product._id}`
+        }
+      }
+    };
+
+    res.json({ 
+      success: true, 
+      data: enhancedProduct 
+    });
 
   } catch (err) {
     console.error("Error fetching product:", err);
