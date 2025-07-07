@@ -1,4 +1,5 @@
 import Message from "./models/message.js";
+import User from "./models/user.js";
 
 export default function initSocket(io) {
     io.on('connection', (socket) => {
@@ -61,35 +62,65 @@ export default function initSocket(io) {
                     productId,
                     messageType: 'text'
                 });
-                await newMsg.save();
+                const savedMessage = await newMsg.save();
 
-                // Populate sender and receiver info
-                await newMsg.populate('senderId', 'firstName lastName company profile_image');
-                await newMsg.populate('receiverId', 'firstName lastName company profile_image');
+                // Get user details manually to avoid population issues
+                try {
+                    const sender = await User.findById(senderId).select('firstName lastName company profile_image');
+                    const receiver = await User.findById(receiverId).select('firstName lastName company profile_image');
 
-                const formattedMessage = {
-                    _id: newMsg._id,
-                    message: newMsg.message,
-                    senderId: newMsg.senderId._id,
-                    receiverId: newMsg.receiverId._id,
-                    senderName: `${newMsg.senderId.firstName} ${newMsg.senderId.lastName}`,
-                    senderCompany: newMsg.senderId.company,
-                    senderImage: newMsg.senderId.profile_image,
-                    productId: newMsg.productId,
-                    messageType: newMsg.messageType,
-                    isRead: newMsg.isRead,
-                    createdAt: newMsg.createdAt
-                };
-                
-                // Send to receiver's personal room
-                io.to(receiverId).emit('receiveProductMessage', formattedMessage);
-                
-                // Send to product-specific room (if both users are in the room)
-                const roomName = `product_${productId}`;
-                socket.to(roomName).emit('receiveProductMessage', formattedMessage);
+                    const formattedMessage = {
+                        _id: savedMessage._id,
+                        message: savedMessage.message,
+                        senderId: savedMessage.senderId,
+                        receiverId: savedMessage.receiverId,
+                        senderName: sender ? `${sender.firstName || ''} ${sender.lastName || ''}`.trim() : 'User',
+                        senderCompany: sender?.company || '',
+                        senderImage: sender?.profile_image || '',
+                        productId: savedMessage.productId,
+                        messageType: savedMessage.messageType,
+                        isRead: savedMessage.isRead,
+                        createdAt: savedMessage.createdAt
+                    };
+                    
+                    // Send to receiver's personal room
+                    io.to(receiverId).emit('receiveProductMessage', formattedMessage);
+                    
+                    // Send to product-specific room (if both users are in the room)
+                    const roomName = `product_${productId}`;
+                    socket.to(roomName).emit('receiveProductMessage', formattedMessage);
 
-                // Send confirmation back to sender
-                socket.emit('messageSent', formattedMessage);
+                    // Send confirmation back to sender
+                    socket.emit('messageSent', formattedMessage);
+                    
+                } catch (userError) {
+                    // If user lookup fails, send basic message
+                    console.warn('User lookup failed, sending basic message:', userError.message);
+                    
+                    const basicMessage = {
+                        _id: savedMessage._id,
+                        message: savedMessage.message,
+                        senderId: savedMessage.senderId,
+                        receiverId: savedMessage.receiverId,
+                        senderName: 'User',
+                        senderCompany: '',
+                        senderImage: '',
+                        productId: savedMessage.productId,
+                        messageType: savedMessage.messageType,
+                        isRead: savedMessage.isRead,
+                        createdAt: savedMessage.createdAt
+                    };
+                    
+                    // Send to receiver's personal room
+                    io.to(receiverId).emit('receiveProductMessage', basicMessage);
+                    
+                    // Send to product-specific room
+                    const roomName = `product_${productId}`;
+                    socket.to(roomName).emit('receiveProductMessage', basicMessage);
+
+                    // Send confirmation back to sender
+                    socket.emit('messageSent', basicMessage);
+                }
                 
             } catch (error) {
                 console.error('Error sending product message:', error);
@@ -107,35 +138,65 @@ export default function initSocket(io) {
                     quoteId,
                     messageType: 'text'
                 });
-                await newMsg.save();
+                const savedMessage = await newMsg.save();
 
-                // Populate sender and receiver info
-                await newMsg.populate('senderId', 'firstName lastName company profile_image');
-                await newMsg.populate('receiverId', 'firstName lastName company profile_image');
+                // Get user details manually to avoid population issues
+                try {
+                    const sender = await User.findById(senderId).select('firstName lastName company profile_image');
+                    const receiver = await User.findById(receiverId).select('firstName lastName company profile_image');
 
-                const formattedMessage = {
-                    _id: newMsg._id,
-                    message: newMsg.message,
-                    senderId: newMsg.senderId._id,
-                    receiverId: newMsg.receiverId._id,
-                    senderName: `${newMsg.senderId.firstName} ${newMsg.senderId.lastName}`,
-                    senderCompany: newMsg.senderId.company,
-                    senderImage: newMsg.senderId.profile_image,
-                    quoteId: newMsg.quoteId,
-                    messageType: newMsg.messageType,
-                    isRead: newMsg.isRead,
-                    createdAt: newMsg.createdAt
-                };
-                
-                // Send to receiver's personal room
-                io.to(receiverId).emit('receiveQuoteMessage', formattedMessage);
-                
-                // Send to quote-specific room (if both users are in the room)
-                const roomName = `quote_${quoteId}`;
-                socket.to(roomName).emit('receiveQuoteMessage', formattedMessage);
+                    const formattedMessage = {
+                        _id: savedMessage._id,
+                        message: savedMessage.message,
+                        senderId: savedMessage.senderId,
+                        receiverId: savedMessage.receiverId,
+                        senderName: sender ? `${sender.firstName || ''} ${sender.lastName || ''}`.trim() : 'User',
+                        senderCompany: sender?.company || '',
+                        senderImage: sender?.profile_image || '',
+                        quoteId: savedMessage.quoteId,
+                        messageType: savedMessage.messageType,
+                        isRead: savedMessage.isRead,
+                        createdAt: savedMessage.createdAt
+                    };
+                    
+                    // Send to receiver's personal room
+                    io.to(receiverId).emit('receiveQuoteMessage', formattedMessage);
+                    
+                    // Send to quote-specific room (if both users are in the room)
+                    const roomName = `quote_${quoteId}`;
+                    socket.to(roomName).emit('receiveQuoteMessage', formattedMessage);
 
-                // Send confirmation back to sender
-                socket.emit('messageSent', formattedMessage);
+                    // Send confirmation back to sender
+                    socket.emit('messageSent', formattedMessage);
+                    
+                } catch (userError) {
+                    // If user lookup fails, send basic message
+                    console.warn('User lookup failed for quote message, sending basic message:', userError.message);
+                    
+                    const basicMessage = {
+                        _id: savedMessage._id,
+                        message: savedMessage.message,
+                        senderId: savedMessage.senderId,
+                        receiverId: savedMessage.receiverId,
+                        senderName: 'User',
+                        senderCompany: '',
+                        senderImage: '',
+                        quoteId: savedMessage.quoteId,
+                        messageType: savedMessage.messageType,
+                        isRead: savedMessage.isRead,
+                        createdAt: savedMessage.createdAt
+                    };
+                    
+                    // Send to receiver's personal room
+                    io.to(receiverId).emit('receiveQuoteMessage', basicMessage);
+                    
+                    // Send to quote-specific room
+                    const roomName = `quote_${quoteId}`;
+                    socket.to(roomName).emit('receiveQuoteMessage', basicMessage);
+
+                    // Send confirmation back to sender
+                    socket.emit('messageSent', basicMessage);
+                }
                 
             } catch (error) {
                 console.error('Error sending quote message:', error);

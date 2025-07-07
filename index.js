@@ -11,7 +11,7 @@ import initSocket from "./socket.js";
 dotenv.config({ path: ".env" });
 const app = express();
 const DB_URL = process.env.MONGO;
-const port = process.env.PORT || 7000;
+const port =  5050;
 
 if (!DB_URL) {
   console.error("Error: MONGO URL not defined in .env file");
