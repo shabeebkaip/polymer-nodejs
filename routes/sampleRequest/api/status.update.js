@@ -13,7 +13,7 @@ updateSampleStatus.patch(
       const { id } = req.params;
       const { status } = req.body;
 
-      const allowedStatuses = ["pending", "approved", "rejected", "fulfilled"];
+      const allowedStatuses = ["pending", "approved", "rejected", "fulfilled", "responded", "sent", "delivered", "cancelled"];
       if (!allowedStatuses.includes(status)) {
         return res.status(400).json({ success: false, message: "Invalid status value provided." });
       }
