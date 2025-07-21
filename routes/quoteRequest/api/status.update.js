@@ -110,15 +110,7 @@ updateQuoteStatus.patch(
       )
         .populate({
           path: "product",
-          select: "productName chemicalName tradeName countryOfOrigin",
-          populate: {
-            path: "category",
-            select: "name"
-          }
-        })
-        .populate({
-          path: "user",
-          select: "firstName lastName email company"
+          select: "productName chemicalName tradeName countryOfOrigin" // removed category populate
         })
         .populate({
           path: "buyerId",
@@ -160,8 +152,8 @@ updateQuoteStatus.patch(
           id: formattedResponse.product._id,
           productName: formattedResponse.product.productName,
           chemicalName: formattedResponse.product.chemicalName,
-          tradeName: formattedResponse.product.tradeName,
-          category: formattedResponse.product.category?.name
+          tradeName: formattedResponse.product.tradeName
+          // removed category
         } : null,
         
         orderDetails: {

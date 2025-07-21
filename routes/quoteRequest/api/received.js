@@ -63,11 +63,7 @@ recivedRouter.get("/", authenticateUser, async (req, res) => {
     const requests = await UnifiedQuoteRequest.find(searchQuery)
       .populate({ 
         path: "product", 
-        select: "productName chemicalName tradeName countryOfOrigin color",
-        populate: {
-          path: "category",
-          select: "name"
-        }
+        select: "productName chemicalName tradeName countryOfOrigin color" // removed category populate
       })
       .populate({ path: "grade", select: "name" })
       .populate({ path: "incoterm", select: "name" })
@@ -111,8 +107,8 @@ recivedRouter.get("/", authenticateUser, async (req, res) => {
           chemicalName: formatted.product.chemicalName,
           tradeName: formatted.product.tradeName,
           countryOfOrigin: formatted.product.countryOfOrigin,
-          color: formatted.product.color,
-          category: formatted.product.category?.name
+          color: formatted.product.color
+          // removed category
         } : null,
         orderDetails: {
           quantity: formatted.quantity,
@@ -248,20 +244,12 @@ recivedRouter.get("/:id", authenticateUser, async (req, res) => {
     })
       .populate({
         path: "product",
-        select: "productName chemicalName description tradeName productImages density mfi tensileStrength elongationAtBreak shoreHardness waterAbsorption countryOfOrigin color manufacturingMethod createdBy category subCategory",
+        select: "productName chemicalName description tradeName productImages density mfi tensileStrength elongationAtBreak shoreHardness waterAbsorption countryOfOrigin color manufacturingMethod createdBy ", // removed category from select
         populate: [
           {
             path: "createdBy",
             select: "firstName lastName email phone company address city state country",
           },
-          {
-            path: "category",
-            select: "name description",
-          },
-          {
-            path: "subCategory",
-            select: "name description",
-          }
         ]
       })
       .populate({
@@ -336,16 +324,6 @@ recivedRouter.get("/:id", authenticateUser, async (req, res) => {
         countryOfOrigin: formattedResponse.product.countryOfOrigin,
         color: formattedResponse.product.color,
         manufacturingMethod: formattedResponse.product.manufacturingMethod,
-        category: formattedResponse.product.category ? {
-          _id: formattedResponse.product.category._id,
-          name: formattedResponse.product.category.name,
-          description: formattedResponse.product.category.description
-        } : null,
-        subCategory: formattedResponse.product.subCategory ? {
-          _id: formattedResponse.product.subCategory._id,
-          name: formattedResponse.product.subCategory.name,
-          description: formattedResponse.product.subCategory.description
-        } : null,
         specifications: {
           density: formattedResponse.product.density,
           mfi: formattedResponse.product.mfi,
