@@ -1,7 +1,8 @@
 import express from "express";
-import UnifiedQuoteRequest from "../../../models/unifiedQuoteRequest.js";
 import { authenticateUser } from "../../../middlewares/verify.token.js";
 import QuoteRequestHelper from "../../../utils/quoteRequestHelper.js";
+import Notification from '../../../models/notification.js';
+import UnifiedQuoteRequest from '../../../models/unifiedQuoteRequest.js'
 
 const createQuote = express.Router();
 
@@ -108,6 +109,37 @@ createQuote.post("/", authenticateUser, async (req, res) => {
         unified: formattedResponse.unified
       }
     });
+    
+    // After saving and populating the quote request
+    function notifySupplier({ supplierId, productName, quoteId, buyer }) {
+      return Notification.create({
+        userId: supplierId,
+        type: 'quote-enquiry',
+        message: `New quote request for your product: ${productName?.en || productName}`,
+        redirectUrl: `/user/quote-enquiries/${quoteId}`,
+        relatedId: quoteId,
+        meta: {
+          buyerId: buyer?._id,
+          buyerName: buyer ? `${buyer.firstName} ${buyer.lastName}` : ''
+        }
+      });
+    }
+    if (requestType === 'product_quote' && formattedResponse.product && formattedResponse.product.createdBy) {
+      await notifySupplier({
+        supplierId: formattedResponse.product.createdBy._id,
+        productName: formattedResponse.product.productName,
+        quoteId: formattedResponse.id,
+        buyer: formattedResponse.buyerId
+      });
+    }
+    if (requestType === 'deal_quote' && formattedResponse.bestDeal && formattedResponse.bestDeal.productId && formattedResponse.bestDeal.productId.createdBy) {
+      await notifySupplier({
+        supplierId: formattedResponse.bestDeal.productId.createdBy._id,
+        productName: formattedResponse.bestDeal.productId.productName,
+        quoteId: formattedResponse.id,
+        buyer: formattedResponse.buyerId
+      });
+    }
     
   } catch (err) {
     console.error("Error saving unified quote request:", err);

@@ -19,6 +19,7 @@ createBestDeal.post("/", authenticateUser, async (req, res) => {
       productId,
       offerPrice,
       sellerId,
+      createdBy: sellerId, // Track who created the deal
       status: "pending", // default value, can be skipped if already set in schema
     });
 

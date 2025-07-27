@@ -1,6 +1,7 @@
 import Message from "./models/message.js";
 import User from "./models/user.js";
 import Product from "./models/product.js";
+import Notification from "./models/notification.js";
 
 // Track online users: { userId: socketId }
 const onlineUsers = {};
@@ -85,44 +86,46 @@ export default function initSocket(io) {
                 productMessageBuffer.push(newMsg.toObject());
 
                 // Get user details manually to avoid population issues
+                let sender;
                 try {
-                    const sender = await User.findById(senderId).select('firstName lastName company profile_image');
-                    const formattedMessage = {
-                        _id: newMsg._id,
-                        message: newMsg.message,
-                        senderId: newMsg.senderId,
-                        receiverId: newMsg.receiverId,
-                        senderName: sender ? `${sender.firstName || ''} ${sender.lastName || ''}`.trim() : 'User',
-                        senderCompany: sender?.company || '',
-                        senderImage: sender?.profile_image || '',
-                        productId: newMsg.productId,
-                        messageType: newMsg.messageType,
-                        isRead: newMsg.isRead,
-                        createdAt: newMsg.createdAt
-                    };
-                    io.to(receiverId).emit('receiveProductMessage', formattedMessage);
-                    const roomName = `product_${productId}`;
-                    socket.to(roomName).emit('receiveProductMessage', formattedMessage);
-                    socket.emit('messageSent', formattedMessage);
-                } catch (userError) {
-                    const basicMessage = {
-                        _id: newMsg._id,
-                        message: newMsg.message,
-                        senderId: newMsg.senderId,
-                        receiverId: newMsg.receiverId,
-                        senderName: 'User',
-                        senderCompany: '',
-                        senderImage: '',
-                        productId: newMsg.productId,
-                        messageType: newMsg.messageType,
-                        isRead: newMsg.isRead,
-                        createdAt: newMsg.createdAt
-                    };
-                    io.to(receiverId).emit('receiveProductMessage', basicMessage);
-                    const roomName = `product_${productId}`;
-                    socket.to(roomName).emit('receiveProductMessage', basicMessage);
-                    socket.emit('messageSent', basicMessage);
-                }
+                    sender = await User.findById(senderId).select('firstName lastName company profile_image');
+                } catch {}
+                const formattedMessage = {
+                    _id: newMsg._id,
+                    message: newMsg.message,
+                    senderId: newMsg.senderId,
+                    receiverId: newMsg.receiverId,
+                    senderName: sender ? `${sender.firstName || ''} ${sender.lastName || ''}`.trim() : 'User',
+                    senderCompany: sender?.company || '',
+                    senderImage: sender?.profile_image || '',
+                    productId: newMsg.productId,
+                    messageType: newMsg.messageType,
+                    isRead: newMsg.isRead,
+                    createdAt: newMsg.createdAt
+                };
+                io.to(receiverId).emit('receiveProductMessage', formattedMessage);
+                const roomName = `product_${productId}`;
+                socket.to(roomName).emit('receiveProductMessage', formattedMessage);
+                socket.emit('messageSent', formattedMessage);
+
+                // --- Create and emit chat notification ---
+                await Notification.create({
+                  userId: receiverId,
+                  type: "chat",
+                  message: `New message from ${formattedMessage.senderName}`,
+                  redirectUrl: `/chat/room/${productId}`,
+                  relatedId: productId,
+                  meta: {
+                    senderId,
+                    senderName: formattedMessage.senderName
+                  }
+                });
+                io.to(receiverId).emit("newNotification", {
+                  type: "chat",
+                  message: `New message from ${formattedMessage.senderName}`,
+                  redirectUrl: `/chat/room/${productId}`,
+                  relatedId: productId
+                });
             } catch (error) {
                 console.error('[ProductChat] Error sending product message:', error);
                 socket.emit('messageError', { error: 'Failed to send message' });

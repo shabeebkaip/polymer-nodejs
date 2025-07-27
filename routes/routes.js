@@ -33,6 +33,7 @@ import bulkOrderRouter from "./bulkOrder/bulkOrder.js";
 import shippingMethodRouter from "./shippingMethod/shippingMethod.js";
 import dashboardRouter from "./dashboard/dashboard.js";
 import unifiedQuoteRoutes from "./quote/api/unifiedQuotes.js";
+import notificationRouter from "./notification/notification.js";
 // import testimonialRoutes from "./testimonials/testimonials.js";
 
 const router = express.Router();
@@ -70,6 +71,7 @@ router.use("/bulk-order", bulkOrderRouter)
 router.use("/shipping-method", shippingMethodRouter)
 router.use("/dashboard", dashboardRouter)
 router.use("/quote", unifiedQuoteRoutes)
+router.use("/notifications", notificationRouter);
 
 
 

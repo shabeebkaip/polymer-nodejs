@@ -33,6 +33,13 @@ const unifiedQuoteRequestSchema = new Schema(
         return this.requestType === "deal_quote";
       },
     },
+    sellerId: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+      required: function() {
+        return this.requestType === "deal_quote";
+      },
+    },
     
     // Common quantity fields
     quantity: {
@@ -195,7 +202,7 @@ const unifiedQuoteRequestSchema = new Schema(
           enum: [
             "pending", "responded", "negotiation", "accepted",
             "in_progress", "shipped", "delivered", "completed",
-            "rejected", "cancelled"
+            "rejected", "cancelled", "approved"
           ],
         },
         message: {

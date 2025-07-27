@@ -9,9 +9,11 @@ createBulkOrder.post("/", authenticateUser, async (req, res) => {
     const bulkOrder = new BulkOrder({
       ...req.body,
       user: req.user.id,
+      createdBy: req.user.id, // Track who created the bulk order
     });
 
     const saved = await bulkOrder.save();
+    await saved.populate(["user", "createdBy", "product"]);
     res.status(201).json(saved);
   } catch (err) {
     console.error("Bulk order creation error:", err);
@@ -20,4 +22,4 @@ createBulkOrder.post("/", authenticateUser, async (req, res) => {
 });
 
 export default createBulkOrder;
-//buyer submit 
+//buyer submit

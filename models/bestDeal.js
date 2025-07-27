@@ -5,26 +5,30 @@ const bestDealSchema = new Schema(
     productId: {
       type: Schema.Types.ObjectId,
       ref: "Product",
-      required: true
+      required: true,
     },
     sellerId: {
       type: Schema.Types.ObjectId,
       ref: "user",
-      required: true
+      required: true,
     },
     offerPrice: {
       type: Number,
-      required: true
+      required: true,
     },
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],
-      default: "pending"
+      default: "pending",
     },
     adminNote: {
-      type: String
+      type: String,
     },
-    
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
+    },
   },
   { timestamps: true }
 );

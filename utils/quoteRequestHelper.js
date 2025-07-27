@@ -39,6 +39,7 @@ export class QuoteRequestHelper {
       requestType: "deal_quote",
       buyerId: data.buyerId,
       bestDealId: data.bestDealId,
+      sellerId: data.sellerId, // <-- FIX: ensure sellerId is set
       desiredQuantity: data.desiredQuantity,
       quantity: data.desiredQuantity, // For unified access
       shippingCountry: data.shippingCountry,
@@ -74,7 +75,7 @@ export class QuoteRequestHelper {
    */
   static formatUnifiedResponse(request) {
     const obj = request.toObject();
-    
+    console.log("🔶 Quote Request Helper - Formatting response:", obj);
     return {
       ...obj,
       // Unified fields for easier frontend handling
@@ -82,7 +83,7 @@ export class QuoteRequestHelper {
         type: obj.requestType,
         title: obj.requestType === 'product_quote' 
           ? obj.product?.productName 
-          : obj.bestDealId?.title,
+          : obj.bestDealId?.productId?.productName,
         quantity: obj.quantity || obj.desiredQuantity,
         deliveryDate: obj.delivery_date || obj.deliveryDeadline,
         location: obj.country || obj.shippingCountry,

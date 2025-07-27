@@ -2,6 +2,7 @@ import express from "express";
 import UnifiedQuoteRequest from "../../../models/unifiedQuoteRequest.js";
 import Product from "../../../models/product.js";
 import QuoteRequestHelper from "../../../utils/quoteRequestHelper.js";
+import Notification from "../../../models/notification.js";
 import { authenticateUser, authorizeRoles } from "../../../middlewares/verify.token.js";
 
 const updateQuoteStatus = express.Router();
@@ -32,7 +33,7 @@ updateQuoteStatus.patch(
       const allowedStatuses = [
         "pending", "responded", "negotiation", "accepted", 
         "in_progress", "shipped", "delivered", "completed", 
-        "rejected", "cancelled"
+        "rejected", "cancelled", "approved"
       ];
       
       if (!allowedStatuses.includes(status)) {
@@ -126,7 +127,27 @@ updateQuoteStatus.patch(
 
       // Format response using helper
       const formattedResponse = QuoteRequestHelper.formatUnifiedResponse(updatedRequest);
-      
+      // Notify the buyer about status update (only if buyer details are available)
+      console.log("🔶 Notifying buyer about status update for quote request ID:", formattedResponse.buyerId);
+      if (formattedResponse.buyerId && formattedResponse.buyerId._id) {
+        try {
+          await Notification.create({
+            userId: formattedResponse.buyerId._id,
+            type: 'quote-status',
+            message: `Status updated to '${status}' for your quote request on product: ${formattedResponse.product?.productName?.en || formattedResponse.product?.productName}`,
+            redirectUrl: `/user/quotes/${formattedResponse._id}`,
+            relatedId: formattedResponse._id,
+            meta: {
+              productId: formattedResponse.product?._id,
+              status,
+              sellerId: sellerId
+            }
+          });
+        } catch (notifyErr) {
+          console.error('Failed to notify buyer:', notifyErr);
+        }
+      }
+
       // Get buyer info
       const buyer = formattedResponse.user || formattedResponse.buyerId;
 

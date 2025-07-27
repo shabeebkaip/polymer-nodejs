@@ -377,7 +377,7 @@ productFilter.post('/', async (req, res) => {
                 displayName: "Packaging Type",
                 component: "multiLookup",
                 filterType: "array",
-                collapsible: true,
+                collapsible: false,
                 data: packagingTypesWithCount
             },
            
@@ -402,7 +402,7 @@ productFilter.post('/', async (req, res) => {
             },
             {
                 name: "uom",
-                displayName: "UOM",
+                displayName: "Unit",
                 component: "multiLookup",
                 filterType: "array",
                 collapsible: true,
