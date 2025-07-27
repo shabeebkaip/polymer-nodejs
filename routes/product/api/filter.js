@@ -331,6 +331,15 @@ productFilter.post('/', async (req, res) => {
                 collapsible: true,
                 data: industriesWithCount
             },
+             {
+                name: "company",
+                displayName: "Company",
+                component: "multiLookup",
+                filterType: "array",
+                collapsible: true,
+                searchable: true,
+                data: usersWithCount
+            },
             {
                 name: "grade",
                 displayName: "Application Grade",
@@ -352,7 +361,7 @@ productFilter.post('/', async (req, res) => {
                 displayName: "Incoterms",
                 component: "multiLookup",
                 filterType: "array",
-                collapsible: true,
+                collapsible: false,
                 data: incotermsWithCount
             },
             {
@@ -360,7 +369,7 @@ productFilter.post('/', async (req, res) => {
                 displayName: "Payment Terms",
                 component: "multiLookup",
                 filterType: "array",
-                collapsible: true,
+                collapsible: false,
                 data: paymentTermsWithCount
             },
             {
@@ -371,21 +380,13 @@ productFilter.post('/', async (req, res) => {
                 collapsible: true,
                 data: packagingTypesWithCount
             },
-            {
-                name: "company",
-                displayName: "Company",
-                component: "multiLookup",
-                filterType: "array",
-                collapsible: true,
-                searchable: true,
-                data: usersWithCount
-            },
+           
             {
                 name: "priceTerms",
                 displayName: "Price Terms",
                 component: "multiLookup",
                 filterType: "array",
-                collapsible: true,
+                collapsible: false,
                 data: priceTermsWithCount
             }
         ];
