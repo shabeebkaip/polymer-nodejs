@@ -1,7 +1,6 @@
 import express from 'express';
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
-import mime from 'mime-types';
 
 const fileUpload = express.Router();
 dotenv.config();
@@ -29,12 +28,20 @@ fileUpload.post('/', async (req, res) => {
       resourceType = "raw";
     }
 
+    const uploadOptions = {
+      folder: 'polymer',
+      resource_type: resourceType,
+    };
+    // Set filename_override if available
+    if (file.name) {
+      uploadOptions.filename_override = file.name;
+      uploadOptions.use_filename = true;
+      uploadOptions.unique_filename = false; // To keep the filename as is
+    }
+
     const result = await cloudinary.uploader.upload(
       file.tempFilePath || file.path,
-      {
-        folder: 'polymer',
-        resource_type: resourceType,
-      }
+      uploadOptions
     );
 
 
@@ -42,10 +49,20 @@ fileUpload.post('/', async (req, res) => {
     // Remove PDF transformation logic; just return the direct Cloudinary URL
     // For PDF preview, use an <iframe> or PDF viewer in the frontend with this URL
 
+    // Always use the original file name with extension from the upload if available
+    let originalFilename = file.name || result.original_filename;
+    // If the filename does not already end with the extension, append it
+    if (result.format) {
+      const ext = '.' + result.format.toLowerCase();
+      if (!originalFilename.toLowerCase().endsWith(ext)) {
+        originalFilename += ext;
+      }
+    }
+
     res.status(200).json({
       fileUrl,
       id: result.public_id,
-      originalFilename: result.original_filename,
+      originalFilename,
       format: result.format,
       resourceType: result.resource_type,
     });
