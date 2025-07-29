@@ -38,8 +38,12 @@ fileUpload.post('/', async (req, res) => {
     );
 
 
+    let fileUrl = result.secure_url || result.url;
+    // Remove PDF transformation logic; just return the direct Cloudinary URL
+    // For PDF preview, use an <iframe> or PDF viewer in the frontend with this URL
+
     res.status(200).json({
-      fileUrl: result.secure_url || result.url,
+      fileUrl,
       id: result.public_id,
       originalFilename: result.original_filename,
       format: result.format,
