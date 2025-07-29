@@ -21,10 +21,13 @@ fileUpload.post('/', async (req, res) => {
   try {
 
     const fileType = file.mimetype.split('/')[0];
-
-
-    // Determine resource_type for Cloudinary
-    let resourceType = 'auto'; // Let Cloudinary auto-detect
+    const fileExt = file.mimetype.split('/')[1];
+    let resourceType;
+    if (["image", "video", "audio"].includes(fileType)) {
+      resourceType = fileType === "audio" ? "video" : fileType; // Cloudinary treats audio as video
+    } else {
+      resourceType = "raw";
+    }
 
     const result = await cloudinary.uploader.upload(
       file.tempFilePath || file.path,
@@ -35,7 +38,6 @@ fileUpload.post('/', async (req, res) => {
     );
 
 
-    // For non-image files, use result.secure_url or result.url as fallback
     res.status(200).json({
       fileUrl: result.secure_url || result.url,
       id: result.public_id,
