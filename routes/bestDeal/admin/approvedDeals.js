@@ -8,7 +8,7 @@ listApprovedDeals.get("/", async (req, res) => {
     // Fetch only approved best deals for public display
     const approvedDeals = await BestDeal.find({ status: "approved" })
       .populate("productId", "productName price productImages description category")
-      .populate("sellerId", "name email shopName")
+      .populate("sellerId", "name email company")
       .sort({ createdAt: -1 }); // Show newest deals first
 
     // Filter out any deals where product or seller doesn't exist
@@ -39,7 +39,7 @@ listApprovedDeals.get("/:id", async (req, res) => {
       status: "approved" 
     })
       .populate("productId", "productName price productImages description category")
-      .populate("sellerId", "name email shopName");
+      .populate("sellerId", "name email company");
 
     if (!approvedDeal) {
       return res.status(404).json({ 
@@ -73,7 +73,7 @@ listApprovedDeals.get("/category/:category", async (req, res) => {
         match: { category: category },
         select: "productName price productImages description category"
       })
-      .populate("sellerId", "name email shopName")
+      .populate("sellerId", "name email conpany")
       .sort({ createdAt: -1 });
 
     // Filter out deals where productId is null (didn't match category)
