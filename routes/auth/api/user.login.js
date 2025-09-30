@@ -24,8 +24,15 @@ userLogin.post('/login', validate, verify, authenticate, createJwt, async (req,r
       });
     }
 
-    // console.log(user);
-    
+    // Check if email is verified for non-admin users
+    if (user.user_type !== "superAdmin" && !user.emailVerified) {
+      return res.status(403).json({
+        status: false,
+        message: "Please verify your email before logging in",
+        requiresEmailVerification: true,
+        email: email
+      });
+    }
 
     res.status(200).json({
       status: true,

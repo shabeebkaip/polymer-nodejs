@@ -1,0 +1,241 @@
+# Polymer Hub - Authentication API REST Client
+# Use with VS Code REST Client extension
+# Variables
+@baseURL = http://localhost:5050
+@contentType = application/json
+
+###
+
+# 1. REGISTRATION FLOW
+# ====================
+
+### Register New User (Buyer) - Development with Gmail
+POST {{baseURL}}/auth/user/register
+Content-Type: {{contentType}}
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "company": "Acme Corporation", 
+  "email": "john.doe.test@gmail.com",
+  "password": "SecurePassword123!",
+  "website": "https://acmecorp.com",
+  "phone": 1234567890,
+  "country_code": "+1",
+  "industry": "Manufacturing",
+  "address": "123 Business Street",
+  "location": "New York, USA",
+  "user_type": "buyer"
+}
+
+###
+
+### Register New User (Seller) - with VAT & Logo
+POST {{baseURL}}/auth/user/register
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "company": "Polymer Solutions Ltd",
+  "email": "jane@polymersolutions.com", 
+  "password": "SecurePassword123!",
+  "website": "https://polymersolutions.com",
+  "phone": 9876543210,
+  "country_code": "+44",
+  "industry": "Chemical Manufacturing",
+  "address": "456 Industrial Park",
+  "location": "London, UK",
+  "vat_number": "GB123456789",
+  "company_logo": "https://polymersolutions.com/logo.png",
+  "user_type": "seller"
+}
+
+###
+
+# 2. OTP VERIFICATION
+# ===================
+
+### Verify Registration OTP
+POST {{baseURL}}/auth/user/verify-registration-otp
+Content-Type: {{contentType}}
+
+{
+  "email": "john@acmecorp.com",
+  "otp": "123456"
+}
+
+###
+
+### Resend Registration OTP
+POST {{baseURL}}/auth/user/resend-otp
+Content-Type: {{contentType}}
+
+{
+  "email": "john@acmecorp.com"
+}
+
+###
+
+# 3. USER LOGIN
+# =============
+
+### User Login
+POST {{baseURL}}/auth/user/login
+Content-Type: {{contentType}}
+
+{
+  "email": "john@acmecorp.com",
+  "password": "SecurePassword123!"
+}
+
+###
+
+### User Login (Unverified Email - Should Fail)
+POST {{baseURL}}/auth/user/login  
+Content-Type: {{contentType}}
+
+{
+  "email": "unverified@example.com",
+  "password": "password123"
+}
+
+###
+
+# 4. PASSWORD RESET FLOW  
+# ======================
+
+### Request Password Reset
+POST {{baseURL}}/auth/user/forgot-password
+Content-Type: {{contentType}}
+
+{
+  "email": "john@acmecorp.com"
+}
+
+###
+
+### Verify Password Reset OTP
+POST {{baseURL}}/auth/user/verify-otp
+Content-Type: {{contentType}}
+
+{
+  "email": "john@acmecorp.com",
+  "otp": "123456"
+}
+
+###
+
+### Reset Password
+POST {{baseURL}}/auth/user/reset-password
+Content-Type: {{contentType}}
+
+{
+  "email": "john@acmecorp.com", 
+  "newPassword": "NewSecurePassword123!"
+}
+
+###
+
+# 5. PROTECTED ROUTES (Require Authentication)
+# ============================================
+
+### Get User Info (Protected Route)
+# Note: Replace TOKEN_HERE with actual JWT token from login
+GET {{baseURL}}/auth/user/info
+Authorization: Bearer TOKEN_HERE
+
+###
+
+# 6. ADMIN ROUTES
+# ===============
+
+### Admin Login
+POST {{baseURL}}/auth/admin/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@polymerhub.com",
+  "password": "AdminPassword123!"
+}
+
+###
+
+# 7. ERROR TESTING
+# ================
+
+### Test with Gmail (Should Pass in Development)
+POST {{baseURL}}/auth/user/register
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Test",
+  "lastName": "User",
+  "company": "Test Company",
+  "email": "test@gmail.com",
+  "password": "TestPassword123!",
+  "website": "https://test.com",
+  "phone": 1234567890,
+  "country_code": "+1",
+  "user_type": "buyer"
+}
+
+###
+
+### Test Missing Required Fields (Should Fail)
+POST {{baseURL}}/auth/user/register
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Test",
+  "email": "test@company.com"
+}
+
+###
+
+### Test Invalid OTP (Should Fail)
+POST {{baseURL}}/auth/user/verify-registration-otp
+Content-Type: {{contentType}}
+
+{
+  "email": "john@acmecorp.com",
+  "otp": "000000"
+}
+
+###
+
+### Test Expired OTP (Should Fail after 10 minutes)
+POST {{baseURL}}/auth/user/verify-registration-otp
+Content-Type: {{contentType}}
+
+{
+  "email": "john@acmecorp.com",
+  "otp": "123456"
+}
+
+###
+
+# 8. RATE LIMITING TESTS
+# ======================
+
+### Multiple OTP Requests (Test Rate Limiting)
+POST {{baseURL}}/auth/user/resend-otp
+Content-Type: {{contentType}}
+
+{
+  "email": "john@acmecorp.com"
+}
+
+###
+
+# Quick Test Sequence:
+# 1. Register user → Should return success with requiresVerification: true
+# 2. Check email for OTP code
+# 3. Verify OTP → Should return success with JWT token
+# 4. Login → Should return success with JWT token
+# 5. Use token for protected routes
+
+# Environment Variables for different stages:
+# Development: http://localhost:5050
+# Staging: https://staging-api.polymershub.com  
+# Production: https://api.polymershub.com

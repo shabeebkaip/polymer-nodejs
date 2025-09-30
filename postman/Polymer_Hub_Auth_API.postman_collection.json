@@ -1,0 +1,340 @@
+{
+  "info": {
+    "name": "Polymer Hub - Authentication API",
+    "description": "Complete authentication API collection including registration, OTP verification, login, and password reset flows",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseURL",
+      "value": "http://localhost:5050",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. User Registration Flow",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"company\": \"Acme Corporation\",\n  \"email\": \"john.doe.test@gmail.com\",\n  \"password\": \"SecurePassword123!\",\n  \"website\": \"https://acmecorp.com\",\n  \"phone\": 1234567890,\n  \"country_code\": \"+1\",\n  \"industry\": \"Manufacturing\",\n  \"address\": \"123 Business Street\",\n  \"location\": \"New York, USA\",\n  \"user_type\": \"buyer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/auth/user/register",
+              "host": ["{{baseURL}}"],
+              "path": ["auth", "user", "register"]
+            },
+            "description": "Creates a new user account and sends OTP verification email"
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Registration OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@acmecorp.com\",\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/auth/user/verify-registration-otp",
+              "host": ["{{baseURL}}"],
+              "path": ["auth", "user", "verify-registration-otp"]
+            },
+            "description": "Verifies OTP and completes user registration"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.token) {",
+                  "        pm.collectionVariables.set('token', response.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Resend Registration OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@acmecorp.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/auth/user/resend-otp",
+              "host": ["{{baseURL}}"],
+              "path": ["auth", "user", "resend-otp"]
+            },
+            "description": "Resends OTP verification email"
+          },
+          "response": []
+        }
+      ],
+      "description": "User registration with OTP verification"
+    },
+    {
+      "name": "2. User Login",
+      "item": [
+        {
+          "name": "User Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@acmecorp.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/auth/user/login",
+              "host": ["{{baseURL}}"],
+              "path": ["auth", "user", "login"]
+            },
+            "description": "Authenticates user and returns JWT token"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.token) {",
+                  "        pm.collectionVariables.set('token', response.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get User Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/auth/user/info",
+              "host": ["{{baseURL}}"],
+              "path": ["auth", "user", "info"]
+            },
+            "description": "Gets current user information (protected route)"
+          },
+          "response": []
+        }
+      ],
+      "description": "User authentication and profile management"
+    },
+    {
+      "name": "3. Password Reset Flow",
+      "item": [
+        {
+          "name": "Request Password Reset",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@acmecorp.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/auth/user/forgot-password",
+              "host": ["{{baseURL}}"],
+              "path": ["auth", "user", "forgot-password"]
+            },
+            "description": "Sends OTP to user's email for password reset"
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Password Reset OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@acmecorp.com\",\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/auth/user/verify-otp",
+              "host": ["{{baseURL}}"],
+              "path": ["auth", "user", "verify-otp"]
+            },
+            "description": "Verifies OTP for password reset"
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@acmecorp.com\",\n  \"newPassword\": \"NewSecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/auth/user/reset-password",
+              "host": ["{{baseURL}}"],
+              "path": ["auth", "user", "reset-password"]
+            },
+            "description": "Sets new password after OTP verification"
+          },
+          "response": []
+        }
+      ],
+      "description": "Password reset with OTP verification"
+    },
+    {
+      "name": "4. Seller Registration Examples",
+      "item": [
+        {
+          "name": "Register Seller (with VAT & Logo)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Smith\",\n  \"company\": \"Polymer Solutions Ltd\",\n  \"email\": \"jane@polymersolutions.com\",\n  \"password\": \"SecurePassword123!\",\n  \"website\": \"https://polymersolutions.com\",\n  \"phone\": 9876543210,\n  \"country_code\": \"+44\",\n  \"industry\": \"Chemical Manufacturing\",\n  \"address\": \"456 Industrial Park\",\n  \"location\": \"London, UK\",\n  \"vat_number\": \"GB123456789\",\n  \"company_logo\": \"https://polymersolutions.com/logo.png\",\n  \"user_type\": \"seller\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/auth/user/register",
+              "host": ["{{baseURL}}"],
+              "path": ["auth", "user", "register"]
+            },
+            "description": "Example seller registration with required VAT and logo"
+          },
+          "response": []
+        }
+      ],
+      "description": "Examples for different user types"
+    },
+    {
+      "name": "5. Admin Routes",
+      "item": [
+        {
+          "name": "Admin Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@polymerhub.com\",\n  \"password\": \"AdminPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/auth/admin/login",
+              "host": ["{{baseURL}}"],
+              "path": ["auth", "admin", "login"]
+            },
+            "description": "Admin authentication"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.token) {",
+                  "        pm.collectionVariables.set('token', response.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Admin authentication endpoints"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-set content type for JSON requests",
+          "if (pm.request.body && pm.request.body.mode === 'raw') {",
+          "    pm.request.headers.add({",
+          "        key: 'Content-Type',",
+          "        value: 'application/json'",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ]
+}

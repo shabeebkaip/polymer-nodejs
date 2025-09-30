@@ -7,7 +7,9 @@ import userInfo from './api/user.info.js';
 import userSidebar from './api/sidebar.js';
 import changePassword from './api/user.change.password.js';
 import forgetPassword from './api/user.forget.password.js';
-import verifyOtp from './api/user.verify.otp.js';
+import verifyOtpRouter from './api/user.verify.otp.js';
+import verifyRegistrationOtp from './api/user.verify.registration.otp.js';
+import resendOtp from './api/user.resend.otp.js';
 import resetPassword from './api/user.reset.password.js';
 
 
@@ -21,7 +23,9 @@ authRouter.use('/user', userInfo )
 authRouter.use('/side-bar', userSidebar )
 authRouter.use('/user/change-password', changePassword )
 authRouter.use('/user/forgot-password', forgetPassword )
-authRouter.use('/user/verify-otp', verifyOtp )
+authRouter.use('/user/verify-otp', verifyOtpRouter )
+authRouter.use('/user/verify-registration-otp', verifyRegistrationOtp )
+authRouter.use('/user/resend-otp', resendOtp )
 authRouter.use('/user/reset-password', resetPassword )
 
 

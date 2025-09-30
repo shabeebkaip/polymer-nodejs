@@ -1,2 +1,6 @@
 .env
 node_modules
+
+# Documentation files (exclude README.md)
+*.md
+!README.md

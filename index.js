@@ -7,11 +7,24 @@ import router from "./routes/routes.js";
 import { Server } from "socket.io";
 import http from 'http';
 import initSocket from "./socket.js";
+import { config, validateConfig, getCurrentUrl } from "./config/config.js";
 
 dotenv.config({ path: ".env" });
+
+// Validate required environment variables
+try {
+  validateConfig();
+} catch (error) {
+  console.error("Configuration Error:", error.message);
+  process.exit(1);
+}
+
 const app = express();
-const DB_URL = process.env.MONGO;
-const port =  5050;
+const DB_URL = config.mongoUri;
+const port = config.port;
+
+console.log(`🚀 Starting Polymer Hub API in ${config.nodeEnv} mode`);
+console.log(`🌐 Frontend URL: ${getCurrentUrl()}`);
 
 if (!DB_URL) {
   console.error("Error: MONGO URL not defined in .env file");

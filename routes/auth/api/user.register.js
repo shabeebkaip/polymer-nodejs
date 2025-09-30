@@ -3,18 +3,21 @@ import bcrypt from "bcrypt";
 import User from "../../../models/user.js";
 import Auth from "../../../models/auth.js";
 import { createJwt } from "../../../middlewares/login.auth.js";
+import { generateOtp, saveOtp } from "../../../utils/otpHelper.js";
+import { sendRegistrationOtp } from "../../../tools/mail.js";
 
 const userRegister = express.Router();
 
-const freeEmailDomains = new Set([
-  "gmail.com", "yahoo.com", "hotmail.com", "outlook.com",
-  "icloud.com", "aol.com", "zoho.com", "protonmail.com", "mail.com"
-]);
+// Free email domain validation disabled for development
+// const freeEmailDomains = new Set([
+//   "gmail.com", "yahoo.com", "hotmail.com", "outlook.com",
+//   "icloud.com", "aol.com", "zoho.com", "protonmail.com", "mail.com"
+// ]);
 
-const isCompanyEmail = (email) => {
-  const domain = email.split("@")[1]?.toLowerCase();
-  return domain && !freeEmailDomains.has(domain);
-};
+// const isCompanyEmail = (email) => {
+//   const domain = email.split("@")[1]?.toLowerCase();
+//   return domain && !freeEmailDomains.has(domain);
+// };
 
 userRegister.post("/register", async (req, res) => {
   try {
@@ -44,12 +47,13 @@ userRegister.post("/register", async (req, res) => {
       });
     }
 
-    if (!isCompanyEmail(email)) {
-      return res.status(400).json({
-        status: false,
-        message: "Please use a company email address",
-      });
-    }
+    // Company email validation disabled for development
+    // if (!isCompanyEmail(email)) {
+    //   return res.status(400).json({
+    //     status: false,
+    //     message: "Please use a company email address",
+    //   });
+    // }
 
     if (user_type === "seller" && (!vat_number || !company_logo)) {
       return res.status(400).json({
@@ -84,7 +88,7 @@ userRegister.post("/register", async (req, res) => {
       vat_number: user_type === "seller" ? vat_number : undefined,
       company_logo: user_type === "seller" ? company_logo : undefined,
       user_type,
-      verification: user_type === "superAdmin" ? "approved" : undefined
+      verification: "pending" // User needs to verify email first
     });
 
     await newUser.save();
@@ -96,16 +100,44 @@ userRegister.post("/register", async (req, res) => {
 
     await newAuth.save();
 
-    req.body.auth = { email };
+    // Generate and send OTP for email verification
+    const otp = generateOtp();
+    const otpSaved = await saveOtp(email, otp);
 
-    createJwt(req, res, () => {
-      const userInfo = newUser.toObject();
-      res.status(201).json({
-        status: true,
-        message: "User registered successfully",
-        userInfo,
-        token: req.body.token,
+    if (!otpSaved) {
+      // Clean up created user and auth if OTP saving fails
+      await User.deleteOne({ email });
+      await Auth.deleteOne({ email });
+      return res.status(500).json({
+        status: false,
+        message: "Failed to send verification email. Please try again.",
       });
+    }
+
+    // Send OTP via email
+    const emailResult = await sendRegistrationOtp(firstName, email, otp);
+    
+    if (!emailResult.success) {
+      // Clean up created user and auth if email sending fails
+      await User.deleteOne({ email });
+      await Auth.deleteOne({ email });
+      return res.status(500).json({
+        status: false,
+        message: "Failed to send verification email. Please try again.",
+      });
+    }
+
+    // Return success response without JWT token (user needs to verify email first)
+    res.status(201).json({
+      status: true,
+      message: "Registration successful! Please check your email for verification code.",
+      data: {
+        email,
+        firstName,
+        lastName,
+        company,
+        requiresVerification: true
+      }
     });
 
   } catch (error) {

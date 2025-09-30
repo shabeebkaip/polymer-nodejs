@@ -1,11 +1,10 @@
 import express from 'express';
-import bcrypt from 'bcrypt';
 import User from '../../../models/user.js';
-import Otp from '../../../models/otp.js';
+import { verifyOtp } from '../../../utils/otpHelper.js';
 
-const verifyOtp = express.Router();
+const verifyOtpRouter = express.Router();
 
-verifyOtp.post("/", async (req, res) => {
+verifyOtpRouter.post("/", async (req, res) => {
   try {
     const email = req.body.email?.toLowerCase().trim();
     const { otp } = req.body;
@@ -17,33 +16,17 @@ verifyOtp.post("/", async (req, res) => {
       });
     }
 
-    const otpRecord = await Otp.findOne({ email }).sort({ createdAt: -1 });
-
-    if (!otpRecord) {
+    // Verify OTP using helper function
+    const otpResult = await verifyOtp(email, otp);
+    
+    if (!otpResult.success) {
       return res.status(400).json({
         status: false,
-        message: "Invalid OTP or OTP has expired.",
+        message: otpResult.message,
       });
     }
 
-    if (otpRecord.expiresAt < new Date()) {
-      await Otp.deleteOne({ _id: otpRecord._id });
-      return res.status(400).json({
-        status: false,
-        message: "OTP has expired.",
-      });
-    }
-
-    const isOtpValid = await bcrypt.compare(String(otp), otpRecord.otp);
-    if (!isOtpValid) {
-      return res.status(400).json({
-        status: false,
-        message: "Invalid OTP.",
-      });
-    }
-
-    await Otp.deleteOne({ _id: otpRecord._id });
-
+    // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({
@@ -67,4 +50,4 @@ verifyOtp.post("/", async (req, res) => {
   }
 });
 
-export default verifyOtp;
+export default verifyOtpRouter;

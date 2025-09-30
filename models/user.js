@@ -67,6 +67,10 @@ const schema = new Schema({
   verification: {
     type: String,
     default: "pending"
+  },
+  emailVerified: {
+    type: Boolean,
+    default: false
   }
 });
 
