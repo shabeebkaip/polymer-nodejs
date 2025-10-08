@@ -1,6 +1,7 @@
 import express from 'express';
 import { authenticate, createJwt, validate, verify } from '../../../middlewares/login.auth.js';
 import User from '../../../models/user.js';
+import { isDemoUser } from '../../../config/demoUsers.js';
 
 const userLogin = express.Router()
 
@@ -24,14 +25,23 @@ userLogin.post('/login', validate, verify, authenticate, createJwt, async (req,r
       });
     }
 
-    // Check if email is verified for non-admin users
-    if (user.user_type !== "superAdmin" && !user.emailVerified) {
+    // Check if email is verified for non-admin and non-demo users
+    const isDemo = isDemoUser(email);
+    if (user.user_type !== "superAdmin" && !user.emailVerified && !isDemo) {
       return res.status(403).json({
         status: false,
         message: "Please verify your email before logging in",
         requiresEmailVerification: true,
         email: email
       });
+    }
+
+    // Auto-verify demo users if not already verified
+    if (isDemo && !user.emailVerified) {
+      user.emailVerified = true;
+      user.verification = 'verified';
+      await user.save();
+      console.log(`✅ Auto-verified demo user: ${email}`);
     }
 
     res.status(200).json({

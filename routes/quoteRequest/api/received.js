@@ -176,14 +176,27 @@ recivedRouter.get("/", authenticateUser, async (req, res) => {
           };
           delete formatted.buyerId;
         }
-        // Get product name from products collection using productId from bestDealId
-        let productName = null;
-        if (formatted.bestDealId && formatted.bestDealId.productId) {
-          const productDoc = await Product.findById(
-            formatted.bestDealId.productId
-          ).select("productName");
-          if (productDoc) productName = productDoc.productName;
+        
+        // Get product information from bestDealId
+        let productInfo = null;
+        if (formatted.bestDealId) {
+          let productDoc = null;
+          if (formatted.bestDealId.productId) {
+            productDoc = await Product.findById(
+              formatted.bestDealId.productId
+            ).select("productName chemicalName tradeName countryOfOrigin color");
+          }
+          
+          productInfo = {
+            _id: productDoc?._id || formatted.bestDealId._id,
+            productName: productDoc?.productName || formatted.bestDealId.title || 'N/A',
+            chemicalName: productDoc?.chemicalName || 'N/A',
+            tradeName: productDoc?.tradeName || 'N/A',
+            countryOfOrigin: productDoc?.countryOfOrigin || 'N/A',
+            color: productDoc?.color || 'N/A',
+          };
         }
+        
         return {
           _id: formatted._id,
           requestType: formatted.requestType,
@@ -192,26 +205,30 @@ recivedRouter.get("/", authenticateUser, async (req, res) => {
           createdAt: formatted.createdAt,
           updatedAt: formatted.updatedAt,
           buyer: formatted.buyer,
-          deal: formatted.bestDealId
-            ? {
-                _id: formatted.bestDealId._id,
-                title: productName, // <-- set title here
-                description: formatted.bestDealId.description,
-                dealPrice: formatted.bestDealId.dealPrice,
-                productName: productName,
-              }
-            : null,
+          product: productInfo,
           orderDetails: {
             quantity: formatted.desiredQuantity,
-            shippingCountry: formatted.shippingCountry,
-            paymentTerms: formatted.paymentTerms,
-            deliveryDeadline: formatted.deliveryDeadline,
+            uom: 'Kilogram',
+            destination: formatted.shippingCountry,
+            country: formatted.shippingCountry,
+            deliveryDate: formatted.deliveryDeadline,
+            application: 'N/A',
+            packagingSize: 'N/A',
+            expectedAnnualVolume: formatted.desiredQuantity,
           },
-          unified: {
-            ...formatted.unified,
-            title: productName, // <-- set title in unified object
+          specifications: {
+            grade: 'N/A',
+            incoterm: 'N/A',
+            packagingType: 'N/A',
           },
+          unified: formatted.unified,
           businessValue: {
+            estimatedValue: formatted.bestDealId?.dealPrice && formatted.desiredQuantity
+              ? formatted.bestDealId.dealPrice * formatted.desiredQuantity
+              : null,
+            potentialAnnualValue: formatted.bestDealId?.dealPrice && formatted.desiredQuantity
+              ? formatted.bestDealId.dealPrice * formatted.desiredQuantity
+              : null,
             priority: formatted.unified?.priorityLevel || "normal",
           },
         };
@@ -427,14 +444,30 @@ recivedRouter.get("/:id", authenticateUser, async (req, res) => {
       });
     if (quoteRequest) {
       const buyer = quoteRequest.buyerId;
-      let productName = null;
+      let productInfo = null;
+      
+      // Extract product information from deal
       if (
         quoteRequest.bestDealId &&
-        quoteRequest.bestDealId.productId &&
-        quoteRequest.bestDealId.productId.productName
+        quoteRequest.bestDealId.productId
       ) {
-        productName = quoteRequest.bestDealId.productId.productName;
+        const product = quoteRequest.bestDealId.productId;
+        productInfo = {
+          _id: product._id || quoteRequest.bestDealId._id,
+          productName: product.productName || quoteRequest.bestDealId.title || 'N/A',
+          chemicalName: product.chemicalName || 'N/A',
+          tradeName: product.tradeName || 'N/A',
+          description: quoteRequest.bestDealId.description || product.description || 'No description available',
+          productImages: product.productImages || [],
+          countryOfOrigin: product.countryOfOrigin || 'N/A',
+          color: product.color || 'N/A',
+          manufacturingMethod: product.manufacturingMethod || 'N/A',
+          density: product.density || 'N/A',
+          mfi: product.mfi || 'N/A',
+          dealPrice: quoteRequest.bestDealId.dealPrice,
+        };
       }
+      
       return res.status(200).json({
         success: true,
         message: "Quote request detail retrieved successfully",
@@ -456,20 +489,20 @@ recivedRouter.get("/:id", authenticateUser, async (req, res) => {
                 userType: buyer.userType,
               }
             : null,
-          deal: quoteRequest.bestDealId
-            ? {
-                _id: quoteRequest.bestDealId._id,
-                title: productName,
-                description: quoteRequest.bestDealId.description,
-                dealPrice: quoteRequest.bestDealId.dealPrice,
-                productName: productName,
-              }
-            : null,
+          product: productInfo,
           orderDetails: {
             quantity: quoteRequest.desiredQuantity,
-            shippingCountry: quoteRequest.shippingCountry,
+            uom: 'Kilogram', // Default UOM for deals
+            destination: quoteRequest.shippingCountry || 'N/A',
+            country: quoteRequest.shippingCountry || 'N/A',
+            deliveryDate: quoteRequest.deliveryDeadline,
+            packagingType: quoteRequest.packagingType || { name: 'N/A' },
+            packagingSize: 'N/A',
+            expectedAnnualVolume: quoteRequest.desiredQuantity || 0,
+            incoterm: { name: 'N/A' },
+            grade: { name: 'N/A' },
             paymentTerms: quoteRequest.paymentTerms,
-            deliveryDeadline: quoteRequest.deliveryDeadline,
+            expected_annual_volume: quoteRequest.desiredQuantity || 0,
           },
         },
       });
