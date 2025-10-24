@@ -17,9 +17,15 @@ const transporter = nodemailer.createTransport({
 // Verify transporter configuration
 transporter.verify((error, success) => {
     if (error) {
-        console.log('Error with email transporter:', error);
+        console.log('⚠️  Email transporter error:', error.message);
+        console.log('📧 Email functionality will be disabled. Please check your email credentials.');
+        console.log('ℹ️  To fix this:');
+        console.log('   1. Go to https://myaccount.google.com/apppasswords');
+        console.log('   2. Generate a new App Password for "Mail"');
+        console.log('   3. Update EMAIL_PASSWORD in .env (remove all spaces)');
+        console.log('   4. Restart the server');
     } else {
-        console.log('Email transporter is ready to send messages');
+        console.log('✅ Email transporter is ready to send messages');
     }
 });
 
@@ -27,7 +33,8 @@ transporter.verify((error, success) => {
 const sendEmail = async (mailOptions) => {
     try {
         const info = await transporter.sendMail({
-            from: `"Polymer Hub" <${config.email.user}>`,
+            from: `"Polymer Hub" <noreply@polymershub.com>`,
+            replyTo: config.email.user, // If users reply, it goes to your actual Gmail
             ...mailOptions
         });
         console.log('Email sent successfully:', info.messageId);

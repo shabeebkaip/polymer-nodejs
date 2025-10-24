@@ -34,6 +34,7 @@ import shippingMethodRouter from "./shippingMethod/shippingMethod.js";
 import dashboardRouter from "./dashboard/dashboard.js";
 import unifiedQuoteRoutes from "./quote/api/unifiedQuotes.js";
 import notificationRouter from "./notification/notification.js";
+import testEmailRouter from "./test/testEmail.js";
 // import testimonialRoutes from "./testimonials/testimonials.js";
 
 const router = express.Router();
@@ -72,6 +73,7 @@ router.use("/shipping-method", shippingMethodRouter)
 router.use("/dashboard", dashboardRouter)
 router.use("/quote", unifiedQuoteRoutes)
 router.use("/notifications", notificationRouter);
+router.use("/test-email", testEmailRouter);
 
 
 
