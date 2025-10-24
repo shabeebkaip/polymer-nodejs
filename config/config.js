@@ -13,7 +13,14 @@ export const config = {
     // JWT configuration
     jwtSecret: process.env.JWT_KEY,
     
-    // Email configuration
+    // Email configuration (Resend)
+    resend: {
+        apiKey: process.env.RESEND_API_KEY,
+        from: process.env.EMAIL_FROM || 'noreply@polymershub.com',
+        replyTo: process.env.EMAIL_REPLY_TO || 'shabeebkaip@gmail.com',
+    },
+    
+    // Legacy Gmail configuration (for backup/fallback)
     email: {
         user: process.env.EMAIL,
         password: process.env.EMAIL_PASSWORD,
@@ -55,8 +62,7 @@ export const validateConfig = () => {
     const required = [
         'MONGO',
         'JWT_KEY',
-        'EMAIL',
-        'EMAIL_PASSWORD'
+        'RESEND_API_KEY'
     ];
     
     const missing = required.filter(key => !process.env[key]);

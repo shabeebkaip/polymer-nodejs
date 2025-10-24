@@ -1,46 +1,41 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { config } from '../config/config.js';
 import { getBaseUrl, getLoginUrl, getDashboardUrl } from '../utils/urlHelper.js';
 
-// Create reusable transporter object using SMTP transport
-const transporter = nodemailer.createTransport({
-    service: config.email.service,
-    host: config.email.host,
-    port: config.email.port,
-    secure: config.email.secure,
-    auth: {
-        user: config.email.user,
-        pass: config.email.password,
-    },
-});
+// Initialize Resend with API key
+const resend = new Resend(config.resend.apiKey);
 
-// Verify transporter configuration
-transporter.verify((error, success) => {
-    if (error) {
-        console.log('⚠️  Email transporter error:', error.message);
-        console.log('📧 Email functionality will be disabled. Please check your email credentials.');
-        console.log('ℹ️  To fix this:');
-        console.log('   1. Go to https://myaccount.google.com/apppasswords');
-        console.log('   2. Generate a new App Password for "Mail"');
-        console.log('   3. Update EMAIL_PASSWORD in .env (remove all spaces)');
-        console.log('   4. Restart the server');
-    } else {
-        console.log('✅ Email transporter is ready to send messages');
+// Test Resend connection
+const testResendConnection = async () => {
+    try {
+        if (!config.resend.apiKey) {
+            console.log('⚠️  Resend API key not configured');
+            return;
+        }
+        console.log('✅ Resend email service initialized');
+        console.log(`📧 Emails will be sent from: ${config.resend.from}`);
+    } catch (error) {
+        console.log('⚠️  Error initializing Resend:', error.message);
     }
-});
+};
+
+// Call test on module load
+testResendConnection();
 
 // Generic email sender function
 const sendEmail = async (mailOptions) => {
     try {
-        const info = await transporter.sendMail({
-            from: `"Polymer Hub" <noreply@polymershub.com>`,
-            replyTo: config.email.user, // If users reply, it goes to your actual Gmail
-            ...mailOptions
+        const data = await resend.emails.send({
+            from: `Polymer Hub <${config.resend.from}>`,
+            to: mailOptions.to,
+            subject: mailOptions.subject,
+            html: mailOptions.html,
+            reply_to: config.resend.replyTo,
         });
-        console.log('Email sent successfully:', info.messageId);
-        return { success: true, messageId: info.messageId };
+        console.log('✅ Email sent successfully:', data.id);
+        return { success: true, messageId: data.id };
     } catch (error) {
-        console.error('Error sending email:', error);
+        console.error('❌ Error sending email:', error);
         return { success: false, error: error.message };
     }
 };
@@ -92,12 +87,11 @@ export const sendRegistrationOtp = async (name, email, otp) => {
     return await sendEmail(mailOptions);
 };
 
-export const accountCreationMail = (name, to, password) => {
+export const accountCreationMail = async (name, to, password) => {
     const baseUrl = getBaseUrl();
     const loginUrl = getLoginUrl();
     
     const mailOptions = {
-        from: config.email.user,
         to,
         subject: 'Polymer Hub Account Created Successfully',
         html: `
@@ -140,12 +134,7 @@ export const accountCreationMail = (name, to, password) => {
             </div>
         `,
     };
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            return console.log('Error sending email:', error);
-        }
-        console.log('Email sent:', info.response);
-    });
+    return await sendEmail(mailOptions);
 };
 
 export const forgotPasswordOtpMail = async (email, otp) => {
