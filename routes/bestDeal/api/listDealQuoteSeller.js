@@ -8,7 +8,16 @@ listDealQuotesForSeller.get("/seller/list", authenticateUser, authorizeRoles("se
   try {
     const sellerId = req.user.id;
 
-    const quotes = await DealQuoteRequest.find()
+    // Build query to only include deal quotes with future deadlines
+    const query = {
+      $or: [
+        { deliveryDeadline: { $gte: new Date() } }, // Future deadlines
+        { deliveryDeadline: { $exists: false } }, // Or no deadline set
+        { deliveryDeadline: null } // Or null deadline
+      ]
+    };
+
+    const quotes = await DealQuoteRequest.find(query)
       .populate({
         path: "bestDealId",
         match: { sellerId },  // ✅ Filter by seller

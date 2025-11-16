@@ -9,15 +9,25 @@ getApprovedBulkOrders.get("/", async (req, res) => {
     // Get query filters for opportunities
     const { priority, location, productType, hasOffers } = req.query;
 
-    // Build query
-    let query = { status: "approved" };
+    // Build query - only include approved orders with future deadlines
+    let query = { 
+      status: "approved",
+      $or: [
+        { delivery_date: { $gte: new Date() } }, // Future deadlines
+        { delivery_date: { $exists: false } }, // Or no deadline set
+        { delivery_date: null } // Or null deadline
+      ]
+    };
 
     // Add filters if provided
     if (location) {
-      query.$or = [
-        { city: { $regex: location, $options: 'i' } },
-        { country: { $regex: location, $options: 'i' } }
-      ];
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [
+          { city: { $regex: location, $options: 'i' } },
+          { country: { $regex: location, $options: 'i' } }
+        ]
+      });
     }
 
     const approvedOrders = await BulkOrder.find(query)

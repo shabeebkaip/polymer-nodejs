@@ -10,9 +10,18 @@ listAllDealQuotes.get("/list", authenticateUser, authorizeRoles("superAdmin"), a
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const totalQuotes = await DealQuoteRequest.countDocuments();
+    // Build query to only include future deadlines
+    const query = {
+      $or: [
+        { deliveryDeadline: { $gte: new Date() } }, // Future deadlines
+        { deliveryDeadline: { $exists: false } }, // Or no deadline set
+        { deliveryDeadline: null } // Or null deadline
+      ]
+    };
 
-    const quotes = await DealQuoteRequest.find()
+    const totalQuotes = await DealQuoteRequest.countDocuments(query);
+
+    const quotes = await DealQuoteRequest.find(query)
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 })

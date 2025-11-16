@@ -8,7 +8,17 @@ listApprovedQuotes.get("/", authenticateUser, async (req, res) => {
   try {
     const sellerId = req.user.id;
 
-    const approvedQuotes = await DealQuoteRequest.find({ status: "approved" })
+    // Build query to only include approved quotes with future deadlines
+    const query = {
+      status: "approved",
+      $or: [
+        { deliveryDeadline: { $gte: new Date() } }, // Future deadlines
+        { deliveryDeadline: { $exists: false } }, // Or no deadline set
+        { deliveryDeadline: null } // Or null deadline
+      ]
+    };
+
+    const approvedQuotes = await DealQuoteRequest.find(query)
       .populate({
         path: "bestDealId",
         match: { sellerId: sellerId },
