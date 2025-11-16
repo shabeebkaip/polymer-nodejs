@@ -17,6 +17,7 @@ adminCreateBestDeal.post(
         productId,
         sellerId,
         offerPrice,
+        validity,
         adminNote
       } = req.body;
 
@@ -50,8 +51,10 @@ adminCreateBestDeal.post(
         productId,
         sellerId,
         offerPrice: Number(offerPrice),
+        validity: validity ? new Date(validity) : null,
         adminNote,
-        status: "pending"
+        status: "pending",
+        createdBy: sellerId
       });
 
       const saved = await bestDeal.save();

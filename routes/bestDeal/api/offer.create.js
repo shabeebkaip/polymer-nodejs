@@ -6,7 +6,7 @@ const createBestDeal = express.Router();
 
 createBestDeal.post("/", authenticateUser, async (req, res) => {
   try {
-    const { productId, offerPrice } = req.body;
+    const { productId, offerPrice, validity } = req.body;
     const sellerId = req.user.id; // same as createSample
 
     // Check for existing best deal
@@ -18,6 +18,7 @@ createBestDeal.post("/", authenticateUser, async (req, res) => {
     const bestDeal = new BestDeal({
       productId,
       offerPrice,
+      validity: validity ? new Date(validity) : null,
       sellerId,
       createdBy: sellerId, // Track who created the deal
       status: "pending", // default value, can be skipped if already set in schema

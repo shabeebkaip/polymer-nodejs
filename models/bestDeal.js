@@ -16,6 +16,10 @@ const bestDealSchema = new Schema(
       type: Number,
       required: true,
     },
+    validity: {
+      type: Date,
+      required: false,
+    },
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],

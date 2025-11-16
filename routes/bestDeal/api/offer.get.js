@@ -37,11 +37,13 @@ listBestDeals.get("/", authenticateUser, async (req, res) => {
         productId: dealObj.productId?._id,
         productName: dealObj.productId?.productName,
         offerPrice: dealObj.offerPrice,
+        validity: dealObj.validity,
+        isExpired: dealObj.validity ? new Date(dealObj.validity) < new Date() : false,
         status: dealObj.status,
         adminNote: dealObj.adminNote,
         createdAt: dealObj.createdAt,
         updatedAt: dealObj.updatedAt,
-        isActive: dealObj.status === 'approved',
+        isActive: dealObj.status === 'approved' && (!dealObj.validity || new Date(dealObj.validity) >= new Date()),
         statusIcon: getStatusIcon(dealObj.status)
       };
     });

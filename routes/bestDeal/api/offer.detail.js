@@ -107,6 +107,8 @@ getBestDealDetail.get('/:id', authenticateUser, async (req, res) => {
       productId: dealObj.productId?._id,
       sellerId: dealObj.sellerId?._id,
       offerPrice: dealObj.offerPrice,
+      validity: dealObj.validity,
+      isExpired: dealObj.validity ? new Date(dealObj.validity) < new Date() : false,
       status: dealObj.status,
       adminNote: dealObj.adminNote,
       createdAt: dealObj.createdAt,

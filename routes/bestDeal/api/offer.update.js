@@ -7,7 +7,7 @@ const editBestDeal = express.Router();
 editBestDeal.put("/:id", authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
-    const { offerPrice } = req.body;
+    const { offerPrice, validity } = req.body;
 
     const bestDeal = await BestDeal.findById(id);
 
@@ -18,10 +18,16 @@ editBestDeal.put("/:id", authenticateUser, async (req, res) => {
     // Optional: check if req.user.id matches bestDeal.sellerId
 
     bestDeal.offerPrice = offerPrice;
-    bestDeal.status = "pending"; // Reset to pending
+    if (validity !== undefined) {
+      bestDeal.validity = validity ? new Date(validity) : null;
+    }
+    // Ensure createdBy is set if it wasn't before
+    if (!bestDeal.createdBy) {
+      bestDeal.createdBy = bestDeal.sellerId;
+    }
     await bestDeal.save();
 
-    res.status(200).json({ message: "Deal updated and re-submitted for approval", bestDeal });
+    res.status(200).json({ message: "Deal updated successfully", bestDeal });
   } catch (err) {
     console.error("Error editing best deal:", err);
     res.status(500).json({ message: "Server error", error: err.message });

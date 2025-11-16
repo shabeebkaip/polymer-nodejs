@@ -13,7 +13,7 @@ adminEditBestDeal.put(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const { productId, offerPrice, adminNote, status } = req.body;
+      const { productId, offerPrice, validity, adminNote, status } = req.body;
 
       // Get original deal
       const originalDeal = await BestDeal.findById(id);
@@ -50,6 +50,7 @@ adminEditBestDeal.put(
         {
           productId,
           offerPrice: Number(offerPrice),
+          validity: validity ? new Date(validity) : null,
           adminNote,
           status: status || "pending"
         },

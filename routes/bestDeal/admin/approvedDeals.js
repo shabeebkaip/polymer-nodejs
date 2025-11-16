@@ -5,8 +5,17 @@ const listApprovedDeals = express.Router();
 
 listApprovedDeals.get("/", async (req, res) => {
   try {
-    // Fetch only approved best deals for public display
-    const approvedDeals = await BestDeal.find({ status: "approved" })
+    // Fetch only approved best deals with valid (non-expired) validity dates
+    const query = {
+      status: "approved",
+      $or: [
+        { validity: { $gte: new Date() } }, // Future validity
+        { validity: { $exists: false } }, // Or no validity set
+        { validity: null } // Or null validity
+      ]
+    };
+
+    const approvedDeals = await BestDeal.find(query)
       .populate("productId", "productName price productImages description category")
       .populate("sellerId", "name email company")
       .sort({ createdAt: -1 }); // Show newest deals first
@@ -36,7 +45,12 @@ listApprovedDeals.get("/:id", async (req, res) => {
     
     const approvedDeal = await BestDeal.findOne({ 
       _id: id, 
-      status: "approved" 
+      status: "approved",
+      $or: [
+        { validity: { $gte: new Date() } }, // Future validity
+        { validity: { $exists: false } }, // Or no validity set
+        { validity: null } // Or null validity
+      ]
     })
       .populate("productId", "productName price productImages description category")
       .populate("sellerId", "name email company");
@@ -67,7 +81,16 @@ listApprovedDeals.get("/category/:category", async (req, res) => {
   try {
     const { category } = req.params;
     
-    const approvedDeals = await BestDeal.find({ status: "approved" })
+    const query = {
+      status: "approved",
+      $or: [
+        { validity: { $gte: new Date() } }, // Future validity
+        { validity: { $exists: false } }, // Or no validity set
+        { validity: null } // Or null validity
+      ]
+    };
+
+    const approvedDeals = await BestDeal.find(query)
       .populate({
         path: "productId",
         match: { category: category },
