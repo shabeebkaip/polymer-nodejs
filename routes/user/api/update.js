@@ -42,17 +42,10 @@ userEdit.put("/", authenticateUser, async (req, res) => {
 
     const finalUserType = user_type || existingUser.user_type;
 
-    if (!firstName || !lastName || !company || !website || !phone) {
+    if (!firstName || !lastName || !phone || !country_code) {
       return res.status(400).json({
         status: false,
-        message: "Missing required fields",
-      });
-    }
-
-    if (finalUserType === "seller" && (!vat_number || !company_logo)) {
-      return res.status(400).json({
-        status: false,
-        message: "VAT number and company logo are required for sellers",
+        message: "Missing required fields: firstName, lastName, phone, country_code",
       });
     }
 

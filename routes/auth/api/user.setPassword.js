@@ -50,7 +50,7 @@ const validateAuth = [
     .custom((value, { req }) => value === req.body.password)
     .withMessage("Passwords do not match"),
   body("name").notEmpty().withMessage("Name is required"),
-  body("company").notEmpty().withMessage("Company name is required"),
+  body("company").optional(),
   body("role")
     .optional()
     .isIn(["seller", "user", "superadmin"])

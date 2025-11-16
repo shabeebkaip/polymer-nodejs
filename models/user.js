@@ -15,7 +15,7 @@ const schema = new Schema({
   },
   company: {
     type: String,
-    required: true,
+    required: false,
   },
   email: {
     type: String,
@@ -23,7 +23,7 @@ const schema = new Schema({
   },
   website: {
     type: String,
-    required: true,
+    required: false,
   },
   industry: {
     type: String,

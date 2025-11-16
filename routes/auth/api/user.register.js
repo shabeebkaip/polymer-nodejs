@@ -40,10 +40,10 @@ userRegister.post("/register", async (req, res) => {
 
     email = email?.toLowerCase();
 
-    if (!firstName || !lastName || !company || !email || !password || !website || !phone) {
+    if (!firstName || !lastName || !email || !password || !phone || !country_code) {
       return res.status(400).json({
         status: false,
-        message: "Missing required fields",
+        message: "Missing required fields: firstName, lastName, email, password, phone, country_code",
       });
     }
 
@@ -54,13 +54,6 @@ userRegister.post("/register", async (req, res) => {
     //     message: "Please use a company email address",
     //   });
     // }
-
-    if (user_type === "seller" && (!vat_number || !company_logo)) {
-      return res.status(400).json({
-        status: false,
-        message: "VAT number and company logo are required for sellers",
-      });
-    }
 
     const existingUser = await User.findOne({ email });
     const existingAuth = await Auth.findOne({ email });
