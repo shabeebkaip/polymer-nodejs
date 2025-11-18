@@ -7,7 +7,7 @@ const resetPassword = express.Router();
 resetPassword.post('/', async (req, res) => {
   try {
     const email = req.body.email?.toLowerCase().trim();
-    const newPassword = req.body.password;
+    const newPassword = req.body.password || req.body.newPassword;
 
     if (!email || !newPassword) {
       return res.status(400).json({
