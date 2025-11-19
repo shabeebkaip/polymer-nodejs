@@ -25,6 +25,7 @@ testResendConnection();
 // Generic email sender function
 const sendEmail = async (mailOptions) => {
     try {
+        console.log(`📤 Sending email to: ${mailOptions.to}, Subject: ${mailOptions.subject}`);
         const data = await resend.emails.send({
             from: `Polymer Hub <${config.resend.from}>`,
             to: mailOptions.to,
@@ -36,7 +37,8 @@ const sendEmail = async (mailOptions) => {
         return { success: true, messageId: data.id };
     } catch (error) {
         console.error('❌ Error sending email:', error);
-        return { success: false, error: error.message };
+        console.error('❌ Email error details:', error.response?.data || error.message);
+        return { success: false, error: error.message, details: error.response?.data };
     }
 };
 

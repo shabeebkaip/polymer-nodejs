@@ -7,7 +7,7 @@ getIncoterm.get("", async (req, res) => {
   try {
     const { page, limit } = req.query;
 
-    const sort = { _id: -1 };
+    const sort = { name: 1 }; // Alphabetic order A-Z
 
     if (!page && !limit) {
       const incoterms = await Incoterm.find({}).sort(sort);

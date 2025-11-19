@@ -108,15 +108,19 @@ userRegister.post("/register", async (req, res) => {
     }
 
     // Send OTP via email
+    console.log(`📧 Attempting to send registration OTP to ${email}`);
     const emailResult = await sendRegistrationOtp(firstName, email, otp);
+    console.log(`📧 Email send result:`, emailResult);
     
     if (!emailResult.success) {
       // Clean up created user and auth if email sending fails
+      console.error(`❌ Failed to send registration email to ${email}:`, emailResult.error);
       await User.deleteOne({ email });
       await Auth.deleteOne({ email });
       return res.status(500).json({
         status: false,
         message: "Failed to send verification email. Please try again.",
+        error: emailResult.error
       });
     }
 
