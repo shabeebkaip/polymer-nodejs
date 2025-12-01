@@ -1,5 +1,6 @@
 import express from "express";
 import fileRouter from "./files/file.js";
+import fileViewRouter from "./files/view.js";
 import categoryRouter from "./category/category.js";
 import subCategoryRouter from "./subCategory/subCategory.js";
 import brandRouter from "./brand/brand.js";
@@ -40,6 +41,7 @@ import testEmailRouter from "./test/testEmail.js";
 const router = express.Router();
 
 router.use("/file", fileRouter);
+router.use("/files", fileViewRouter);
 router.use("/auth", authRouter);
 router.use("/category", categoryRouter);
 router.use("/sub-category", subCategoryRouter);

@@ -208,8 +208,11 @@ export const productAggregation = (filters = {}) => {
         shelfLife: 1,    
         recyclable: 1,
         fdaApproved: 1,
+          fdaCertificate: { $ifNull: ["$fdaCertificate", {}] },
         bioDegradable: 1,
         medicalGrade: 1,
+          medicalCertificate: { $ifNull: ["$medicalCertificate", {}] },
+        certificates: { $ifNull: ["$certificates", []] },
         product_family: {
           $map: {
             input: { $ifNull: ["$productfamilie", []] },
