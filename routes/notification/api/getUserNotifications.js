@@ -8,23 +8,32 @@ getUserNotifications.get("", authenticateUser, async (req, res) => {
   try {
     const userId = req.user.id;
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 20;
+    const unreadOnly = req.query.unreadOnly === 'true';
 
     const skip = (page - 1) * limit;
 
-    // Fetch notifications for the user
-    const notifications = await Notification.find({ userId })
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+    // Build filter
+    const filter = { userId };
+    if (unreadOnly) {
+      filter.isRead = false;
+    }
 
-    // Get total count for pagination
-    const total = await Notification.countDocuments({ userId });
+    // Fetch notifications for the user
+    const [notifications, total, unreadCount] = await Promise.all([
+      Notification.find(filter)
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 }),
+      Notification.countDocuments(filter),
+      Notification.countDocuments({ userId, isRead: false }),
+    ]);
 
     res.status(200).json({
       success: true,
       message: "Notifications retrieved successfully",
       data: notifications,
+      unreadCount,
       pagination: {
         total,
         page,

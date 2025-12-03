@@ -1,0 +1,107 @@
+### Deal Quote Comment API Tests
+### Base URL: http://localhost:5050/api
+
+### Variables
+@baseUrl = http://localhost:5050/api
+@dealQuoteRequestId = 6930ade50716319be74f6f88
+@buyerToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MThhYTU0ZmY5MDJkYmM0M2Y5ODgyMSIsImVtYWlsIjoiYWxpY2VAaW5ub3ZhdGVjaC5jb20iLCJpYXQiOjE3NjQ3ODE2NTgsImV4cCI6MTc2NDk1NDQ1OCwiaXNzIjoiY29kZS1veCJ9.AAClT1qeMlFRSTGcttO1IEmj1uZbo0iEWREuV-qqoEI
+
+###############################################
+# 1. Add a Comment (Buyer)
+###############################################
+POST {{baseUrl}}/deal-quote-comment/{{dealQuoteRequestId}}
+Content-Type: application/json
+Authorization: Bearer {{buyerToken}}
+
+{
+  "comment": "Hi, I wanted to follow up on this quotation request. Can you provide an estimated delivery timeline?"
+}
+
+###############################################
+# 2. Add a Comment with Attachments
+###############################################
+POST {{baseUrl}}/deal-quote-comment/{{dealQuoteRequestId}}
+Content-Type: application/json
+Authorization: Bearer {{buyerToken}}
+
+{
+  "comment": "Here are the technical specifications we need",
+  "attachments": [
+    {
+      "id": "spec_001",
+      "name": "Technical_Specs.pdf",
+      "type": "application/pdf",
+      "fileUrl": "https://example.com/specs.pdf",
+      "viewUrl": "https://example.com/view/specs.pdf"
+    }
+  ]
+}
+
+###############################################
+# 3. Get All Comments for Deal Quote Request
+###############################################
+GET {{baseUrl}}/deal-quote-comment/{{dealQuoteRequestId}}
+Authorization: Bearer {{buyerToken}}
+
+###############################################
+# 4. Get Comments with Pagination
+###############################################
+GET {{baseUrl}}/deal-quote-comment/{{dealQuoteRequestId}}?page=1&limit=10
+Authorization: Bearer {{buyerToken}}
+
+###############################################
+# 5. Get Comment Count
+###############################################
+GET {{baseUrl}}/deal-quote-comment/{{dealQuoteRequestId}}/count
+Authorization: Bearer {{buyerToken}}
+
+###############################################
+# 6. Update a Comment
+# Replace :commentId with actual comment ID from step 1
+###############################################
+PUT {{baseUrl}}/deal-quote-comment/update/:commentId
+Content-Type: application/json
+Authorization: Bearer {{buyerToken}}
+
+{
+  "comment": "Updated: Can you provide an estimated delivery timeline by end of this week?"
+}
+
+###############################################
+# 7. Delete a Comment
+# Replace :commentId with actual comment ID
+###############################################
+DELETE {{baseUrl}}/deal-quote-comment/delete/:commentId
+Authorization: Bearer {{buyerToken}}
+
+###############################################
+# 8. Add Comment - Validation Error (Empty)
+###############################################
+POST {{baseUrl}}/deal-quote-comment/{{dealQuoteRequestId}}
+Content-Type: application/json
+Authorization: Bearer {{buyerToken}}
+
+{
+  "comment": ""
+}
+
+###############################################
+# 9. Add Comment - Validation Error (Too Long)
+###############################################
+POST {{baseUrl}}/deal-quote-comment/{{dealQuoteRequestId}}
+Content-Type: application/json
+Authorization: Bearer {{buyerToken}}
+
+{
+  "comment": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+}
+
+###############################################
+# 10. Add Comment - Unauthorized (No Token)
+###############################################
+POST {{baseUrl}}/deal-quote-comment/{{dealQuoteRequestId}}
+Content-Type: application/json
+
+{
+  "comment": "This should fail without authentication"
+}

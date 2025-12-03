@@ -37,6 +37,7 @@ import unifiedQuoteRoutes from "./quote/api/unifiedQuotes.js";
 import notificationRouter from "./notification/notification.js";
 import testEmailRouter from "./test/testEmail.js";
 import dealQuoteRequestRouter from "./dealQuoteRequest/dealQuoteRequest.js";
+import dealQuoteCommentRouter from "./dealQuoteComment/dealQuoteComment.js";
 // import testimonialRoutes from "./testimonials/testimonials.js";
 
 const router = express.Router();
@@ -78,6 +79,7 @@ router.use("/quote", unifiedQuoteRoutes)
 router.use("/notifications", notificationRouter);
 router.use("/test-email", testEmailRouter);
 router.use("/deal-quote-request", dealQuoteRequestRouter);
+router.use("/deal-quote-comment", dealQuoteCommentRouter);
 
 
 

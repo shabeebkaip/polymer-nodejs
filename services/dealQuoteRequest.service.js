@@ -1,5 +1,7 @@
 import dealQuoteRequestRepository from "../repositories/dealQuoteRequest.repository.js";
 import BestDeal from "../models/bestDeal.js";
+import User from "../models/user.js";
+import notificationService from "./notification.service.js";
 import mongoose from "mongoose";
 
 class DealQuoteRequestService {
@@ -7,19 +9,20 @@ class DealQuoteRequestService {
    * Create a new deal quote request
    */
   async createDealQuoteRequest(data) {
-    const { bestDealId } = data;
+    const { bestDealId, buyerId } = data;
 
-    // Fetch sellerId from BestDeal -> Product -> createdBy
+    // Step 1: Validate and fetch all required data BEFORE creating the quote
+    // Fetch deal and seller details
     const bestDeal = await BestDeal.findById(bestDealId)
       .populate({ 
         path: 'productId', 
-        select: 'createdBy', 
+        select: 'productName createdBy', 
         populate: { 
           path: 'createdBy', 
-          select: '_id' 
+          select: '_id firstName lastName email company' 
         } 
       })
-      .select('productId');
+      .select('title description dealPrice productId');
 
     if (!bestDeal || !bestDeal.productId || !bestDeal.productId.createdBy || !bestDeal.productId.createdBy._id) {
       throw new Error('Invalid bestDealId or missing product owner (sellerId)');
@@ -27,7 +30,13 @@ class DealQuoteRequestService {
 
     const sellerId = bestDeal.productId.createdBy._id;
 
-    // Create the request
+    // Fetch buyer details (validate buyer exists)
+    const buyer = await User.findById(buyerId).select('firstName lastName email company');
+    if (!buyer) {
+      throw new Error('Invalid buyerId - buyer not found');
+    }
+
+    // Step 2: Only NOW create the request (after all validations pass)
     const dealQuote = await dealQuoteRequestRepository.create({
       ...data,
       sellerId,
@@ -40,6 +49,19 @@ class DealQuoteRequestService {
         },
       ],
     });
+
+    // Step 3: Send notifications (non-critical - can fail without rolling back)
+    try {
+      await notificationService.notifySellerNewRequest({
+        seller: bestDeal.productId.createdBy,
+        buyer,
+        deal: bestDeal,
+        request: dealQuote,
+      });
+    } catch (error) {
+      console.error('Failed to send notification:', error);
+      // Don't fail the request creation if notification fails
+    }
 
     return dealQuote;
   }
@@ -216,9 +238,20 @@ class DealQuoteRequestService {
 
     // Check access rights
     if (userRole !== "admin") {
+      const userIdString = userId.toString();
+      const buyerIdString = dealQuote.buyerId._id.toString();
+      const sellerIdString = dealQuote.sellerId._id.toString();
+      
+      console.log('Access check:', {
+        userId: userIdString,
+        buyerId: buyerIdString,
+        sellerId: sellerIdString,
+        userRole
+      });
+      
       const hasAccess =
-        dealQuote.buyerId._id.toString() === userId ||
-        dealQuote.sellerId._id.toString() === userId;
+        buyerIdString === userIdString ||
+        sellerIdString === userIdString;
 
       if (!hasAccess) {
         throw new Error("You do not have access to this deal quote request");
@@ -234,6 +267,28 @@ class DealQuoteRequestService {
   async updateDealQuoteStatus(id, statusData, userId) {
     const { status, message, updatedBy = "seller" } = statusData;
 
+    // Get current status before update
+    const populate = [
+      { path: 'buyerId', select: 'firstName lastName email company' },
+      { path: 'sellerId', select: 'firstName lastName email company' },
+      { 
+        path: 'bestDealId', 
+        select: 'title description dealPrice productId',
+        populate: {
+          path: 'productId',
+          select: 'productName'
+        }
+      }
+    ];
+
+    const currentQuote = await dealQuoteRequestRepository.findById(id, populate);
+    if (!currentQuote) {
+      throw new Error("Deal quote request not found");
+    }
+
+    const oldStatus = currentQuote.currentStatus;
+
+    // Add new status
     const dealQuote = await dealQuoteRequestRepository.addStatusMessage(id, {
       status,
       message,
@@ -241,8 +296,22 @@ class DealQuoteRequestService {
       updatedBy,
     });
 
-    if (!dealQuote) {
-      throw new Error("Deal quote request not found");
+    // Send notification to buyer if status was updated by seller
+    if (updatedBy === "seller" && status !== oldStatus) {
+      try {
+        await notificationService.notifyBuyerStatusUpdate({
+          buyer: currentQuote.buyerId,
+          seller: currentQuote.sellerId,
+          deal: currentQuote.bestDealId,
+          request: dealQuote,
+          oldStatus,
+          newStatus: status,
+          message,
+        });
+      } catch (error) {
+        console.error('Failed to send notification:', error);
+        // Don't fail the status update if notification fails
+      }
     }
 
     return dealQuote;
@@ -252,13 +321,26 @@ class DealQuoteRequestService {
    * Seller responds to deal quote
    */
   async sellerRespond(id, sellerId, responseData) {
-    const dealQuote = await dealQuoteRequestRepository.findById(id);
+    const populate = [
+      { path: 'buyerId', select: 'firstName lastName email company' },
+      { path: 'sellerId', select: 'firstName lastName email company' },
+      { 
+        path: 'bestDealId', 
+        select: 'title description dealPrice productId',
+        populate: {
+          path: 'productId',
+          select: 'productName'
+        }
+      }
+    ];
+
+    const dealQuote = await dealQuoteRequestRepository.findById(id, populate);
 
     if (!dealQuote) {
       throw new Error("Deal quote request not found");
     }
 
-    if (dealQuote.sellerId.toString() !== sellerId) {
+    if (dealQuote.sellerId._id.toString() !== sellerId) {
       throw new Error("You are not authorized to respond to this request");
     }
 
@@ -296,7 +378,23 @@ class DealQuoteRequestService {
       );
     }
 
-    return await dealQuoteRequestRepository.update(id, updateData);
+    const updatedQuote = await dealQuoteRequestRepository.update(id, updateData);
+
+    // Send notification to buyer
+    try {
+      await notificationService.notifyBuyerQuotationReceived({
+        buyer: dealQuote.buyerId,
+        seller: dealQuote.sellerId,
+        deal: dealQuote.bestDealId,
+        request: updatedQuote,
+        quotation: sellerResponse,
+      });
+    } catch (error) {
+      console.error('Failed to send notification:', error);
+      // Don't fail the response if notification fails
+    }
+
+    return updatedQuote;
   }
 
   /**
