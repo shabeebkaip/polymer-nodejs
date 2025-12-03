@@ -36,6 +36,7 @@ import dashboardRouter from "./dashboard/dashboard.js";
 import unifiedQuoteRoutes from "./quote/api/unifiedQuotes.js";
 import notificationRouter from "./notification/notification.js";
 import testEmailRouter from "./test/testEmail.js";
+import dealQuoteRequestRouter from "./dealQuoteRequest/dealQuoteRequest.js";
 // import testimonialRoutes from "./testimonials/testimonials.js";
 
 const router = express.Router();
@@ -76,6 +77,7 @@ router.use("/dashboard", dashboardRouter)
 router.use("/quote", unifiedQuoteRoutes)
 router.use("/notifications", notificationRouter);
 router.use("/test-email", testEmailRouter);
+router.use("/deal-quote-request", dealQuoteRequestRouter);
 
 
 

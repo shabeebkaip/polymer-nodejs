@@ -1,6 +1,5 @@
 import express from "express";
 import UnifiedQuoteRequest from "../../../models/unifiedQuoteRequest.js";
-import Product from "../../../models/product.js";
 import { authenticateUser } from "../../../middlewares/verify.token.js";
 
 const dealQuotesRouter = express.Router();
