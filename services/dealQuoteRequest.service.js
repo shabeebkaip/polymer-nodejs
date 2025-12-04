@@ -329,7 +329,7 @@ class DealQuoteRequestService {
         select: 'title description dealPrice productId',
         populate: {
           path: 'productId',
-          select: 'productName'
+          select: 'productName createdBy'
         }
       }
     ];
@@ -340,7 +340,9 @@ class DealQuoteRequestService {
       throw new Error("Deal quote request not found");
     }
 
-    if (dealQuote.sellerId._id.toString() !== sellerId) {
+    // Check authorization: seller must be the one who created the deal
+    const dealCreatorId = dealQuote.bestDealId?.productId?.createdBy?.toString();
+    if (!dealCreatorId || dealCreatorId !== sellerId.toString()) {
       throw new Error("You are not authorized to respond to this request");
     }
 
