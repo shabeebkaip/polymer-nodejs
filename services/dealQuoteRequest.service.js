@@ -265,7 +265,20 @@ class DealQuoteRequestService {
    * Update deal quote status
    */
   async updateDealQuoteStatus(id, statusData, userId) {
-    const { status, message, updatedBy = "seller" } = statusData;
+    const { status, updatedBy = "seller" } = statusData;
+    let { message } = statusData;
+
+    // Provide default message if not provided
+    if (!message) {
+      const defaultMessages = {
+        pending: "Status updated to pending",
+        responded: "Quotation has been provided",
+        accepted: "Request has been accepted",
+        rejected: "Request has been rejected",
+        cancelled: "Request has been cancelled"
+      };
+      message = defaultMessages[status] || `Status updated to ${status}`;
+    }
 
     // Get current status before update
     const populate = [

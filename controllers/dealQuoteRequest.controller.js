@@ -289,10 +289,18 @@ class DealQuoteRequestController {
       const userId = req.user.id;
       const userRole = req.user.user_type || "user";
 
-      if (!status || !message) {
+      if (!status) {
         return res.status(400).json({
           success: false,
-          message: "Status and message are required",
+          message: "Status is required",
+        });
+      }
+
+      // Message is required only for rejected and cancelled statuses
+      if ((status === "rejected" || status === "cancelled") && !message) {
+        return res.status(400).json({
+          success: false,
+          message: `Message is required when status is ${status}`,
         });
       }
 

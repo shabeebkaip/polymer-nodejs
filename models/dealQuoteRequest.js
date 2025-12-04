@@ -60,19 +60,16 @@ const dealQuoteRequestSchema = new Schema(
           type: String,
           required: true,
           enum: [
-            "pending",
-            "accepted",
-            "in_progress",
-            "shipped",
-            "delivered",
-            "completed",
-            "cancelled",
-            "rejected",
+            "pending",        // Initial state - waiting for seller
+            "responded",      // Seller provided quotation
+            "accepted",       // Buyer accepted, proceed to order
+            "rejected",       // Seller rejected the request
+            "cancelled"       // Buyer cancelled
           ],
         },
         message: {
           type: String,
-          required: true,
+          required: false,
           trim: true,
         },
         date: {
