@@ -1,6 +1,9 @@
 .env
 node_modules
 
+# Scripts directory
+scripts/
+
 # Documentation files (exclude README.md)
 *.md
 !README.md
