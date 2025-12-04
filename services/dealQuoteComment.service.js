@@ -207,10 +207,9 @@ class DealQuoteCommentService {
           notificationService.createNotification({
             userId: buyerId,
             type: "deal_quote_comment",
-            title: "Admin Comment on Your Deal Request",
             message: `Admin added a comment: "${comment.comment.substring(0, 100)}${comment.comment.length > 100 ? "..." : ""}"`,
+            redirectUrl: `/deal-quote-request/${dealQuote._id}`,
             relatedId: dealQuote._id,
-            relatedModel: "DealQuoteRequest",
           })
         );
 
@@ -219,10 +218,9 @@ class DealQuoteCommentService {
           notificationService.createNotification({
             userId: sellerId,
             type: "deal_quote_comment",
-            title: "Admin Comment on Deal Request",
             message: `Admin added a comment: "${comment.comment.substring(0, 100)}${comment.comment.length > 100 ? "..." : ""}"`,
+            redirectUrl: `/deal-quote-request/${dealQuote._id}`,
             relatedId: dealQuote._id,
-            relatedModel: "DealQuoteRequest",
           })
         );
 
@@ -239,10 +237,9 @@ class DealQuoteCommentService {
       await notificationService.createNotification({
         userId: recipientId,
         type: "deal_quote_comment",
-        title: `New Comment from ${commenterRole === "buyer" ? "Buyer" : "Seller"}`,
         message: `${commenterName} commented: "${comment.comment.substring(0, 100)}${comment.comment.length > 100 ? "..." : ""}"`,
+        redirectUrl: `/deal-quote-request/${dealQuote._id}`,
         relatedId: dealQuote._id,
-        relatedModel: "DealQuoteRequest",
       });
 
       // TODO: Send email notification

@@ -379,6 +379,84 @@ class DealQuoteRequestController {
       });
     }
   }
+
+  /**
+   * Get deal quote requests by deal ID (for sellers)
+   */
+  async getByDealId(req, res) {
+    try {
+      const { dealId } = req.params;
+      const sellerId = req.user.id;
+
+      const dealQuotes = await dealQuoteRequestService.getDealQuotesByDealId(
+        dealId,
+        sellerId
+      );
+
+      // Format response
+      const formattedQuotes = dealQuotes.map((quote) => {
+        const buyer = quote.buyerId;
+        const deal = quote.bestDealId;
+        const product = deal?.productId;
+
+        return {
+          _id: quote._id,
+          status: quote.currentStatus,
+          message: quote.message,
+          createdAt: quote.createdAt,
+          updatedAt: quote.updatedAt,
+          buyer: buyer
+            ? {
+                _id: buyer._id,
+                name: `${buyer.firstName} ${buyer.lastName}`.trim(),
+                email: buyer.email,
+                phone: buyer.phone,
+                company: buyer.company,
+                location: `${buyer.city || ""}, ${buyer.country || ""}`.trim(),
+              }
+            : null,
+          deal: deal
+            ? {
+                _id: deal._id,
+                title: deal.title,
+                description: deal.description,
+                dealPrice: deal.dealPrice,
+                productName: product?.productName || deal.title,
+                productImage: product?.productImages?.[0]?.fileUrl || null,
+              }
+            : null,
+          orderDetails: {
+            quantity: quote.desiredQuantity,
+            shippingCountry: quote.shippingCountry,
+            paymentTerms: quote.paymentTerms,
+            deliveryDeadline: quote.deliveryDeadline,
+          },
+          sellerResponse: quote.sellerResponse,
+        };
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Deal quote requests retrieved successfully",
+        data: formattedQuotes,
+        meta: {
+          total: formattedQuotes.length,
+          dealId: dealId,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching deal quote requests by deal ID:", error);
+      const status = error.message.includes("not found")
+        ? 404
+        : error.message.includes("not have access")
+        ? 403
+        : 500;
+      res.status(status).json({
+        success: false,
+        message: error.message || "Failed to fetch deal quote requests",
+      });
+    }
+  }
 }
 
 export default new DealQuoteRequestController();

@@ -1,0 +1,21 @@
+### Get Deal Quote Requests by Deal ID (for Suppliers)
+
+### This endpoint allows suppliers to see all quote requests for their specific deal
+
+GET http://localhost:5050/api/deal-quote-request/deal/6863ca7e5a2b0f7e5c8aa696
+Authorization: Bearer YOUR_SELLER_TOKEN_HERE
+
+### Example with query parameter style (if you prefer)
+GET http://localhost:5050/api/deal-quote-request/deal/6863ca7e5a2b0f7e5c8aa696?dealId=6863ca7e5a2b0f7e5c8aa696
+Authorization: Bearer YOUR_SELLER_TOKEN_HERE
+
+### Response will include:
+# - All quote requests for this specific deal
+# - Buyer information for each request
+# - Request details (quantity, shipping, payment terms)
+# - Status of each request
+# - Seller responses if any
+
+### Authorization Check:
+# - Only the supplier who created the deal can access
+# - Verified by checking deal.productId.createdBy === sellerId

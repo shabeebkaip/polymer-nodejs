@@ -10,6 +10,7 @@ dealQuoteRequestRouter.get("/buyer", authenticateUser, dealQuoteRequestControlle
 
 // Seller routes - view requests assigned to them and respond
 dealQuoteRequestRouter.get("/seller", authenticateUser, dealQuoteRequestController.getSellerRequests);
+dealQuoteRequestRouter.get("/deal/:dealId", authenticateUser, dealQuoteRequestController.getByDealId);
 dealQuoteRequestRouter.post("/:id/respond", authenticateUser, dealQuoteRequestController.sellerRespond);
 
 // Common routes - get detail, update status, delete

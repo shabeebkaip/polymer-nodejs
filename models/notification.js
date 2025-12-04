@@ -12,7 +12,11 @@ const notificationSchema = new Schema(
         "quote-submission",
         "quote-enquiry",
         "sample-enquiry",
-        "supplier-offer"
+        "supplier-offer",
+        "deal_quote_comment",
+        "deal_quote_request",
+        "deal_quote_response",
+        "deal_quote_status"
       ],
       required: true
     },

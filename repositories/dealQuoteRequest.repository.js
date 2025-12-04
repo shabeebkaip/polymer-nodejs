@@ -118,6 +118,19 @@ class DealQuoteRequestRepository {
       { new: true }
     );
   }
+
+  /**
+   * Find deal quote requests by bestDealId
+   */
+  async findByBestDealId(bestDealId, populate = []) {
+    let query = DealQuoteRequest.find({ bestDealId });
+
+    populate.forEach((pop) => {
+      query = query.populate(pop);
+    });
+
+    return await query.sort({ createdAt: -1 }).exec();
+  }
 }
 
 export default new DealQuoteRequestRepository();

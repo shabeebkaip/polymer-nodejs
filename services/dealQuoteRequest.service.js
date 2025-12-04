@@ -417,6 +417,54 @@ class DealQuoteRequestService {
 
     return await dealQuoteRequestRepository.delete(id);
   }
+
+  /**
+   * Get deal quote requests by deal ID for seller
+   */
+  async getDealQuotesByDealId(bestDealId, sellerId) {
+    try {
+      // Verify the deal belongs to this seller
+      const bestDeal = await BestDeal.findById(bestDealId)
+        .populate({ 
+          path: 'productId', 
+          select: 'createdBy'
+        });
+
+      if (!bestDeal) {
+        throw new Error('Deal not found');
+      }
+
+      // Check if seller owns this deal's product
+      const productSellerId = bestDeal.productId?.createdBy?.toString();
+      if (productSellerId !== sellerId.toString()) {
+        throw new Error('You do not have access to this deal\'s requests');
+      }
+
+      // Fetch all quote requests for this deal
+      const dealQuotes = await dealQuoteRequestRepository.findByBestDealId(
+        bestDealId,
+        [
+          {
+            path: 'buyerId',
+            select: 'firstName lastName email phone company city state country address pincode'
+          },
+          {
+            path: 'bestDealId',
+            select: 'title description dealPrice productId',
+            populate: {
+              path: 'productId',
+              select: 'productName productImages chemicalName tradeName'
+            }
+          }
+        ]
+      );
+
+      return dealQuotes;
+    } catch (error) {
+      console.error('Error in getDealQuotesByDealId service:', error);
+      throw error;
+    }
+  }
 }
 
 export default new DealQuoteRequestService();
