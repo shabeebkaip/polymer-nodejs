@@ -16,7 +16,11 @@ const notificationSchema = new Schema(
         "deal_quote_comment",
         "deal_quote_request",
         "deal_quote_response",
-        "deal_quote_status"
+        "deal_quote_status",
+        "quote_request",
+        "quote_response",
+        "quote_status",
+        "quote_comment"
       ],
       required: true
     },

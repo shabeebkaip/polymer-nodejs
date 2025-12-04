@@ -7,6 +7,7 @@ import updateQuoteStatus from './api/status.update.js'
 import quoteRequestDetailRouter from './api/detail.js'
 import dealQuotesRouter from './api/dealQuotes.js'
 import productQuotesRouter from './api/productQuotes.js'
+import quoteCommentRouter from './api/quoteComments.js'
 // import getApprovedQuotes from './api/admin.approved.js'
 
 const quoteRouter = express.Router()
@@ -18,6 +19,7 @@ quoteRouter.use('/status', updateQuoteStatus)
 quoteRouter.use('/detail', quoteRequestDetailRouter)
 quoteRouter.use('/deal-quotes', dealQuotesRouter)
 quoteRouter.use('/product-quotes', productQuotesRouter)
+quoteRouter.use('/product-quotes/comments', quoteCommentRouter)
 // quoteRouter.use('/approved', getApprovedQuotes)
 
 

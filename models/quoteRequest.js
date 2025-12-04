@@ -1,26 +1,40 @@
-import mongoose from "mongoose";
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const schema = new Schema(
+const quoteRequestSchema = new Schema(
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
+    // References
+    buyerId: {
+      type: Schema.Types.ObjectId,
       ref: "user",
       required: true,
+      index: true,
     },
-    product: {
-      type: mongoose.Schema.Types.ObjectId,
+    sellerId: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
+      index: true,
+    },
+    productId: {
+      type: Schema.Types.ObjectId,
       ref: "Product",
       required: true,
+      index: true,
     },
-    quantity: {
+    // Request details
+    message: {
+      type: String,
+      required: false,
+      trim: true,
+    },
+    desiredQuantity: {
       type: Number,
       required: true,
       min: 1,
     },
     uom: {
       type: String,
-      required: true,
+      required: false,
       enum: [
         "Kilogram",
         "Gram",
@@ -37,81 +51,145 @@ const schema = new Schema(
         "Pint",
       ],
     },
-    grade: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "grade",
-    },
-    incoterm: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "incoterm",
-    },
-    country: {
+    shippingCountry: {
       type: String,
       required: true,
       trim: true,
     },
     destination: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
     },
-    packagingType: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "packagingType",
-    },
-    packaging_size: {
+    paymentTerms: {
       type: String,
-      required: true,
+      required: false,
+      trim: true,
     },
-    expected_annual_volume: {
+    deliveryDeadline: {
+      type: Date,
+      required: false,
+    },
+    
+    // Additional product-specific fields
+    gradeId: {
+      type: Schema.Types.ObjectId,
+      ref: "grade",
+      required: false,
+    },
+    incotermId: {
+      type: Schema.Types.ObjectId,
+      ref: "incoterm",
+      required: false,
+    },
+    packagingTypeId: {
+      type: Schema.Types.ObjectId,
+      ref: "packagingType",
+      required: false,
+    },
+    packagingSize: {
+      type: String,
+      required: false,
+    },
+    expectedAnnualVolume: {
       type: Number,
       min: 0,
-    },
-    delivery_date: {
-      type: Date,
-      required: true,
     },
     application: {
       type: String,
       trim: true,
     },
-    price: {
-      type: String,
+    requestDocument: {
+      id: { type: String },
+      name: { type: String },
+      type: { type: String },
+      fileUrl: { type: String },
+      viewUrl: { type: String },
+      uploadedAt: { type: Date },
     },
-    lead_time: {
-      type: String,
-      trim: true,
-    },
-    terms: {
-      type: String,
-      trim: true,
-    },
-    message: {
-      type: String,
-      trim: true,
-    },
-    request_document: {
-      type: String,
-    },
-    open_request: {
+    openRequest: {
       type: Boolean,
+      default: false,
     },
-    status: {
+
+    adminNote: {
       type: String,
-      enum: [
-        "pending", // Buyer requested a quote, waiting for supplier response
-        "responded", // Supplier responded with a quote
-        "negotiation", // Quote is under negotiation
-        "approved", // Buyer approved the final quote
-        "rejected", // Quote or request was rejected
-        "fulfilled", // Deal completed/fulfilled
-        "cancelled", // Request was cancelled
-      ],
-      default: "pending",
+      trim: true,
+    },
+
+    // Status history (current status is the last entry)
+    status: [
+      {
+        status: {
+          type: String,
+          required: true,
+          enum: [
+            "pending",        // Initial state - waiting for seller
+            "responded",      // Seller provided quotation
+            "accepted",       // Buyer accepted, proceed to order
+            "rejected",       // Seller rejected the request
+            "cancelled"       // Buyer cancelled
+          ],
+        },
+        message: {
+          type: String,
+          required: false,
+          trim: true,
+        },
+        date: {
+          type: Date,
+          default: Date.now,
+          required: true,
+        },
+        updatedBy: {
+          type: String,
+          default: "seller",
+          enum: ["seller", "admin", "buyer"],
+        },
+      },
+    ],
+
+    // Seller response
+    sellerResponse: {
+      message: { type: String, trim: true },
+      quotedPrice: { type: Number },
+      quotedQuantity: { type: Number },
+      estimatedDelivery: { type: Date },
+      leadTime: { type: String },
+      terms: { type: String },
+      respondedAt: { type: Date },
+      quotationDocument: {
+        id: { type: String },
+        name: { type: String },
+        type: { type: String },
+        fileUrl: { type: String },
+        viewUrl: { type: String },
+        uploadedAt: { type: Date },
+      },
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-const QuoteRequest = mongoose.model("QuoteRequest", schema);
+// Virtual for current status value
+quoteRequestSchema.virtual('currentStatus').get(function() {
+  if (this.status && this.status.length > 0) {
+    return this.status[this.status.length - 1].status;
+  }
+  return 'pending';
+});
+
+// Ensure virtuals are included in JSON
+quoteRequestSchema.set('toJSON', { virtuals: true });
+quoteRequestSchema.set('toObject', { virtuals: true });
+
+// Indexes for performance
+quoteRequestSchema.index({ buyerId: 1, createdAt: -1 });
+quoteRequestSchema.index({ sellerId: 1, createdAt: -1 });
+quoteRequestSchema.index({ productId: 1, createdAt: -1 });
+quoteRequestSchema.index({ 'status.status': 1, createdAt: -1 });
+
+const QuoteRequest = mongoose.model("QuoteRequest", quoteRequestSchema);
 export default QuoteRequest;

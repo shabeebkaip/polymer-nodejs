@@ -38,6 +38,8 @@ import notificationRouter from "./notification/notification.js";
 import testEmailRouter from "./test/testEmail.js";
 import dealQuoteRequestRouter from "./dealQuoteRequest/dealQuoteRequest.js";
 import dealQuoteCommentRouter from "./dealQuoteComment/dealQuoteComment.js";
+import productQuotesRouter from "./quoteRequest/api/productQuotes.js";
+import quoteCommentRouter from "./quoteRequest/api/quoteComments.js";
 // import testimonialRoutes from "./testimonials/testimonials.js";
 
 const router = express.Router();
@@ -80,6 +82,9 @@ router.use("/notifications", notificationRouter);
 router.use("/test-email", testEmailRouter);
 router.use("/deal-quote-request", dealQuoteRequestRouter);
 router.use("/deal-quote-comment", dealQuoteCommentRouter);
+// New product quote routes (directly under /quote)
+router.use("/quote/product-quotes", productQuotesRouter);
+router.use("/quote/product-quotes/comments", quoteCommentRouter);
 
 
 

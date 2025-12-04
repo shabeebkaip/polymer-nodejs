@@ -1,0 +1,391 @@
+### Product Quote Request API Tests
+### Base URL: http://localhost:5050/api/quote/product-quotes
+### Routes registered at: /api/quote/product-quotes
+
+@baseUrl = http://localhost:5050
+@token = YOUR_AUTH_TOKEN_HERE
+@buyerToken = BUYER_AUTH_TOKEN
+@sellerToken = SELLER_AUTH_TOKEN
+@productId = YOUR_PRODUCT_ID
+@quoteRequestId = CREATED_QUOTE_REQUEST_ID
+@commentId = CREATED_COMMENT_ID
+
+###############################################
+# 1. CREATE QUOTE REQUEST (Buyer)
+###############################################
+
+POST {{baseUrl}}/api/quote/product-quotes
+Content-Type: application/json
+Authorization: Bearer {{buyerToken}}
+
+{
+  "productId": "{{productId}}",
+  "desiredQuantity": 1000,
+  "uom": "Metric Ton",
+  "shippingCountry": "India",
+  "destination": "Mumbai Port",
+  "message": "Please quote for immediate delivery",
+  "paymentTerms": "LC at sight",
+  "deliveryDeadline": "2024-03-15",
+  "additionalRequirements": "Need COA and MSDS with shipment",
+  "application": "Pipe manufacturing"
+}
+
+###############################################
+# 2. GET SELLER'S QUOTE REQUESTS
+###############################################
+
+### Get all (with pagination)
+GET {{baseUrl}}/api/quote/product-quotes/seller?page=1&limit=10
+Authorization: Bearer {{sellerToken}}
+
+### Filter by status
+GET {{baseUrl}}/api/quote/product-quotes/seller?status=pending
+Authorization: Bearer {{sellerToken}}
+
+### Get responded requests
+GET {{baseUrl}}/api/quote/product-quotes/seller?status=responded
+Authorization: Bearer {{sellerToken}}
+
+###############################################
+# 3. GET BUYER'S QUOTE REQUESTS
+###############################################
+
+### Get all buyer's requests
+GET {{baseUrl}}/api/quote/product-quotes/buyer?page=1&limit=10
+Authorization: Bearer {{buyerToken}}
+
+### Filter by status
+GET {{baseUrl}}/api/quote/product-quotes/buyer?status=pending
+Authorization: Bearer {{buyerToken}}
+
+###############################################
+# 4. GET SINGLE QUOTE REQUEST BY ID
+###############################################
+
+GET {{baseUrl}}/api/quote/product-quotes/{{quoteRequestId}}
+Authorization: Bearer {{buyerToken}}
+
+###############################################
+# 5. GET QUOTE REQUESTS BY PRODUCT ID (Seller)
+###############################################
+
+GET {{baseUrl}}/api/quote/product-quotes/product/{{productId}}
+Authorization: Bearer {{sellerToken}}
+
+###############################################
+# 6. SELLER RESPOND TO QUOTE REQUEST
+###############################################
+
+PATCH {{baseUrl}}/api/quote/product-quotes/{{quoteRequestId}}/respond
+Content-Type: application/json
+Authorization: Bearer {{sellerToken}}
+
+{
+  "message": "Thank you for your inquiry. Please find our quotation below.",
+  "quotedPrice": 1200,
+  "quotedQuantity": 1000,
+  "estimatedDelivery": "2024-02-20",
+  "leadTime": "15-20 days",
+  "terms": "Payment: 30% advance, 70% before shipment. Delivery: FOB Mumbai port",
+  "quotationDocument": {
+    "fileName": "Quotation_HDPE_Jan2024.pdf",
+    "fileUrl": "https://storage.example.com/quotations/abc123.pdf"
+  }
+}
+
+### Respond with minimal data
+PATCH {{baseUrl}}/api/quote/product-quotes/{{quoteRequestId}}/respond
+Content-Type: application/json
+Authorization: Bearer {{sellerToken}}
+
+{
+  "message": "We will send detailed quotation shortly",
+  "quotedPrice": 1150
+}
+
+###############################################
+# 7. UPDATE QUOTE STATUS
+###############################################
+
+### Accept quote (Buyer)
+PATCH {{baseUrl}}/api/quote/product-quotes/{{quoteRequestId}}/status
+Content-Type: application/json
+Authorization: Bearer {{buyerToken}}
+
+{
+  "status": "accepted",
+  "message": "We accept your quotation. Please proceed with the order",
+  "updatedBy": "buyer"
+}
+
+### Reject quote (Seller)
+PATCH {{baseUrl}}/api/quote/product-quotes/{{quoteRequestId}}/status
+Content-Type: application/json
+Authorization: Bearer {{sellerToken}}
+
+{
+  "status": "rejected",
+  "message": "Sorry, we cannot supply this quantity at the moment",
+  "updatedBy": "seller"
+}
+
+### Cancel quote (Buyer)
+PATCH {{baseUrl}}/api/quote/product-quotes/{{quoteRequestId}}/status
+Content-Type: application/json
+Authorization: Bearer {{buyerToken}}
+
+{
+  "status": "cancelled",
+  "message": "We have sourced from another supplier",
+  "updatedBy": "buyer"
+}
+
+### Update to responded (without message - uses default)
+PATCH {{baseUrl}}/api/quote/product-quotes/{{quoteRequestId}}/status
+Content-Type: application/json
+Authorization: Bearer {{sellerToken}}
+
+{
+  "status": "responded",
+  "updatedBy": "seller"
+}
+
+###############################################
+# 8. DELETE QUOTE REQUEST (Buyer/Admin)
+###############################################
+
+DELETE {{baseUrl}}/api/quote/product-quotes/{{quoteRequestId}}
+Authorization: Bearer {{buyerToken}}
+
+###############################################
+# COMMENT ENDPOINTS
+###############################################
+
+###############################################
+# 9. CREATE COMMENT
+###############################################
+
+POST {{baseUrl}}/api/quote/product-quotes/comments
+Content-Type: application/json
+Authorization: Bearer {{buyerToken}}
+
+{
+  "quoteRequestId": "{{quoteRequestId}}",
+  "comment": "Can you provide samples before we place the order?"
+}
+
+### Seller replies
+POST {{baseUrl}}/api/quote/product-quotes/comments
+Content-Type: application/json
+Authorization: Bearer {{sellerToken}}
+
+{
+  "quoteRequestId": "{{quoteRequestId}}",
+  "comment": "Yes, we can send 1kg sample. Please share your shipping address."
+}
+
+###############################################
+# 10. GET COMMENTS FOR QUOTE REQUEST
+###############################################
+
+### Get all comments
+GET {{baseUrl}}/api/quote/product-quotes/comments/{{quoteRequestId}}
+Authorization: Bearer {{buyerToken}}
+
+### With pagination
+GET {{baseUrl}}/api/quote/product-quotes/comments/{{quoteRequestId}}?page=1&limit=20
+Authorization: Bearer {{sellerToken}}
+
+### Include deleted comments (admin)
+GET {{baseUrl}}/api/quote/product-quotes/comments/{{quoteRequestId}}?includeDeleted=true
+Authorization: Bearer {{token}}
+
+###############################################
+# 11. UPDATE COMMENT
+###############################################
+
+PATCH {{baseUrl}}/api/quote/product-quotes/comments/{{commentId}}
+Content-Type: application/json
+Authorization: Bearer {{buyerToken}}
+
+{
+  "comment": "Can you provide 2kg samples instead?"
+}
+
+###############################################
+# 12. DELETE COMMENT
+###############################################
+
+DELETE {{baseUrl}}/api/quote/product-quotes/comments/{{commentId}}
+Authorization: Bearer {{buyerToken}}
+
+###############################################
+# ERROR TEST CASES
+###############################################
+
+### Test 1: Create quote without auth token
+POST {{baseUrl}}/api/quote/product-quotes
+Content-Type: application/json
+
+{
+  "productId": "{{productId}}",
+  "desiredQuantity": 1000
+}
+# Expected: 401 Unauthorized
+
+### Test 2: Create quote with missing required field
+POST {{baseUrl}}/api/quote/product-quotes
+Content-Type: application/json
+Authorization: Bearer {{buyerToken}}
+
+{
+  "desiredQuantity": 1000
+}
+# Expected: 500 with "productId is required" or validation error
+
+### Test 3: Update status with invalid value
+PATCH {{baseUrl}}/api/quote/product-quotes/{{quoteRequestId}}/status
+Content-Type: application/json
+Authorization: Bearer {{buyerToken}}
+
+{
+  "status": "invalid_status"
+}
+# Expected: 400 Bad Request - Invalid status
+
+### Test 4: Reject without message
+PATCH {{baseUrl}}/api/quote/product-quotes/{{quoteRequestId}}/status
+Content-Type: application/json
+Authorization: Bearer {{sellerToken}}
+
+{
+  "status": "rejected"
+}
+# Expected: 400 - Message required for rejected status
+
+### Test 5: Seller tries to respond to someone else's product
+PATCH {{baseUrl}}/api/quote/product-quotes/{{quoteRequestId}}/respond
+Content-Type: application/json
+Authorization: Bearer {{buyerToken}}
+
+{
+  "message": "Trying to respond as wrong user",
+  "quotedPrice": 1000
+}
+# Expected: 403 Forbidden - Not authorized
+
+### Test 6: Get quote request without access
+GET {{baseUrl}}/api/quote/product-quotes/{{quoteRequestId}}
+Authorization: Bearer RANDOM_OTHER_USER_TOKEN
+# Expected: 403 Forbidden - No access
+
+### Test 7: Create comment without required fields
+POST {{baseUrl}}/api/quote/product-quotes/comments
+Content-Type: application/json
+Authorization: Bearer {{buyerToken}}
+
+{
+  "quoteRequestId": "{{quoteRequestId}}"
+}
+# Expected: 400 Bad Request - Comment required
+
+### Test 8: Update someone else's comment
+PATCH {{baseUrl}}/api/quote/product-quotes/comments/{{commentId}}
+Content-Type: application/json
+Authorization: Bearer {{sellerToken}}
+
+{
+  "comment": "Trying to edit someone else's comment"
+}
+# Expected: 403 Forbidden - Not authorized
+
+### Test 9: Delete someone else's quote request
+DELETE {{baseUrl}}/api/quote/product-quotes/{{quoteRequestId}}
+Authorization: Bearer {{sellerToken}}
+# Expected: 403 Forbidden - Not authorized
+
+### Test 10: Get non-existent quote request
+GET {{baseUrl}}/api/quote/product-quotes/507f1f77bcf86cd799439011
+Authorization: Bearer {{buyerToken}}
+# Expected: 404 Not Found
+
+###############################################
+# INTEGRATION TEST FLOW
+###############################################
+
+### Complete workflow test:
+### 1. Buyer creates quote request
+### 2. Seller gets the request in their list
+### 3. Seller responds with quotation
+### 4. Buyer views the response
+### 5. Both parties comment
+### 6. Buyer accepts the quote
+### 7. Check final status
+
+### Step 1: Create request
+POST {{baseUrl}}/api/quote/product-quotes
+Content-Type: application/json
+Authorization: Bearer {{buyerToken}}
+
+{
+  "productId": "{{productId}}",
+  "desiredQuantity": 500,
+  "uom": "MT",
+  "shippingCountry": "UAE"
+}
+
+### Step 2: Seller checks requests
+GET {{baseUrl}}/api/quote/product-quotes/seller?status=pending
+Authorization: Bearer {{sellerToken}}
+
+### Step 3: Seller responds
+PATCH {{baseUrl}}/api/quote/product-quotes/{{quoteRequestId}}/respond
+Content-Type: application/json
+Authorization: Bearer {{sellerToken}}
+
+{
+  "message": "Quote provided",
+  "quotedPrice": 1100,
+  "quotedQuantity": 500,
+  "leadTime": "10 days"
+}
+
+### Step 4: Buyer views response
+GET {{baseUrl}}/api/quote/product-quotes/{{quoteRequestId}}
+Authorization: Bearer {{buyerToken}}
+
+### Step 5: Buyer comments
+POST {{baseUrl}}/api/quote/product-quotes/comments
+Content-Type: application/json
+Authorization: Bearer {{buyerToken}}
+
+{
+  "quoteRequestId": "{{quoteRequestId}}",
+  "comment": "Can you reduce the price by 5%?"
+}
+
+### Step 6: Seller comments
+POST {{baseUrl}}/api/quote/product-quotes/comments
+Content-Type: application/json
+Authorization: Bearer {{sellerToken}}
+
+{
+  "quoteRequestId": "{{quoteRequestId}}",
+  "comment": "Best price is $1080 per MT for 500MT"
+}
+
+### Step 7: Buyer accepts
+PATCH {{baseUrl}}/api/quote/product-quotes/{{quoteRequestId}}/status
+Content-Type: application/json
+Authorization: Bearer {{buyerToken}}
+
+{
+  "status": "accepted",
+  "message": "Agreed at $1080 per MT",
+  "updatedBy": "buyer"
+}
+
+### Step 8: Verify final status
+GET {{baseUrl}}/api/quote/product-quotes/{{quoteRequestId}}
+Authorization: Bearer {{buyerToken}}
