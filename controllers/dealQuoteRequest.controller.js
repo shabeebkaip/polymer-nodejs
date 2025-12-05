@@ -396,6 +396,13 @@ class DealQuoteRequestController {
       const { dealId } = req.params;
       const sellerId = req.user.id;
 
+      console.log('getByDealId - Request Info:', {
+        dealId,
+        sellerId,
+        userType: req.user.user_type,
+        userName: req.user.name
+      });
+
       const dealQuotes = await dealQuoteRequestService.getDealQuotesByDealId(
         dealId,
         sellerId

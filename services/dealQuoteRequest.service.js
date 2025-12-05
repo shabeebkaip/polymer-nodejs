@@ -439,19 +439,31 @@ class DealQuoteRequestService {
   async getDealQuotesByDealId(bestDealId, sellerId) {
     try {
       // Verify the deal belongs to this seller
-      const bestDeal = await BestDeal.findById(bestDealId)
-        .populate({ 
-          path: 'productId', 
-          select: 'createdBy'
-        });
+      const bestDeal = await BestDeal.findById(bestDealId);
 
       if (!bestDeal) {
         throw new Error('Deal not found');
       }
 
-      // Check if seller owns this deal's product
-      const productSellerId = bestDeal.productId?.createdBy?.toString();
-      if (productSellerId !== sellerId.toString()) {
+      // Check if seller owns this deal (either as sellerId or createdBy)
+      // Convert all IDs to strings for comparison to handle ObjectId comparison properly
+      const dealSellerId = bestDeal.sellerId?.toString() || '';
+      const dealCreatedBy = bestDeal.createdBy?.toString() || '';
+      const sellerIdString = sellerId?.toString() || '';
+      
+      console.log('Access Check:', {
+        bestDealId,
+        dealSellerId,
+        dealCreatedBy,
+        requestingSellerId: sellerIdString,
+        sellerOwnsAsSellerId: dealSellerId === sellerIdString,
+        sellerOwnsAsCreator: dealCreatedBy === sellerIdString
+      });
+      
+      // Allow access if the seller owns the deal either as the seller or as the creator
+      const hasAccess = dealSellerId === sellerIdString || dealCreatedBy === sellerIdString;
+      
+      if (!hasAccess) {
         throw new Error('You do not have access to this deal\'s requests');
       }
 
