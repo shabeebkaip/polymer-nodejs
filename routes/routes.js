@@ -80,6 +80,7 @@ router.use("/dashboard", dashboardRouter)
 router.use("/quote", unifiedQuoteRoutes)
 router.use("/notifications", notificationRouter);
 router.use("/test-email", testEmailRouter);
+// New deal quote routes
 router.use("/deal-quote-request", dealQuoteRequestRouter);
 router.use("/deal-quote-comment", dealQuoteCommentRouter);
 // New product quote routes (directly under /quote)
