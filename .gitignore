@@ -4,6 +4,9 @@ node_modules
 # Scripts directory
 scripts/
 
+# Documentation folder
+documentation/
+
 # Documentation files (exclude README.md)
 *.md
 !README.md
