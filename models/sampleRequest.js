@@ -17,6 +17,11 @@ const sampleRequestSchema = new mongoose.Schema(
       required: true,
       min: 1,
     },
+    sampleSize: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     uom: {
       type: String,
       required: true,
@@ -35,9 +40,6 @@ const sampleRequestSchema = new mongoose.Schema(
         "Quart",
         "Pint",
       ],
-    },
-    phone: {
-      type: Number,
     },
     address: {
       type: String,

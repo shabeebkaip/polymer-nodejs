@@ -228,6 +228,141 @@ class NotificationService {
       html: emailHtml,
     });
   }
+
+  /**
+   * Notify seller when buyer creates a sample request
+   */
+  async notifySellerNewSampleRequest({ seller, buyerId, product, request }) {
+    const productName = product?.productName || "a product";
+    
+    // Create in-app notification
+    await this.createNotification({
+      userId: seller._id,
+      type: "sample-enquiry",
+      message: `New sample request for ${productName}`,
+      redirectUrl: `/seller/sample-requests/${request._id}`,
+      relatedId: request._id,
+      meta: {
+        buyerId,
+        productId: product._id,
+        quantity: request.quantity,
+      },
+    });
+
+    // Send email notification
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #2c3e50;">New Sample Request</h2>
+        <p>Hello ${seller.firstName},</p>
+        <p>You have received a new sample request:</p>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #3498db;">${productName}</h3>
+          <p><strong>Sample Size:</strong> ${request.sampleSize || "Not specified"}</p>
+          <p><strong>Quantity:</strong> ${request.quantity} ${request.uom}</p>
+          <p><strong>Application:</strong> ${request.application || "Not specified"}</p>
+          <p><strong>Expected Annual Volume:</strong> ${request.expected_annual_volume || "Not specified"}</p>
+          <p><strong>Shipping To:</strong> ${request.country}</p>
+          ${request.message ? `<p><strong>Message:</strong> ${request.message}</p>` : ""}
+        </div>
+        
+        <p style="margin-top: 30px;">
+          <a href="${process.env.BASE_URL || "http://localhost:3000"}/seller/sample-requests/${request._id}" 
+             style="background: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+            View Request & Respond
+          </a>
+        </p>
+        
+        <p style="color: #7f8c8d; font-size: 12px; margin-top: 30px;">
+          This is an automated notification from Polymer Hub. Please do not reply to this email.
+        </p>
+      </div>
+    `;
+
+    await this.sendEmail({
+      to: seller.email,
+      subject: `New Sample Request: ${productName}`,
+      html: emailHtml,
+    });
+  }
+
+  /**
+   * Notify buyer when sample request status is updated
+   */
+  async notifySampleStatusUpdate({ buyer, seller, product, request, oldStatus, newStatus }) {
+    const productName = product?.productName || "your sample request";
+    
+    const statusMessages = {
+      pending: "Your sample request is pending review",
+      responded: "The supplier has responded to your sample request",
+      sent: "Your sample has been shipped",
+      delivered: "Your sample has been delivered",
+      approved: "Your sample request has been approved",
+      rejected: "Your sample request has been declined",
+      cancelled: "Your sample request has been cancelled",
+    };
+
+    const statusColors = {
+      pending: "#f39c12",
+      responded: "#3498db",
+      sent: "#9b59b6",
+      delivered: "#27ae60",
+      approved: "#27ae60",
+      rejected: "#e74c3c",
+      cancelled: "#95a5a6",
+    };
+
+    const notificationMessage = statusMessages[newStatus] || `Status updated to ${newStatus}`;
+    
+    // Create in-app notification
+    await this.createNotification({
+      userId: buyer._id,
+      type: "sample-status",
+      message: `${notificationMessage} for ${productName}`,
+      redirectUrl: `/buyer/sample-requests/${request._id}`,
+      relatedId: request._id,
+      meta: {
+        sellerId: seller._id,
+        productId: product._id,
+        oldStatus,
+        newStatus,
+      },
+    });
+
+    // Send email notification
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: ${statusColors[newStatus] || "#2c3e50"};">Sample Status Update: ${newStatus.replace('_', ' ').toUpperCase()}</h2>
+        <p>Hello ${buyer.firstName},</p>
+        <p>${notificationMessage}</p>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0;">${productName}</h3>
+          <p><strong>Previous Status:</strong> <span style="color: #95a5a6;">${oldStatus}</span></p>
+          <p><strong>New Status:</strong> <span style="color: ${statusColors[newStatus]}; font-weight: bold;">${newStatus}</span></p>
+          <p><strong>Supplier:</strong> ${seller.firstName} ${seller.lastName}</p>
+          <p><strong>Company:</strong> ${seller.company || "N/A"}</p>
+        </div>
+        
+        <p style="margin-top: 30px;">
+          <a href="${process.env.BASE_URL || "http://localhost:3000"}/buyer/sample-requests/${request._id}" 
+             style="background: ${statusColors[newStatus] || "#3498db"}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+            View Details
+          </a>
+        </p>
+        
+        <p style="color: #7f8c8d; font-size: 12px; margin-top: 30px;">
+          This is an automated notification from Polymer Hub. Please do not reply to this email.
+        </p>
+      </div>
+    `;
+
+    await this.sendEmail({
+      to: buyer.email,
+      subject: `Sample Status Update: ${newStatus.replace('_', ' ')} - ${productName}`,
+      html: emailHtml,
+    });
+  }
 }
 
 export default new NotificationService();
