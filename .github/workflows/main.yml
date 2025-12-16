@@ -45,7 +45,7 @@ jobs:
             rm -rf .next
 
             echo "📦 Installing dependencies (pnpm via npx)"
-            npx pnpm install --frozen-lockfile
+            npx pnpm install 
 
             echo "🏗️ Building application"
             npx pnpm run build
