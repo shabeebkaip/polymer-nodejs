@@ -27,4 +27,4 @@ jobs:
             git pull origin main
             npx pnpm install --frozen-lockfile
             npx pnpm run build
-            pm2 restart polymer-v3
+            pm2 restart polymer-backend
