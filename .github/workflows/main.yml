@@ -23,6 +23,7 @@ jobs:
           script: |
             set -e
             cd ${{ secrets.APP_DIR }}
+            whoami
             git pull origin main
             rm -rf .next
             npx pnpm install --frozen-lockfile
