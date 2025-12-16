@@ -26,9 +26,6 @@ jobs:
             echo "📂 Moving to application directory"
             cd ${{ secrets.APP_DIR }}
 
-            echo "👤 Running as:"
-            whoami
-
             echo "🔍 Checking git permissions"
             ls -ld .git || true
             ls -l .git/FETCH_HEAD || true
@@ -41,16 +38,10 @@ jobs:
             echo "⬇️ Pulling latest code from main"
             git pull origin main
 
-            echo "🧹 Removing old Next.js build"
-            rm -rf .next
-
             echo "📦 Installing dependencies (pnpm via npx)"
-            npx pnpm install 
-
-            echo "🏗️ Building application"
-            npx pnpm run build
+            npm install 
 
             echo "♻️ Restarting PM2"
-            pm2 restart 0
+            pm2 restart polymer-backend
 
             echo "✅ Deployment completed successfully"
