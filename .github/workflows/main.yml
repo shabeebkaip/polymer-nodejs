@@ -22,9 +22,35 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             set -e
+
+            echo "📂 Moving to application directory"
             cd ${{ secrets.APP_DIR }}
+
+            echo "👤 Running as:"
             whoami
+
+            echo "🔍 Checking git permissions"
+            ls -ld .git || true
+            ls -l .git/FETCH_HEAD || true
+
+            echo "🔧 Fixing FETCH_HEAD ownership if needed"
+            if [ -f .git/FETCH_HEAD ]; then
+              sudo chown ubuntu:ubuntu .git/FETCH_HEAD || true
+            fi
+
+            echo "⬇️ Pulling latest code from main"
             git pull origin main
+
+            echo "🧹 Removing old Next.js build"
+            rm -rf .next
+
+            echo "📦 Installing dependencies (pnpm via npx)"
             npx pnpm install --frozen-lockfile
+
+            echo "🏗️ Building application"
             npx pnpm run build
-            pm2 restart polymer-backend
+
+            echo "♻️ Restarting PM2"
+            pm2 restart 0
+
+            echo "✅ Deployment completed successfully"
