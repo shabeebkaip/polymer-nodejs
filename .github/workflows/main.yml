@@ -25,7 +25,6 @@ jobs:
             cd ${{ secrets.APP_DIR }}
             whoami
             git pull origin main
-            rm -rf .next
             npx pnpm install --frozen-lockfile
             npx pnpm run build
             pm2 restart polymer-v3
