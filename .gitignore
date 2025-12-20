@@ -1,6 +1,9 @@
 .env
 node_modules
 
+# macOS
+.DS_Store
+
 # Scripts directory
 scripts/
 

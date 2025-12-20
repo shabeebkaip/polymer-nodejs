@@ -12,7 +12,7 @@ createBestDeal.post("/", authenticateUser, async (req, res) => {
     // Check for existing best deal
     const dealExists = await BestDeal.findOne({ productId, sellerId });
     if (dealExists) {
-      return res.status(400).json({ message: "Best deal already exists for this product" });
+      return res.status(200).json({ info: "Best deal already exists for this product", existingDeal: dealExists });
     }
 
     const bestDeal = new BestDeal({

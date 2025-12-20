@@ -44,9 +44,28 @@ app.use(
 );
 
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
 
-app.use(cors());
+// TODO: Configure allowed origins for production
+// const allowedOrigins = [
+//   "https://staging.polymershub.com",
+//   "https://admin.polymershub.com",
+//   "https://polymershub.com",
+//   "https://www.polymershub.com",
+//   "http://localhost:3000",
+//   "http://localhost:3001",
+//   "http://localhost:5173"
+// ];
+
+const corsOptions = {
+  origin: "*",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+};
+
+const io = new Server(server, { cors: { origin: "*", credentials: true } });
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Serve static files for testing
