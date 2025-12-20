@@ -7,7 +7,7 @@ import authRouter from "./auth/auth.js";
 import userRouter from "./user/user.js";
 import adminRouter from "./admins/admin.js";
 import notificationRouter from "./notification/notification.js";
-import dashboardRouter from "./dashboard/dashboard.js";
+import dashboardRouter from "./dashboard/index.js";
 
 // ==================== CATALOG ROUTES ====================
 import categoryRouter from "./category/category.js";
