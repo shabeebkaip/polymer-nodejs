@@ -13,7 +13,7 @@ import dashboardRouter from "./dashboard/index.js";
 import categoryRouter from "./category/category.js";
 import subCategoryRouter from "./subCategory/subCategory.js";
 import brandRouter from "./brand/brand.js";
-import productRouter from "./product/product.js";
+import productRouter from "./product/index.js"; // NEW ARCHITECTURE: Controller -> Service -> Repository
 import chemicalFamilyRouter from "./chemicalFamily/chemicalFamily.js";
 import industryRouter from "./industry/industry.js";
 import productFamilyRouter from "./productFamily/productFamily.js";

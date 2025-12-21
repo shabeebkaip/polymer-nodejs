@@ -1,7 +1,7 @@
 import express from "express";
 import User from "../../../models/user.js";
 import Product from "../../../models/product.js";
-import { productAggregation } from "../../product/aggregation/product.aggregation.js";
+import { productAggregation } from "../../../repositories/product.repository.js";
 
 const sellerList = express.Router();
 
