@@ -1,8 +1,17 @@
 import DashboardRepository from "../repositories/dashboard.repository.js";
+import {
+  CACHE_KEYS,
+  CACHE_TTL,
+  cacheWrapper,
+  invalidateAdminDashboardCache,
+  invalidateBuyerDashboardCache,
+  invalidateSellerDashboardCache,
+} from "../utils/redis.js";
 
 /**
  * Dashboard Service - Intelligent Analytics for Admin, Buyers, and Sellers
  * Uses Repository Pattern for data access
+ * Implements Redis caching for improved performance
  */
 class DashboardService {
   /**
@@ -49,7 +58,29 @@ class DashboardService {
   // ADMIN DASHBOARD ANALYTICS
   // ========================
 
-  async getAdminDashboard() {
+  async getAdminDashboard(forceRefresh = false) {
+    // Use cache wrapper for automatic caching
+    const { data, fromCache } = await cacheWrapper(
+      CACHE_KEYS.ADMIN_DASHBOARD,
+      () => this._fetchAdminDashboardData(),
+      CACHE_TTL.ADMIN_DASHBOARD
+    );
+
+    return {
+      ...data,
+      _meta: {
+        fromCache,
+        cachedAt: fromCache ? new Date().toISOString() : null,
+        ttl: CACHE_TTL.ADMIN_DASHBOARD,
+      },
+    };
+  }
+
+  /**
+   * Fetch admin dashboard data from database
+   * @private
+   */
+  async _fetchAdminDashboardData() {
     const { startOfYear, endOfYear } = this.getYearDateRange();
     const { startOfMonth, endOfMonth } = this.getMonthDateRange();
 
@@ -217,7 +248,29 @@ class DashboardService {
   // BUYER DASHBOARD ANALYTICS
   // ========================
 
-  async getBuyerDashboard(buyerId) {
+  async getBuyerDashboard(buyerId, forceRefresh = false) {
+    // Use cache wrapper for automatic caching
+    const { data, fromCache } = await cacheWrapper(
+      CACHE_KEYS.BUYER_DASHBOARD(buyerId),
+      () => this._fetchBuyerDashboardData(buyerId),
+      CACHE_TTL.BUYER_DASHBOARD
+    );
+
+    return {
+      ...data,
+      _meta: {
+        fromCache,
+        cachedAt: fromCache ? new Date().toISOString() : null,
+        ttl: CACHE_TTL.BUYER_DASHBOARD,
+      },
+    };
+  }
+
+  /**
+   * Fetch buyer dashboard data from database
+   * @private
+   */
+  async _fetchBuyerDashboardData(buyerId) {
     const { startOfYear, endOfYear } = this.getYearDateRange();
 
     const [
@@ -342,7 +395,29 @@ class DashboardService {
   // SELLER DASHBOARD ANALYTICS
   // ========================
 
-  async getSellerDashboard(sellerId) {
+  async getSellerDashboard(sellerId, forceRefresh = false) {
+    // Use cache wrapper for automatic caching
+    const { data, fromCache } = await cacheWrapper(
+      CACHE_KEYS.SELLER_DASHBOARD(sellerId),
+      () => this._fetchSellerDashboardData(sellerId),
+      CACHE_TTL.SELLER_DASHBOARD
+    );
+
+    return {
+      ...data,
+      _meta: {
+        fromCache,
+        cachedAt: fromCache ? new Date().toISOString() : null,
+        ttl: CACHE_TTL.SELLER_DASHBOARD,
+      },
+    };
+  }
+
+  /**
+   * Fetch seller dashboard data from database
+   * @private
+   */
+  async _fetchSellerDashboardData(sellerId) {
     const { startOfYear, endOfYear } = this.getYearDateRange();
     const { startOfMonth, endOfMonth } = this.getMonthDateRange();
 
@@ -487,6 +562,102 @@ class DashboardService {
         topProducts,
       },
     };
+  }
+
+  // ========================
+  // CACHE INVALIDATION METHODS
+  // ========================
+
+  /**
+   * Invalidate admin dashboard cache
+   * Call this when admin-related data changes
+   */
+  async invalidateAdminCache() {
+    return await invalidateAdminDashboardCache();
+  }
+
+  /**
+   * Invalidate buyer dashboard cache
+   * Call this when buyer-related data changes
+   * @param {string} buyerId - Buyer ID
+   */
+  async invalidateBuyerCache(buyerId) {
+    // Also invalidate admin cache since admin sees all data
+    await invalidateAdminDashboardCache();
+    return await invalidateBuyerDashboardCache(buyerId);
+  }
+
+  /**
+   * Invalidate seller dashboard cache
+   * Call this when seller-related data changes
+   * @param {string} sellerId - Seller ID
+   */
+  async invalidateSellerCache(sellerId) {
+    // Also invalidate admin cache since admin sees all data
+    await invalidateAdminDashboardCache();
+    return await invalidateSellerDashboardCache(sellerId);
+  }
+
+  /**
+   * Invalidate caches when a quote request is created/updated
+   * @param {string} buyerId - Buyer ID
+   * @param {string} sellerId - Seller ID
+   */
+  async invalidateQuoteRequestCache(buyerId, sellerId) {
+    await Promise.all([
+      invalidateAdminDashboardCache(),
+      buyerId ? invalidateBuyerDashboardCache(buyerId) : Promise.resolve(),
+      sellerId ? invalidateSellerDashboardCache(sellerId) : Promise.resolve(),
+    ]);
+  }
+
+  /**
+   * Invalidate caches when a sample request is created/updated
+   * @param {string} buyerId - Buyer ID
+   * @param {string} sellerId - Seller ID (product owner)
+   */
+  async invalidateSampleRequestCache(buyerId, sellerId) {
+    await Promise.all([
+      invalidateAdminDashboardCache(),
+      buyerId ? invalidateBuyerDashboardCache(buyerId) : Promise.resolve(),
+      sellerId ? invalidateSellerDashboardCache(sellerId) : Promise.resolve(),
+    ]);
+  }
+
+  /**
+   * Invalidate caches when a best deal is created/updated
+   * @param {string} sellerId - Seller ID
+   */
+  async invalidateBestDealCache(sellerId) {
+    await Promise.all([
+      invalidateAdminDashboardCache(),
+      sellerId ? invalidateSellerDashboardCache(sellerId) : Promise.resolve(),
+    ]);
+  }
+
+  /**
+   * Invalidate caches when a product is created/updated
+   * @param {string} sellerId - Seller ID
+   */
+  async invalidateProductCache(sellerId) {
+    await Promise.all([
+      invalidateAdminDashboardCache(),
+      sellerId ? invalidateSellerDashboardCache(sellerId) : Promise.resolve(),
+    ]);
+  }
+
+  /**
+   * Invalidate caches when a user is created/updated
+   * @param {string} userId - User ID
+   * @param {string} userType - User type (buyer/seller)
+   */
+  async invalidateUserCache(userId, userType) {
+    await invalidateAdminDashboardCache();
+    if (userType === "buyer") {
+      await invalidateBuyerDashboardCache(userId);
+    } else if (userType === "seller") {
+      await invalidateSellerDashboardCache(userId);
+    }
   }
 }
 

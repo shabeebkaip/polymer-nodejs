@@ -1,16 +1,21 @@
 import DashboardService from "../services/dashboard.service.js";
+import { invalidateAllDashboardCache } from "../utils/redis.js";
 
 /**
  * Dashboard Controller - Handles all dashboard analytics requests
+ * Supports Redis caching with force refresh option via query param: ?refresh=true
  */
 class DashboardController {
   /**
    * Get dashboard analytics based on user type
    * Automatically detects user type and returns appropriate dashboard
+   * Query params:
+   *   - refresh: true/false - Force refresh cache (default: false)
    */
   async getDashboard(req, res) {
     try {
       const { user } = req;
+      const forceRefresh = req.query.refresh === "true";
       
       if (!user) {
         return res.status(401).json({
@@ -24,15 +29,15 @@ class DashboardController {
 
       switch (user.user_type) {
         case "superAdmin":
-          dashboardData = await DashboardService.getAdminDashboard();
+          dashboardData = await DashboardService.getAdminDashboard(forceRefresh);
           dashboardType = "admin";
           break;
         case "buyer":
-          dashboardData = await DashboardService.getBuyerDashboard(user.id);
+          dashboardData = await DashboardService.getBuyerDashboard(user.id, forceRefresh);
           dashboardType = "buyer";
           break;
         case "seller":
-          dashboardData = await DashboardService.getSellerDashboard(user.id);
+          dashboardData = await DashboardService.getSellerDashboard(user.id, forceRefresh);
           dashboardType = "seller";
           break;
         default:
@@ -60,10 +65,13 @@ class DashboardController {
 
   /**
    * Get Admin Dashboard - Only for superAdmin users
+   * Query params:
+   *   - refresh: true/false - Force refresh cache (default: false)
    */
   async getAdminDashboard(req, res) {
     try {
       const { user } = req;
+      const forceRefresh = req.query.refresh === "true";
 
       if (user.user_type !== "superAdmin") {
         return res.status(403).json({
@@ -72,7 +80,7 @@ class DashboardController {
         });
       }
 
-      const dashboardData = await DashboardService.getAdminDashboard();
+      const dashboardData = await DashboardService.getAdminDashboard(forceRefresh);
 
       return res.status(200).json({
         success: true,
@@ -92,10 +100,13 @@ class DashboardController {
 
   /**
    * Get Buyer Dashboard - Only for buyer users
+   * Query params:
+   *   - refresh: true/false - Force refresh cache (default: false)
    */
   async getBuyerDashboard(req, res) {
     try {
       const { user } = req;
+      const forceRefresh = req.query.refresh === "true";
 
       if (user.user_type !== "buyer") {
         return res.status(403).json({
@@ -104,7 +115,7 @@ class DashboardController {
         });
       }
 
-      const dashboardData = await DashboardService.getBuyerDashboard(user.id);
+      const dashboardData = await DashboardService.getBuyerDashboard(user.id, forceRefresh);
 
       return res.status(200).json({
         success: true,
@@ -124,10 +135,13 @@ class DashboardController {
 
   /**
    * Get Seller Dashboard - Only for seller users
+   * Query params:
+   *   - refresh: true/false - Force refresh cache (default: false)
    */
   async getSellerDashboard(req, res) {
     try {
       const { user } = req;
+      const forceRefresh = req.query.refresh === "true";
 
       if (user.user_type !== "seller") {
         return res.status(403).json({
@@ -136,7 +150,7 @@ class DashboardController {
         });
       }
 
-      const dashboardData = await DashboardService.getSellerDashboard(user.id);
+      const dashboardData = await DashboardService.getSellerDashboard(user.id, forceRefresh);
 
       return res.status(200).json({
         success: true,
@@ -157,11 +171,14 @@ class DashboardController {
   /**
    * Get dashboard for a specific user (Admin only)
    * Allows admin to view any user's dashboard
+   * Query params:
+   *   - refresh: true/false - Force refresh cache (default: false)
    */
   async getUserDashboard(req, res) {
     try {
       const { user } = req;
       const { userId, userType } = req.params;
+      const forceRefresh = req.query.refresh === "true";
 
       if (user.user_type !== "superAdmin") {
         return res.status(403).json({
@@ -174,10 +191,10 @@ class DashboardController {
 
       switch (userType) {
         case "buyer":
-          dashboardData = await DashboardService.getBuyerDashboard(userId);
+          dashboardData = await DashboardService.getBuyerDashboard(userId, forceRefresh);
           break;
         case "seller":
-          dashboardData = await DashboardService.getSellerDashboard(userId);
+          dashboardData = await DashboardService.getSellerDashboard(userId, forceRefresh);
           break;
         default:
           return res.status(400).json({
@@ -198,6 +215,37 @@ class DashboardController {
       return res.status(500).json({
         success: false,
         message: "Failed to fetch user dashboard data",
+        error: error.message,
+      });
+    }
+  }
+
+  /**
+   * Invalidate all dashboard caches (Admin only)
+   * POST /api/dashboard/cache/invalidate
+   */
+  async invalidateCache(req, res) {
+    try {
+      const { user } = req;
+
+      if (user.user_type !== "superAdmin") {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied. Admin privileges required.",
+        });
+      }
+
+      await invalidateAllDashboardCache();
+
+      return res.status(200).json({
+        success: true,
+        message: "All dashboard caches invalidated successfully",
+      });
+    } catch (error) {
+      console.error("Cache invalidation error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to invalidate cache",
         error: error.message,
       });
     }

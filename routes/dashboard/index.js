@@ -59,4 +59,16 @@ dashboardRouter.get(
   DashboardController.getUserDashboard
 );
 
+/**
+ * @route   POST /api/dashboard/cache/invalidate
+ * @desc    Invalidate all dashboard caches
+ * @access  Private (SuperAdmin only)
+ */
+dashboardRouter.post(
+  "/cache/invalidate",
+  authenticateUser,
+  authorizeRoles("superAdmin"),
+  DashboardController.invalidateCache
+);
+
 export default dashboardRouter;

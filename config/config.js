@@ -48,6 +48,12 @@ export const config = {
     otp: {
         expiryMinutes: 10,
         length: 6
+    },
+    
+    // Redis configuration (Upstash REST API)
+    redis: {
+        restUrl: process.env.UPSTASH_REDIS_REST_URL,
+        restToken: process.env.UPSTASH_REDIS_REST_TOKEN,
     }
 };
 

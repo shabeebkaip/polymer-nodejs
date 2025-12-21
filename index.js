@@ -8,6 +8,7 @@ import { Server } from "socket.io";
 import http from 'http';
 import initSocket from "./socket.js";
 import { config, validateConfig, getCurrentUrl } from "./config/config.js";
+import { initRedis } from "./utils/redis.js";
 
 dotenv.config({ path: ".env" });
 
@@ -33,8 +34,11 @@ if (!DB_URL) {
 
 mongoose
   .connect(DB_URL)
-  .then(() => console.log("Database connected successfully"))
-  .catch((err) => console.error("Unable to connect database:", err));
+  .then(() => console.log("✅ Database connected successfully"))
+  .catch((err) => console.error("❌ Unable to connect database:", err));
+
+// Initialize Redis connection (auto-connects)
+initRedis();
 
 app.use(
   fileUpload({
