@@ -4,7 +4,7 @@ import express from "express";
 import fileRouter from "./files/file.js";
 import fileViewRouter from "./files/view.js";
 import authRouter from "./auth/auth.js";
-import userRouter from "./user/user.js";
+import userRouter from "./user/index.js"; // NEW ARCHITECTURE: Controller -> Service -> Repository
 import adminRouter from "./admins/admin.js";
 import notificationRouter from "./notification/notification.js";
 import dashboardRouter from "./dashboard/index.js";
@@ -32,8 +32,6 @@ import financeRouter from "./finance/finance.js";
 
 // ==================== LEGACY QUOTE ROUTES ====================
 import requestRouter from "./request/request.js";
-import sampleRequestRouter from "./request/api/sample.js";
-import sampleRouter from "./sampleRequest/sampleRequest.js";
 import quoteRouter from "./quoteRequest/quoteRequest.js";
 import unifiedQuoteRoutes from "./quote/api/unifiedQuotes.js";
 
@@ -47,7 +45,7 @@ import productQuotesRouter from "./quoteRequest/api/productQuotes.js";
 import quoteCommentRouter from "./quoteRequest/api/quoteComments.js";
 
 // Sample Request (New Architecture)
-import sampleRequestNewRouter from "./sampleRequest/sampleRequestNew.js";
+import sampleRequestRouter from "./sampleRequest/index.js"; // NEW ARCHITECTURE: Controller -> Service -> Repository
 import sampleRequestCommentRouter from "./sampleRequestComment/sampleRequestComment.js";
 
 // ==================== CUSTOMER ENGAGEMENT ROUTES ====================
@@ -100,7 +98,6 @@ router.use("/finance", financeRouter);
 
 // ==================== LEGACY QUOTE ROUTES ====================
 router.use("/request", requestRouter);
-router.use("/sample-request", sampleRouter); // Legacy sample request routes
 router.use("/quote-request", quoteRouter); // Legacy quote request routes
 router.use("/quote", unifiedQuoteRoutes); // Legacy unified quote routes
 
@@ -114,7 +111,7 @@ router.use("/quote/product-quotes", productQuotesRouter);
 router.use("/quote/product-quotes/comments", quoteCommentRouter);
 
 // Sample Request (Model-Repository-Service-Controller)
-router.use("/sample-requests", sampleRequestNewRouter); // New architecture routes
+router.use("/sample-request", sampleRequestRouter);
 router.use("/sample-request-comment", sampleRequestCommentRouter);
 
 // ==================== CUSTOMER ENGAGEMENT ROUTES ====================

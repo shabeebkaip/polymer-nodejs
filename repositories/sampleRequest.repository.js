@@ -117,7 +117,21 @@ class SampleRequestRepository {
   }
 
   /**
-   * Get status summary for a buyer
+   * Get status summary for admin (all requests)
+   */
+  async getStatusSummaryForAdmin() {
+    return await SampleRequest.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+  }
+
+  /**
+   * Get status summary for buyer
    */
   async getStatusSummaryForBuyer(userId) {
     return await SampleRequest.aggregate([

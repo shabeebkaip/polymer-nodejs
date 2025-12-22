@@ -37,6 +37,97 @@ class SampleRequestController {
   }
 
   /**
+   * Get all sample requests for admin
+   */
+  async getAdminRequests(req, res) {
+    try {
+      const filters = req.query;
+
+      const result = await sampleRequestService.getAdminSampleRequests(filters);
+
+      // Format response
+      const formattedRequests = result.sampleRequests.map((request) => {
+        const buyer = request.user;
+        const seller = request.product?.createdBy;
+        const product = request.product;
+
+        return {
+          _id: request._id,
+          status: request.status,
+          quantity: request.quantity,
+          sampleSize: request.sampleSize,
+          uom: request.uom,
+          message: request.message,
+          application: request.application,
+          expectedAnnualVolume: request.expected_annual_volume,
+          address: request.address,
+          country: request.country,
+          orderDate: request.orderDate,
+          neededBy: request.neededBy,
+          requestDocument: request.request_document,
+          createdAt: request.createdAt,
+          updatedAt: request.updatedAt,
+          buyer: buyer
+            ? {
+                _id: buyer._id,
+                name: `${buyer.firstName} ${buyer.lastName}`.trim(),
+                email: buyer.email,
+                phone: buyer.phone,
+                company: buyer.company,
+                userType: buyer.user_type,
+                address: buyer.address,
+                location: buyer.location,
+              }
+            : null,
+          seller: seller
+            ? {
+                _id: seller._id,
+                name: `${seller.firstName} ${seller.lastName}`.trim(),
+                email: seller.email,
+                phone: seller.phone,
+                company: seller.company,
+                address: seller.address,
+                location: seller.location,
+                website: seller.website,
+              }
+            : null,
+          product: product
+            ? {
+                _id: product._id,
+                productName: product.productName,
+                chemicalName: product.chemicalName,
+                tradeName: product.tradeName,
+                productImage: product.productImages?.[0]?.fileUrl || null,
+              }
+            : null,
+          grade: request.grade
+            ? {
+                _id: request.grade._id,
+                name: request.grade.name,
+              }
+            : null,
+        };
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Sample requests retrieved successfully",
+        data: formattedRequests,
+        meta: {
+          pagination: result.pagination,
+          statusSummary: result.statusSummary,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching admin sample requests:", error);
+      res.status(500).json({
+        success: false,
+        message: error.message || "Failed to fetch sample requests",
+      });
+    }
+  }
+
+  /**
    * Get sample requests for buyer
    */
   async getBuyerRequests(req, res) {

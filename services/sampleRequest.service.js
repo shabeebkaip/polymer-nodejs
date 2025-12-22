@@ -56,6 +56,111 @@ class SampleRequestService {
   }
 
   /**
+   * Get all sample requests for admin with filters and pagination
+   */
+  async getAdminSampleRequests(filters) {
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      search,
+      sortBy = "createdAt",
+      sortOrder = "desc",
+      startDate,
+      endDate,
+      userType, // 'buyer' or 'seller'
+    } = filters;
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Build filter
+    const filter = {};
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (startDate || endDate) {
+      filter.createdAt = {};
+      if (startDate) filter.createdAt.$gte = new Date(startDate);
+      if (endDate) filter.createdAt.$lte = new Date(endDate);
+    }
+
+    // Enhanced search functionality
+    if (search) {
+      // Search in products
+      const matchingProducts = await Product.find({
+        $or: [
+          { productName: { $regex: search, $options: "i" } },
+          { chemicalName: { $regex: search, $options: "i" } },
+          { tradeName: { $regex: search, $options: "i" } },
+        ],
+      }).select("_id");
+
+      const productIds = matchingProducts.map((p) => p._id);
+
+      filter.$or = [
+        { message: { $regex: search, $options: "i" } },
+        { address: { $regex: search, $options: "i" } },
+        { country: { $regex: search, $options: "i" } },
+        { application: { $regex: search, $options: "i" } },
+      ];
+
+      // Add product match if found
+      if (productIds.length > 0) {
+        filter.$or.push({ product: { $in: productIds } });
+      }
+    }
+
+    // Populate config
+    const populate = [
+      {
+        path: "user",
+        select: "firstName lastName company email phone user_type address location country_code",
+      },
+      {
+        path: "product",
+        select: "productName chemicalName tradeName productImages createdBy",
+        populate: {
+          path: "createdBy",
+          select: "firstName lastName company email phone address location website country_code vat_number",
+        },
+      },
+      {
+        path: "grade",
+        select: "name",
+      },
+    ];
+
+    const sort = { [sortBy]: sortOrder === "asc" ? 1 : -1 };
+
+    // Fetch data
+    const [sampleRequests, total, statusSummary] = await Promise.all([
+      sampleRequestRepository.findWithFilters({
+        filter,
+        sort,
+        skip,
+        limit: parseInt(limit),
+        populate,
+      }),
+      sampleRequestRepository.count(filter),
+      sampleRequestRepository.getStatusSummaryForAdmin(),
+    ]);
+
+    return {
+      sampleRequests,
+      total,
+      statusSummary,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(total / parseInt(limit)),
+        totalItems: total,
+        itemsPerPage: parseInt(limit),
+      },
+    };
+  }
+
+  /**
    * Get sample requests for buyer with filters and pagination
    */
   async getBuyerSampleRequests(userId, filters) {
