@@ -2,6 +2,41 @@ import quoteRequestService from "../services/quoteRequest.service.js";
 
 class QuoteRequestController {
   /**
+   * Get all product quote requests for admin
+   */
+  async getAdminQuoteRequests(req, res) {
+    try {
+      const filters = {
+        status: req.query.status,
+        search: req.query.search,
+        page: parseInt(req.query.page) || 1,
+        limit: parseInt(req.query.limit) || 10,
+        sortBy: req.query.sortBy || "createdAt",
+        sortOrder: req.query.sortOrder || "desc",
+        startDate: req.query.startDate,
+        endDate: req.query.endDate,
+      };
+
+      const result = await quoteRequestService.getAdminQuoteRequests(filters);
+
+      return res.status(200).json({
+        success: true,
+        message: "Product quote requests retrieved successfully",
+        data: result.quoteRequests,
+        meta: {
+          pagination: result.pagination,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching admin product quote requests:", error);
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Failed to fetch product quote requests",
+      });
+    }
+  }
+
+  /**
    * Create new quote request
    */
   async createQuoteRequest(req, res) {

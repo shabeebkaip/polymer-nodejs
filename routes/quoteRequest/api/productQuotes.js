@@ -5,6 +5,18 @@ import { authenticateUser } from "../../../middlewares/verify.token.js";
 const productQuotesRouter = express.Router();
 
 /**
+ * @route   GET /api/quote/product-quotes/admin
+ * @desc    Get all product quote requests for admin
+ * @access  Private (Admin)
+ * @query   status, search, page, limit, sortBy, sortOrder, startDate, endDate
+ */
+productQuotesRouter.get(
+  "/admin",
+  authenticateUser,
+  quoteRequestController.getAdminQuoteRequests
+);
+
+/**
  * @route   POST /api/quote/product-quotes
  * @desc    Create a new product quote request
  * @access  Private (Buyer)

@@ -64,6 +64,109 @@ class QuoteRequestService {
   }
 
   /**
+   * Get all product quote requests for admin with filters and pagination
+   */
+  async getAdminQuoteRequests(filters = {}) {
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      search,
+      sortBy = "createdAt",
+      sortOrder = "desc",
+      startDate,
+      endDate,
+    } = filters;
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Build filter
+    const filter = {};
+
+    if (status) {
+      filter['status.status'] = status;
+    }
+
+    if (startDate || endDate) {
+      filter.createdAt = {};
+      if (startDate) filter.createdAt.$gte = new Date(startDate);
+      if (endDate) filter.createdAt.$lte = new Date(endDate);
+    }
+
+    if (search) {
+      // Search in products
+      const matchingProducts = await Product.find({
+        $or: [
+          { productName: { $regex: search, $options: "i" } },
+          { chemicalName: { $regex: search, $options: "i" } },
+          { tradeName: { $regex: search, $options: "i" } },
+        ],
+      }).select("_id");
+
+      const productIds = matchingProducts.map((p) => p._id);
+
+      filter.$or = [
+        { message: { $regex: search, $options: "i" } },
+      ];
+
+      if (productIds.length > 0) {
+        filter.$or.push({ productId: { $in: productIds } });
+      }
+    }
+
+    const populate = [
+      {
+        path: 'buyerId',
+        select: 'firstName lastName email phone company city state country address pincode user_type'
+      },
+      {
+        path: 'sellerId',
+        select: 'firstName lastName email phone company city state country address'
+      },
+      {
+        path: 'productId',
+        select: 'productName productImages chemicalName tradeName description countryOfOrigin'
+      },
+      {
+        path: 'gradeId',
+        select: 'name'
+      },
+      {
+        path: 'incotermId',
+        select: 'name'
+      },
+      {
+        path: 'packagingTypeId',
+        select: 'name'
+      }
+    ];
+
+    const sort = { [sortBy]: sortOrder === "asc" ? 1 : -1 };
+
+    const [quoteRequests, total] = await Promise.all([
+      quoteRequestRepository.findWithFilters({
+        filter,
+        sort,
+        skip,
+        limit: parseInt(limit),
+        populate,
+      }),
+      quoteRequestRepository.count(filter),
+    ]);
+
+    return {
+      quoteRequests,
+      total,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(total / parseInt(limit)),
+        totalItems: total,
+        itemsPerPage: parseInt(limit),
+      },
+    };
+  }
+
+  /**
    * Get quote requests for seller
    */
   async getSellerQuoteRequests(sellerId, filters = {}) {

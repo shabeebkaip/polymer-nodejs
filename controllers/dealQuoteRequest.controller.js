@@ -2,6 +2,86 @@ import dealQuoteRequestService from "../services/dealQuoteRequest.service.js";
 
 class DealQuoteRequestController {
   /**
+   * Get all deal quote requests for admin
+   */
+  async getAdminRequests(req, res) {
+    try {
+      const filters = req.query;
+
+      const result = await dealQuoteRequestService.getAdminDealQuotes(filters);
+
+      // Format response
+      const formattedQuotes = result.dealQuotes.map((quote) => {
+        const buyer = quote.buyerId;
+        const seller = quote.sellerId;
+        const deal = quote.bestDealId;
+        const product = deal?.productId;
+
+        return {
+          _id: quote._id,
+          status: quote.currentStatus,
+          message: quote.message,
+          createdAt: quote.createdAt,
+          updatedAt: quote.updatedAt,
+          buyer: buyer
+            ? {
+                _id: buyer._id,
+                name: `${buyer.firstName} ${buyer.lastName}`.trim(),
+                email: buyer.email,
+                phone: buyer.phone,
+                company: buyer.company,
+                userType: buyer.user_type,
+                location: `${buyer.city || ""}, ${buyer.country || ""}`.trim(),
+              }
+            : null,
+          seller: seller
+            ? {
+                _id: seller._id,
+                name: `${seller.firstName} ${seller.lastName}`.trim(),
+                email: seller.email,
+                phone: seller.phone,
+                company: seller.company,
+                location: `${seller.city || ""}, ${seller.country || ""}`.trim(),
+              }
+            : null,
+          deal: deal
+            ? {
+                _id: deal._id,
+                title: deal.title,
+                description: deal.description,
+                dealPrice: deal.dealPrice,
+              }
+            : null,
+          product: product
+            ? {
+                _id: product._id,
+                productName: product.productName,
+                chemicalName: product.chemicalName,
+                tradeName: product.tradeName,
+                productImage: product.productImages?.[0]?.fileUrl || null,
+              }
+            : null,
+        };
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Deal quote requests retrieved successfully",
+        data: formattedQuotes,
+        meta: {
+          pagination: result.pagination,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching admin deal quote requests:", error);
+      res.status(500).json({
+        success: false,
+        message: error.message || "Failed to fetch deal quote requests",
+      });
+    }
+  }
+
+  /**
    * Create a new deal quote request
    */
   async create(req, res) {

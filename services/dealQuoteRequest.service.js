@@ -67,6 +67,102 @@ class DealQuoteRequestService {
   }
 
   /**
+   * Get all deal quotes for admin with filters and pagination
+   */
+  async getAdminDealQuotes(filters) {
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      search,
+      sortBy = "createdAt",
+      sortOrder = "desc",
+      startDate,
+      endDate,
+    } = filters;
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Build filter
+    const filter = {};
+
+    if (status) {
+      filter['status.status'] = status;
+    }
+
+    if (startDate || endDate) {
+      filter.createdAt = {};
+      if (startDate) filter.createdAt.$gte = new Date(startDate);
+      if (endDate) filter.createdAt.$lte = new Date(endDate);
+    }
+
+    if (search) {
+      // Search in deals
+      const matchingDeals = await BestDeal.find({
+        $or: [
+          { title: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
+        ],
+      }).select("_id");
+
+      const dealIds = matchingDeals.map((d) => d._id);
+
+      filter.$or = [
+        { message: { $regex: search, $options: "i" } },
+      ];
+
+      if (dealIds.length > 0) {
+        filter.$or.push({ bestDealId: { $in: dealIds } });
+      }
+    }
+
+    // Populate config
+    const populate = [
+      {
+        path: "buyerId",
+        select: "firstName lastName email phone company address city state country user_type",
+      },
+      {
+        path: "sellerId",
+        select: "firstName lastName email phone company address city state country",
+      },
+      {
+        path: "bestDealId",
+        select: "title description dealPrice productId",
+        populate: {
+          path: "productId",
+          select: "productName chemicalName tradeName productImages countryOfOrigin color density mfi",
+        },
+      },
+    ];
+
+    const sort = { [sortBy]: sortOrder === "asc" ? 1 : -1 };
+
+    // Fetch data
+    const [dealQuotes, total] = await Promise.all([
+      dealQuoteRequestRepository.findWithFilters({
+        filter,
+        sort,
+        skip,
+        limit: parseInt(limit),
+        populate,
+      }),
+      dealQuoteRequestRepository.count(filter),
+    ]);
+
+    return {
+      dealQuotes,
+      total,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(total / parseInt(limit)),
+        totalItems: total,
+        itemsPerPage: parseInt(limit),
+      },
+    };
+  }
+
+  /**
    * Get deal quotes for seller with filters and pagination
    */
   async getSellerDealQuotes(sellerId, filters) {

@@ -4,6 +4,9 @@ import { authenticateUser } from "../../middlewares/verify.token.js";
 
 const dealQuoteRequestRouter = express.Router();
 
+// Admin routes - view all deal quote requests
+dealQuoteRequestRouter.get("/admin", authenticateUser, dealQuoteRequestController.getAdminRequests);
+
 // Buyer routes - create and view their own requests
 dealQuoteRequestRouter.post("/create", authenticateUser, dealQuoteRequestController.create);
 dealQuoteRequestRouter.get("/buyer", authenticateUser, dealQuoteRequestController.getBuyerRequests);

@@ -32,7 +32,6 @@ import financeRouter from "./finance/finance.js";
 
 // ==================== LEGACY QUOTE ROUTES ====================
 import requestRouter from "./request/request.js";
-import quoteRouter from "./quoteRequest/quoteRequest.js";
 import unifiedQuoteRoutes from "./quote/api/unifiedQuotes.js";
 
 // ==================== NEW ARCHITECTURE ROUTES ====================
@@ -53,7 +52,7 @@ import enquiryRouter from "./enquiry/enquiry.js";
 import cartRouter from "./cart/cart.js";
 import chatRouter from "./chat/chat.js";
 import bestDealRouter from "./bestDeal/bestDeal.js";
-import bulkOrderRouter from "./bulkOrder/bulkOrder.js";
+import bulkOrderRouter from "./bulkOrder/index.js"; // NEW ARCHITECTURE: Controller -> Service -> Repository
 
 // ==================== CMS & CONTENT ROUTES ====================
 import cmsRouter from "./cms/cms.js";
@@ -98,7 +97,6 @@ router.use("/finance", financeRouter);
 
 // ==================== LEGACY QUOTE ROUTES ====================
 router.use("/request", requestRouter);
-router.use("/quote-request", quoteRouter); // Legacy quote request routes
 router.use("/quote", unifiedQuoteRoutes); // Legacy unified quote routes
 
 // ==================== NEW ARCHITECTURE ROUTES ====================
