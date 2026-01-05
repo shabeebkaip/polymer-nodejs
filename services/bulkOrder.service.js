@@ -95,7 +95,7 @@ class BulkOrderService {
 
     const sort = { [sortBy]: sortOrder === "asc" ? 1 : -1 };
 
-    const [bulkOrders, total] = await Promise.all([
+    const [bulkOrders, total, statusCounts] = await Promise.all([
       bulkOrderRepository.findWithFilters({
         filter,
         sort,
@@ -104,11 +104,13 @@ class BulkOrderService {
         populate,
       }),
       bulkOrderRepository.count(filter),
+      bulkOrderRepository.getStatusCounts(),
     ]);
 
     return {
       bulkOrders,
       total,
+      statusCounts,
       pagination: {
         currentPage: parseInt(page),
         totalPages: Math.ceil(total / parseInt(limit)),

@@ -94,6 +94,7 @@ class BulkOrderController {
         data: formattedOrders,
         meta: {
           pagination: result.pagination,
+          statusCounts: result.statusCounts,
         },
       });
     } catch (error) {

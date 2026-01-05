@@ -1,4 +1,4 @@
-import supplierOfferService from "../../services/supplierOffer.service.js";
+import supplierOfferService from "../services/supplierOffer.service.js";
 
 class SupplierOfferController {
   /**

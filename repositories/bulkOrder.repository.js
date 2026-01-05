@@ -59,6 +59,29 @@ export const count = async (filter) => {
 };
 
 /**
+ * Get status counts for all bulk orders
+ */
+export const getStatusCounts = async () => {
+  const counts = await BulkOrder.aggregate([
+    {
+      $group: {
+        _id: "$status",
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const result = { pending: 0, approved: 0, rejected: 0 };
+  counts.forEach((item) => {
+    if (item._id === "pending") result.pending = item.count;
+    if (item._id === "approved") result.approved = item.count;
+    if (item._id === "rejected") result.rejected = item.count;
+  });
+
+  return result;
+};
+
+/**
  * Update bulk order by ID
  */
 export const updateById = async (id, data) => {
