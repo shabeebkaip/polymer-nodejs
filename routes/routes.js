@@ -50,7 +50,6 @@ import sampleRequestCommentRouter from "./sampleRequestComment/sampleRequestComm
 // ==================== CUSTOMER ENGAGEMENT ROUTES ====================
 import enquiryRouter from "./enquiry/enquiry.js";
 import cartRouter from "./cart/cart.js";
-import chatRouter from "./chat/chat.js";
 import bestDealRouter from "./bestDeal/bestDeal.js";
 import bulkOrderRouter from "./bulkOrder/index.js"; // NEW ARCHITECTURE: Controller -> Service -> Repository
 
@@ -115,7 +114,6 @@ router.use("/sample-request-comment", sampleRequestCommentRouter);
 // ==================== CUSTOMER ENGAGEMENT ROUTES ====================
 router.use("/enquiry", enquiryRouter);
 router.use("/cart", cartRouter);
-router.use("/chat", chatRouter);
 router.use("/best-deal", bestDealRouter);
 router.use("/bulk-order", bulkOrderRouter);
 
