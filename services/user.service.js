@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import * as userRepository from "../repositories/user.repository.js";
 import Auth from "../models/auth.js";
-import { accountCreationMail } from "../tools/mail.js";
+import { sendAccountCreationEmail } from "../services/email.service.js";
 import generateRandomId from "../common/random.js";
 
 /**
@@ -200,7 +200,7 @@ export const createExpert = async (sellerId, expertData) => {
   await authEntry.save();
 
   // Send account creation email
-  accountCreationMail(expertData.firstName, expertData.email, password);
+  sendAccountCreationEmail(expertData.firstName, expertData.email, password);
 
   return { success: true, message: "Expert created successfully and email sent." };
 };

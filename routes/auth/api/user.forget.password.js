@@ -1,7 +1,7 @@
 import express from 'express';
 import User from '../../../models/user.js';
 import { generateOtp, saveOtp } from '../../../utils/otpHelper.js';
-import { forgotPasswordOtpMail } from '../../../tools/mail.js';
+import { sendPasswordResetOtp } from '../../../services/email.service.js';
 
 const forgetPassword = express.Router();
 
@@ -37,7 +37,7 @@ forgetPassword.post('/', async (req, res) => {
         }
 
         // Send OTP via email
-        const emailResult = await forgotPasswordOtpMail(email, otp);
+        const emailResult = await sendPasswordResetOtp(user.name || 'User', email, otp);
 
         if (!emailResult.success) {
             return res.status(500).json({

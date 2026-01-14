@@ -1,44 +1,86 @@
-import { Resend } from 'resend';
+/**
+ * @deprecated This file is DEPRECATED and kept for reference only.
+ * 
+ * ⚠️ DO NOT USE THIS FILE FOR NEW CODE ⚠️
+ * 
+ * Use the centralized email service instead:
+ * 
+ *   import emailService from '../services/email.service.js';
+ *   // or
+ *   import { sendRegistrationOtp, sendPasswordResetOtp } from '../services/email.service.js';
+ * 
+ * See documentation/EMAIL_SERVICE.md for full details.
+ * 
+ * This file will be removed in a future version.
+ */
+
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 import { config } from '../config/config.js';
 import { getBaseUrl, getLoginUrl, getDashboardUrl } from '../utils/urlHelper.js';
 
-// Initialize Resend with API key
-const resend = new Resend(config.resend.apiKey);
+dotenv.config();
 
-// Test Resend connection
-const testResendConnection = async () => {
+// Create reusable transporter
+let transporter = null;
+
+const getTransporter = () => {
+    if (!transporter) {
+        transporter = nodemailer.createTransport({
+            host: 'smtp.office365.com',
+            port: 587,
+            secure: false, // use STARTTLS
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.EMAIL_PASSWORD,
+            },
+            tls: {
+                ciphers: 'SSLv3'
+            }
+        });
+    }
+    return transporter;
+};
+
+// Test email connection
+const testEmailConnection = async () => {
     try {
-        if (!config.resend.apiKey) {
-            console.log('⚠️  Resend API key not configured');
+        if (!process.env.EMAIL || !process.env.EMAIL_PASSWORD) {
+            console.log('⚠️  Email credentials not configured');
             return;
         }
-        console.log('✅ Resend email service initialized');
-        console.log(`📧 Emails will be sent from: ${config.resend.from}`);
+        const transporter = getTransporter();
+        await transporter.verify();
+        console.log('✅ Email service initialized (Nodemailer + Office 365)');
+        console.log(`📧 Emails will be sent from: ${process.env.EMAIL}`);
     } catch (error) {
-        console.log('⚠️  Error initializing Resend:', error.message);
+        console.log('⚠️  Error initializing email service:', error.message);
     }
 };
 
 // Call test on module load
-testResendConnection();
+testEmailConnection();
 
 // Generic email sender function
 const sendEmail = async (mailOptions) => {
     try {
         console.log(`📤 Sending email to: ${mailOptions.to}, Subject: ${mailOptions.subject}`);
-        const data = await resend.emails.send({
-            from: `Polymer Hub <${config.resend.from}>`,
+        const transporter = getTransporter();
+        
+        const info = await transporter.sendMail({
+            from: `"PolymersHub" <${process.env.EMAIL}>`,
             to: mailOptions.to,
             subject: mailOptions.subject,
             html: mailOptions.html,
-            reply_to: config.resend.replyTo,
+            replyTo: process.env.EMAIL_REPLY_TO || process.env.EMAIL,
         });
-        console.log('✅ Email sent successfully:', data.id);
-        return { success: true, messageId: data.id };
+        
+        console.log('✅ Email sent successfully:', info.messageId);
+        return { success: true, messageId: info.messageId };
     } catch (error) {
         console.error('❌ Error sending email:', error);
-        console.error('❌ Email error details:', error.response?.data || error.message);
-        return { success: false, error: error.message, details: error.response?.data };
+        console.error('❌ Email error details:', error.message);
+        return { success: false, error: error.message };
     }
 };
 
@@ -47,17 +89,17 @@ export const sendRegistrationOtp = async (name, email, otp) => {
     const baseUrl = getBaseUrl();
     const mailOptions = {
         to: email,
-        subject: 'Verify Your Email - Polymer Hub Registration',
+        subject: 'Verify Your Email - PolymersHub Registration',
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <div style="text-align: center; padding: 20px; background-color: #007bff; color: white;">
-                    <h1 style="margin: 0;">Polymer Hub</h1>
+                    <h1 style="margin: 0;">PolymersHub</h1>
                 </div>
                 
                 <div style="padding: 30px; background-color: #ffffff;">
-                    <h2 style="color: #333; text-align: center; margin-bottom: 30px;">Welcome to Polymer Hub!</h2>
+                    <h2 style="color: #333; text-align: center; margin-bottom: 30px;">Welcome to PolymersHub!</h2>
                     <p style="color: #555; font-size: 16px;">Hi ${name},</p>
-                    <p style="color: #555; font-size: 16px;">Thank you for registering with Polymer Hub. To complete your registration, please verify your email address using the OTP below:</p>
+                    <p style="color: #555; font-size: 16px;">Thank you for registering with PolymersHub. To complete your registration, please verify your email address using the OTP below:</p>
                     
                     <div style="text-align: center; margin: 30px 0;">
                         <div style="display: inline-block; font-size: 32px; font-weight: bold; background-color: #f8f9fa; padding: 20px 40px; border-radius: 8px; border: 3px solid #007bff; color: #007bff; letter-spacing: 5px; font-family: 'Courier New', monospace;">${otp}</div>
@@ -71,14 +113,14 @@ export const sendRegistrationOtp = async (name, email, otp) => {
 
                     <p style="color: #555; font-size: 16px;">Once verified, you can access your dashboard at:</p>
                     <p style="text-align: center;">
-                        <a href="${baseUrl}" style="display: inline-block; background-color: #007bff; color: white; text-decoration: none; padding: 12px 30px; border-radius: 6px; font-weight: bold; margin: 10px 0;">Visit Polymer Hub</a>
+                        <a href="${baseUrl}" style="display: inline-block; background-color: #007bff; color: white; text-decoration: none; padding: 12px 30px; border-radius: 6px; font-weight: bold; margin: 10px 0;">Visit PolymersHub</a>
                     </p>
                     
                     <p style="color: #777; font-size: 14px; margin-top: 30px;">If you didn't create an account with us, please ignore this email.</p>
                 </div>
                 
                 <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
-                    <p style="margin: 0; color: #6c757d; font-size: 14px;">Best regards,<br>The Polymer Hub Team</p>
+                    <p style="margin: 0; color: #6c757d; font-size: 14px;">Best regards,<br>The PolymersHub Team</p>
                     <p style="margin: 10px 0 0 0; color: #868e96; font-size: 12px;">
                         <i>This is an automated email. Please do not reply to this message.</i>
                     </p>
@@ -95,15 +137,15 @@ export const accountCreationMail = async (name, to, password) => {
     
     const mailOptions = {
         to,
-        subject: 'Polymer Hub Account Created Successfully',
+        subject: 'PolymersHub Account Created Successfully',
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <div style="text-align: center; padding: 20px; background-color: #28a745; color: white;">
-                    <h1 style="margin: 0;">Polymer Hub</h1>
+                    <h1 style="margin: 0;">PolymersHub</h1>
                 </div>
                 
                 <div style="padding: 30px; background-color: #ffffff;">
-                    <h2 style="color: #333; text-align: center; margin-bottom: 30px;">Welcome to Polymer Hub!</h2>
+                    <h2 style="color: #333; text-align: center; margin-bottom: 30px;">Welcome to PolymersHub!</h2>
                     <p style="color: #555; font-size: 16px;">Hi ${name},</p>
                     <p style="color: #555; font-size: 16px;">Your account has been successfully created and activated.</p>
                     
@@ -121,14 +163,14 @@ export const accountCreationMail = async (name, to, password) => {
                     
                     <p style="color: #555; font-size: 16px;">You can log in to your account using the button below:</p>
                     <p style="text-align: center;">
-                        <a href="${loginUrl}" style="display: inline-block; background-color: #007bff; color: white; text-decoration: none; padding: 15px 30px; border-radius: 6px; font-weight: bold; margin: 15px 0; font-size: 16px;">Login to Polymer Hub</a>
+                        <a href="${loginUrl}" style="display: inline-block; background-color: #007bff; color: white; text-decoration: none; padding: 15px 30px; border-radius: 6px; font-weight: bold; margin: 15px 0; font-size: 16px;">Login to PolymersHub</a>
                     </p>
                     
                     <p style="color: #555; font-size: 16px;">Or visit: <a href="${baseUrl}" style="color: #007bff;">${baseUrl}</a></p>
                 </div>
                 
                 <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
-                    <p style="margin: 0; color: #6c757d; font-size: 14px;">Best regards,<br>The Polymer Hub Team</p>
+                    <p style="margin: 0; color: #6c757d; font-size: 14px;">Best regards,<br>The PolymersHub Team</p>
                     <p style="margin: 10px 0 0 0; color: #868e96; font-size: 12px;">
                         <i>This is an automated email. Please do not reply to this message.</i>
                     </p>
@@ -143,18 +185,18 @@ export const forgotPasswordOtpMail = async (email, otp) => {
   const baseUrl = getBaseUrl();
   const mailOptions = {
     to: email,
-    subject: 'Reset Your Polymer Hub Password - OTP',
+    subject: 'Reset Your PolymersHub Password - OTP',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="text-align: center; padding: 20px; background-color: #dc3545; color: white;">
-            <h1 style="margin: 0;">Polymer Hub</h1>
+            <h1 style="margin: 0;">PolymersHub</h1>
             <p style="margin: 10px 0 0 0; font-size: 18px;">Password Reset Request</p>
         </div>
         
         <div style="padding: 30px; background-color: #ffffff;">
             <h2 style="color: #333; text-align: center; margin-bottom: 30px;">Reset Your Password</h2>
             <p style="color: #555; font-size: 16px;">Hi,</p>
-            <p style="color: #555; font-size: 16px;">We received a request to reset your Polymer Hub password. If you made this request, please use the OTP below to proceed:</p>
+            <p style="color: #555; font-size: 16px;">We received a request to reset your PolymersHub password. If you made this request, please use the OTP below to proceed:</p>
             
             <div style="text-align: center; margin: 30px 0;">
                 <div style="display: inline-block; font-size: 32px; font-weight: bold; background-color: #f8f9fa; padding: 20px 40px; border-radius: 8px; border: 3px solid #dc3545; color: #dc3545; letter-spacing: 5px; font-family: 'Courier New', monospace;">${otp}</div>
@@ -179,7 +221,7 @@ export const forgotPasswordOtpMail = async (email, otp) => {
         </div>
         
         <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
-            <p style="margin: 0; color: #6c757d; font-size: 14px;">Best regards,<br>The Polymer Hub Team</p>
+            <p style="margin: 0; color: #6c757d; font-size: 14px;">Best regards,<br>The PolymersHub Team</p>
             <p style="margin: 10px 0 0 0; color: #868e96; font-size: 12px;">
                 <i>This is an automated email. Please do not reply to this message.</i>
             </p>
@@ -198,17 +240,17 @@ export const sendQuoteRequestNotification = async (recipientEmail, quoteDetails)
     
     const mailOptions = {
         to: recipientEmail,
-        subject: 'New Quote Request - Polymer Hub',
+        subject: 'New Quote Request - PolymersHub',
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <div style="text-align: center; padding: 20px; background-color: #17a2b8; color: white;">
-                    <h1 style="margin: 0;">Polymer Hub</h1>
+                    <h1 style="margin: 0;">PolymersHub</h1>
                     <p style="margin: 10px 0 0 0; font-size: 18px;">New Quote Request</p>
                 </div>
                 
                 <div style="padding: 30px; background-color: #ffffff;">
                     <h2 style="color: #333; text-align: center; margin-bottom: 30px;">You have a new quote request!</h2>
-                    <p style="color: #555; font-size: 16px;">A new quote request has been submitted on Polymer Hub.</p>
+                    <p style="color: #555; font-size: 16px;">A new quote request has been submitted on PolymersHub.</p>
                     
                     <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin: 25px 0;">
                         <h3 style="color: #17a2b8; margin-top: 0;">Request Details:</h3>
@@ -247,11 +289,11 @@ export const sendQuoteRequestNotification = async (recipientEmail, quoteDetails)
                         <a href="${dashboardUrl}" style="display: inline-block; background-color: #17a2b8; color: white; text-decoration: none; padding: 15px 30px; border-radius: 6px; font-weight: bold; margin: 15px 0; font-size: 16px;">View Request</a>
                     </p>
                     
-                    <p style="color: #555; font-size: 14px; margin-top: 30px;">Thank you for being part of the Polymer Hub community!</p>
+                    <p style="color: #555; font-size: 14px; margin-top: 30px;">Thank you for being part of the PolymersHub community!</p>
                 </div>
                 
                 <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
-                    <p style="margin: 0; color: #6c757d; font-size: 14px;">Best regards,<br>The Polymer Hub Team</p>
+                    <p style="margin: 0; color: #6c757d; font-size: 14px;">Best regards,<br>The PolymersHub Team</p>
                     <p style="margin: 10px 0 0 0; color: #868e96; font-size: 12px;">
                         <i>This is an automated email. Please do not reply to this message.</i>
                     </p>

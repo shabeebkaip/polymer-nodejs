@@ -1,5 +1,5 @@
 import express from 'express';
-import { sendRegistrationOtp } from '../../tools/mail.js';
+import { sendRegistrationOtp } from '../../services/email.service.js';
 
 const testEmailRouter = express.Router();
 

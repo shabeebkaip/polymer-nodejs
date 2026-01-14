@@ -1,7 +1,7 @@
 import express from 'express';
 import User from '../../../models/user.js';
 import { generateOtp, saveOtp } from '../../../utils/otpHelper.js';
-import { sendRegistrationOtp } from '../../../tools/mail.js';
+import { sendRegistrationOtp } from '../../../services/email.service.js';
 
 const resendOtp = express.Router();
 

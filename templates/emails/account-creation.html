@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6; 
+      color: #1a1a1a;
+      background-color: #f5f5f5;
+    }
+    .email-wrapper { 
+      background-color: #f5f5f5; 
+      padding: 40px 20px; 
+    }
+    .container { 
+      max-width: 600px; 
+      margin: 0 auto; 
+      background: #ffffff; 
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* Header Section */
+    .header { 
+      background: #ffffff;
+      padding: 40px 40px 30px 40px; 
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .logo-section {
+      margin-bottom: 30px;
+    }
+    .logo-img { 
+      max-width: 160px; 
+      height: auto; 
+    }
+    .header h1 { 
+      font-size: 28px; 
+      font-weight: 600; 
+      margin: 0 0 8px 0; 
+      color: #1a1a1a;
+      letter-spacing: -0.5px;
+    }
+    .header .subtitle { 
+      font-size: 16px; 
+      color: #666666;
+      font-weight: 400;
+    }
+    
+    /* Content Section */
+    .content { 
+      background: #ffffff; 
+      padding: 40px; 
+    }
+    .greeting {
+      font-size: 16px;
+      color: #1a1a1a;
+      margin-bottom: 20px;
+    }
+    .content p { 
+      color: #4a4a4a; 
+      margin-bottom: 18px; 
+      font-size: 15px; 
+      line-height: 1.7; 
+    }
+    
+    /* Credentials Box */
+    .credentials-box { 
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 30px;
+      margin: 30px 0;
+    }
+    .credentials-box h3 {
+      color: #1a1a1a;
+      margin: 0 0 20px 0;
+      font-size: 15px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .credential-row { 
+      padding: 16px 0;
+    }
+    .credential-row:first-of-type {
+      padding-top: 0;
+    }
+    .credential-label { 
+      font-weight: 500;
+      color: #666666;
+      font-size: 13px;
+      display: block;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .credential-value { 
+      color: #1a1a1a;
+      font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+      background: #ffffff;
+      padding: 12px 16px;
+      border-radius: 4px;
+      display: block;
+      font-size: 15px;
+      border: 1px solid #d0d0d0;
+      word-break: break-all;
+      font-weight: 500;
+    }
+    
+    /* Warning Box */
+    .warning-box {
+      background: #fffbf0;
+      border: 1px solid #ffd966;
+      padding: 20px 24px;
+      margin: 30px 0;
+      border-radius: 4px;
+    }
+    .warning-box .warning-title { 
+      color: #1a1a1a;
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .warning-icon {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      background: #f59e0b;
+      border-radius: 50%;
+      margin-right: 8px;
+      text-align: center;
+      line-height: 18px;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .warning-box p { 
+      color: #5a5a5a;
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    /* CTA Button */
+    .cta-section {
+      text-align: center;
+      margin: 35px 0;
+    }
+    .cta-button {
+      display: inline-block;
+      background: #009966;
+      color: white;
+      padding: 16px 40px;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 15px;
+      transition: background 0.2s ease;
+      letter-spacing: 0.3px;
+    }
+    .cta-button:hover {
+      background: #008855;
+    }
+    
+    /* Support Section */
+    .support-section {
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 1px solid #e8e8e8;
+    }
+    .support-text {
+      color: #666666;
+      font-size: 14px;
+      text-align: center;
+      line-height: 1.6;
+    }
+    .support-text a {
+      color: #009966;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .support-text a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Footer */
+    .footer {
+      background: #1a1a1a;
+      color: #999999;
+      padding: 35px 40px;
+      text-align: center;
+      font-size: 13px;
+    }
+    .footer-brand { 
+      color: #009966; 
+      font-weight: 600; 
+      font-size: 15px; 
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .footer p { 
+      margin: 6px 0; 
+      line-height: 1.6; 
+    }
+    .footer-divider {
+      height: 1px;
+      background: #333333;
+      margin: 20px 0;
+    }
+    
+    /* Responsive */
+    @media only screen and (max-width: 600px) {
+      .email-wrapper { padding: 20px 10px; }
+      .header { padding: 30px 25px 20px 25px; }
+      .content { padding: 30px 25px; }
+      .credentials-box { padding: 25px 20px; }
+      .credential-value { font-size: 14px; padding: 10px 14px; }
+      .logo-img { max-width: 140px; }
+      .header h1 { font-size: 24px; }
+      .cta-button { padding: 14px 32px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="container">
+      
+      <!-- Header -->
+      <div class="header">
+        <div class="logo-section">
+          <img src="{{LOGO_URL}}" alt="PolymersHub" class="logo-img" />
+        </div>
+        <h1>Account Created Successfully</h1>
+        <p class="subtitle">Welcome to the Global Polymer Marketplace</p>
+      </div>
+      
+      <!-- Content -->
+      <div class="content">
+        <p class="greeting">Hi <strong>{{NAME}}</strong>,</p>
+        
+        <p>Your PolymersHub account has been successfully created and activated by our team. You now have access to our global network of verified suppliers and can begin exploring opportunities immediately.</p>
+
+        <!-- Credentials -->
+        <div class="credentials-box">
+          <h3>Login Credentials</h3>
+          <div class="credential-row">
+            <span class="credential-label">Email Address</span>
+            <div class="credential-value">{{EMAIL}}</div>
+          </div>
+          <div class="credential-row">
+            <span class="credential-label">Temporary Password</span>
+            <div class="credential-value">{{PASSWORD}}</div>
+          </div>
+        </div>
+
+        <!-- Security Warning -->
+        <div class="warning-box">
+          <div class="warning-title">
+            <span class="warning-icon">!</span>
+            Important Security Notice
+          </div>
+          <p>For your account security, please change your password immediately after your first login. You can update your password in Account Settings.</p>
+        </div>
+
+        
+
+        <!-- Support -->
+        <div class="support-section">
+          <p class="support-text">
+            Need assistance? Our support team is available to help.<br>
+            Contact us at <a href="mailto:{{SUPPORT_EMAIL}}">{{SUPPORT_EMAIL}}</a>
+          </p>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div class="footer">
+        <p class="footer-brand">POLYMERSHUB</p>
+        <p>Global Polymer Marketplace</p>
+        <div class="footer-divider"></div>
+        <p>&copy; {{YEAR}} PolymersHub. All rights reserved.</p>
+      </div>
+      
+    </div>
+  </div>
+</body>
+</html>

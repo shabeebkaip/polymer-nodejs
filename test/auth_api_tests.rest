@@ -1,4 +1,4 @@
-# Polymer Hub - Authentication API REST Client
+# PolymersHub - Authentication API REST Client
 # Use with VS Code REST Client extension
 # Variables
 @baseURL = http://localhost:5050

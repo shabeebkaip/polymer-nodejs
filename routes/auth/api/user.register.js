@@ -4,7 +4,7 @@ import User from "../../../models/user.js";
 import Auth from "../../../models/auth.js";
 import { createJwt } from "../../../middlewares/login.auth.js";
 import { generateOtp, saveOtp } from "../../../utils/otpHelper.js";
-import { sendRegistrationOtp } from "../../../tools/mail.js";
+import { sendRegistrationOtp } from "../../../services/email.service.js";
 
 const userRegister = express.Router();
 

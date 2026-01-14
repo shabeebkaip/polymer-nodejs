@@ -1,5 +1,5 @@
 import Notification from "../models/notification.js";
-import sendMail from "../utils/senMail.js";
+import emailService from "../services/email.service.js";
 
 class NotificationService {
   /**
@@ -29,7 +29,7 @@ class NotificationService {
    */
   async sendEmail({ to, subject, html, fallbackText }) {
     try {
-      await sendMail({ to, subject, html });
+      await emailService.sendEmail({ to, subject, html });
       console.log(`📧 Email sent to ${to}: ${subject}`);
     } catch (error) {
       console.error("Failed to send email:", error);
@@ -82,7 +82,7 @@ class NotificationService {
         </p>
         
         <p style="color: #7f8c8d; font-size: 12px; margin-top: 30px;">
-          This is an automated notification from Polymer Hub. Please do not reply to this email.
+          This is an automated notification from PolymersHub. Please do not reply to this email.
         </p>
       </div>
     `;
@@ -140,7 +140,7 @@ class NotificationService {
         </p>
         
         <p style="color: #7f8c8d; font-size: 12px; margin-top: 30px;">
-          This is an automated notification from Polymer Hub. Please do not reply to this email.
+          This is an automated notification from PolymersHub. Please do not reply to this email.
         </p>
       </div>
     `;
@@ -217,7 +217,7 @@ class NotificationService {
         </p>
         
         <p style="color: #7f8c8d; font-size: 12px; margin-top: 30px;">
-          This is an automated notification from Polymer Hub. Please do not reply to this email.
+          This is an automated notification from PolymersHub. Please do not reply to this email.
         </p>
       </div>
     `;
@@ -274,7 +274,7 @@ class NotificationService {
         </p>
         
         <p style="color: #7f8c8d; font-size: 12px; margin-top: 30px;">
-          This is an automated notification from Polymer Hub. Please do not reply to this email.
+          This is an automated notification from PolymersHub. Please do not reply to this email.
         </p>
       </div>
     `;
@@ -352,7 +352,7 @@ class NotificationService {
         </p>
         
         <p style="color: #7f8c8d; font-size: 12px; margin-top: 30px;">
-          This is an automated notification from Polymer Hub. Please do not reply to this email.
+          This is an automated notification from PolymersHub. Please do not reply to this email.
         </p>
       </div>
     `;

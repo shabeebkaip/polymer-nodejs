@@ -21,7 +21,7 @@ const app = express();
 const DB_URL = config.mongoUri;
 const port = config.port;
 
-console.log(`🚀 Starting Polymer Hub API in ${config.nodeEnv} mode`);
+console.log(`🚀 Starting PolymersHub API in ${config.nodeEnv} mode`);
 console.log(`🌐 Frontend URL: ${getCurrentUrl()}`);
 
 if (!DB_URL) {
@@ -54,8 +54,15 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Serve static files from public directory
+app.use('/public', express.static('public'));
+
+// Log logo URL
+console.log(`🖼️  Logo available at: http://localhost:${port}/public/logo.png`);
+
 app.use("/api", router);
 
 app.listen(port, () => {
   console.log(`🚀 Server connected at http://localhost:${port}`);
+  console.log(`🖼️  Logo URL: http://localhost:${port}/public/logo.png`);
 });

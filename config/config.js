@@ -17,7 +17,7 @@ export const config = {
     resend: {
         apiKey: process.env.RESEND_API_KEY,
         from: process.env.EMAIL_FROM || 'noreply@polymershub.com',
-        replyTo: process.env.EMAIL_REPLY_TO || 'shabeebkaip@gmail.com',
+        replyTo: process.env.EMAIL_REPLY_TO || 'info@polymershub.com',
     },
     
     // Legacy Gmail configuration (for backup/fallback)
