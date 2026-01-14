@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6; 
+      color: #1a1a1a;
+      background-color: #f5f5f5;
+    }
+    .email-wrapper { 
+      background-color: #f5f5f5; 
+      padding: 40px 20px; 
+    }
+    .container { 
+      max-width: 600px; 
+      margin: 0 auto; 
+      background: #ffffff; 
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* Header Section */
+    .header { 
+      background: #009966;
+      color: #ffffff;
+      padding: 30px 40px; 
+      text-align: center;
+    }
+    .header h1 { 
+      font-size: 24px; 
+      font-weight: 600; 
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+    
+    /* Content Section */
+    .content { 
+      background: #ffffff; 
+      padding: 40px; 
+    }
+    .content p { 
+      color: #4a4a4a; 
+      margin-bottom: 18px; 
+      font-size: 15px; 
+      line-height: 1.7; 
+    }
+    
+    /* Info Box */
+    .info-box {
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 20px;
+      margin: 25px 0;
+    }
+    .info-row {
+      display: flex;
+      padding: 8px 0;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      font-weight: 600;
+      color: #1a1a1a;
+      min-width: 120px;
+      font-size: 14px;
+    }
+    .info-value {
+      color: #4a4a4a;
+      font-size: 14px;
+      word-break: break-word;
+    }
+    
+    /* User Type Badge */
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 3px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .badge-buyer {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+    .badge-supplier {
+      background: #e8f5e9;
+      color: #388e3c;
+    }
+    
+    /* Action Section */
+    .action-section {
+      background: #f0f9ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 4px;
+      padding: 20px;
+      margin: 25px 0;
+      text-align: center;
+    }
+    .action-section h3 {
+      color: #1e40af;
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 12px 0;
+    }
+    .action-section p {
+      color: #1e3a8a;
+      font-size: 14px;
+      margin: 0;
+    }
+    
+    /* Footer */
+    .footer {
+      background: #1a1a1a;
+      color: #999999;
+      padding: 25px 40px;
+      text-align: center;
+      font-size: 13px;
+    }
+    .footer p { 
+      margin: 6px 0; 
+      line-height: 1.6; 
+    }
+    
+    /* Responsive */
+    @media only screen and (max-width: 600px) {
+      .email-wrapper { padding: 20px 10px; }
+      .header { padding: 25px 20px; }
+      .content { padding: 30px 25px; }
+      .info-row {
+        flex-direction: column;
+      }
+      .info-label {
+        margin-bottom: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="container">
+      
+      <!-- Header -->
+      <div class="header">
+        <h1>🎯 New Early Access Request</h1>
+      </div>
+      
+      <!-- Content -->
+      <div class="content">
+        <p><strong>A new user has requested early access to PolymersHub.</strong></p>
+        
+        <div class="info-box">
+          <div class="info-row">
+            <div class="info-label">Email:</div>
+            <div class="info-value"><strong>{{USER_EMAIL}}</strong></div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">User Type:</div>
+            <div class="info-value">
+              <span class="badge badge-{{USER_TYPE}}">{{USER_TYPE_DISPLAY}}</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Submitted:</div>
+            <div class="info-value">{{TIMESTAMP}}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Status:</div>
+            <div class="info-value">Pending Review</div>
+          </div>
+        </div>
+        
+        <div class="action-section">
+          <h3>Action Required</h3>
+          <p>Please review this request in the admin dashboard and approve or contact the user as needed.</p>
+        </div>
+        
+        <p style="font-size: 13px; color: #666666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e8e8e8;">
+          This is an automated notification from the PolymersHub early access system.
+        </p>
+      </div>
+      
+      <!-- Footer -->
+      <div class="footer">
+        <p>&copy; {{YEAR}} PolymersHub - Admin Notification System</p>
+      </div>
+      
+    </div>
+  </div>
+</body>
+</html>

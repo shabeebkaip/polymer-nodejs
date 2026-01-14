@@ -60,6 +60,9 @@ import homeRouter from "./home/home.js";
 // ==================== TEST ROUTES ====================
 import testEmailRouter from "./test/testEmail.js";
 
+// ==================== PUBLIC ROUTES ====================
+import earlyAccessRouter from "./earlyAccess/earlyAccess.js";
+
 // import testimonialRoutes from "./testimonials/testimonials.js";
 
 const router = express.Router();
@@ -123,6 +126,9 @@ router.use("/home", homeRouter);
 
 // ==================== TEST ROUTES ====================
 router.use("/test-email", testEmailRouter);
+
+// ==================== PUBLIC ROUTES ====================
+router.use("/early-access", earlyAccessRouter);
 
 
 

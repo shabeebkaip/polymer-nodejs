@@ -266,6 +266,58 @@ class EmailService {
 
     return this.sendEmail({ to, subject, html });
   }
+
+  /**
+   * Send early access confirmation email to user
+   * @param {string} email - User's email
+   * @param {string} userType - 'buyer' or 'supplier'
+   * @returns {Promise<Object>}
+   */
+  async sendEarlyAccessConfirmation(email, userType) {
+    const userTypeDisplay = userType.charAt(0).toUpperCase() + userType.slice(1);
+    
+    const html = this._loadTemplate("early-access-confirmation", {
+      LOGO_URL: this._getLogoUrl(),
+      USER_TYPE: userTypeDisplay,
+      SUPPORT_EMAIL: process.env.EMAIL || "info@polymershub.com",
+      YEAR: new Date().getFullYear(),
+    });
+
+    return this.sendEmail({
+      to: email,
+      subject: "Early Access Request Received - PolymersHub",
+      html,
+    });
+  }
+
+  /**
+   * Send early access notification to admin
+   * @param {string} adminEmail - Admin email
+   * @param {string} userEmail - User's email
+   * @param {string} userType - 'buyer' or 'supplier'
+   * @returns {Promise<Object>}
+   */
+  async sendEarlyAccessAdminNotification(adminEmail, userEmail, userType) {
+    const userTypeDisplay = userType.charAt(0).toUpperCase() + userType.slice(1);
+    const timestamp = new Date().toLocaleString('en-US', {
+      dateStyle: 'full',
+      timeStyle: 'short'
+    });
+    
+    const html = this._loadTemplate("early-access-admin-notification", {
+      USER_EMAIL: userEmail,
+      USER_TYPE: userType.toLowerCase(),
+      USER_TYPE_DISPLAY: userTypeDisplay,
+      TIMESTAMP: timestamp,
+      YEAR: new Date().getFullYear(),
+    });
+
+    return this.sendEmail({
+      to: adminEmail,
+      subject: `New Early Access Request: ${userTypeDisplay} - ${userEmail}`,
+      html,
+    });
+  }
 }
 
 // Export singleton instance

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6; 
+      color: #1a1a1a;
+      background-color: #f5f5f5;
+    }
+    .email-wrapper { 
+      background-color: #f5f5f5; 
+      padding: 40px 20px; 
+    }
+    .container { 
+      max-width: 600px; 
+      margin: 0 auto; 
+      background: #ffffff; 
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* Header Section */
+    .header { 
+      background: #ffffff;
+      padding: 40px 40px 30px 40px; 
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .logo-section {
+      margin-bottom: 30px;
+    }
+    .logo-img { 
+      max-width: 160px; 
+      height: auto; 
+    }
+    .header h1 { 
+      font-size: 28px; 
+      font-weight: 600; 
+      margin: 0 0 8px 0; 
+      color: #1a1a1a;
+      letter-spacing: -0.5px;
+    }
+    .header .subtitle { 
+      font-size: 16px; 
+      color: #666666;
+      font-weight: 400;
+    }
+    
+    /* Content Section */
+    .content { 
+      background: #ffffff; 
+      padding: 40px; 
+    }
+    .content p { 
+      color: #4a4a4a; 
+      margin-bottom: 18px; 
+      font-size: 15px; 
+      line-height: 1.7; 
+    }
+    
+    /* Success Badge */
+    .success-badge {
+      background: #e8f5f0;
+      border: 1px solid #009966;
+      border-radius: 4px;
+      padding: 16px 20px;
+      margin: 25px 0;
+      text-align: center;
+    }
+    .success-badge-icon {
+      font-size: 32px;
+      color: #009966;
+      margin-bottom: 8px;
+    }
+    .success-badge-text {
+      color: #009966;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    
+    /* User Type Badge */
+    .user-type-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #1a1a1a;
+      font-weight: 500;
+      margin: 10px 0 20px 0;
+    }
+    
+    /* What's Next Section */
+    .whats-next {
+      background: #fafafa;
+      border-left: 3px solid #009966;
+      padding: 20px;
+      margin: 30px 0;
+    }
+    .whats-next h3 {
+      color: #1a1a1a;
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 12px 0;
+    }
+    .whats-next ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .whats-next li {
+      color: #4a4a4a;
+      font-size: 14px;
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+    
+    /* Footer */
+    .footer {
+      background: #1a1a1a;
+      color: #999999;
+      padding: 35px 40px;
+      text-align: center;
+      font-size: 13px;
+    }
+    .footer-brand { 
+      color: #009966; 
+      font-weight: 600; 
+      font-size: 15px; 
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .footer p { 
+      margin: 6px 0; 
+      line-height: 1.6; 
+    }
+    .footer-divider {
+      height: 1px;
+      background: #333333;
+      margin: 20px 0;
+    }
+    
+    /* Responsive */
+    @media only screen and (max-width: 600px) {
+      .email-wrapper { padding: 20px 10px; }
+      .header { padding: 30px 25px 20px 25px; }
+      .content { padding: 30px 25px; }
+      .logo-img { max-width: 140px; }
+      .header h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="container">
+      
+      <!-- Header -->
+      <div class="header">
+        <div class="logo-section">
+          <img src="{{LOGO_URL}}" alt="PolymersHub" class="logo-img" />
+        </div>
+        <h1>Early Access Request Received!</h1>
+        <p class="subtitle">Thank you for your interest</p>
+      </div>
+      
+      <!-- Content -->
+      <div class="content">
+        <div class="success-badge">
+          <div class="success-badge-icon">✓</div>
+          <div class="success-badge-text">Your request has been submitted successfully</div>
+        </div>
+        
+        <p>Thank you for requesting early access to <strong>PolymersHub</strong> - the Global Polymer Marketplace connecting industry worldwide.</p>
+        
+        <p>We've received your registration as a:</p>
+        <div class="user-type-badge">{{USER_TYPE}}</div>
+        
+        <p>Our team is carefully reviewing all early access requests to ensure we provide the best experience for our initial users. We'll be in touch soon with next steps.</p>
+        
+        <div class="whats-next">
+          <h3>What happens next?</h3>
+          <ul>
+            <li>Our team will review your request within 2-3 business days</li>
+            <li>You'll receive an invitation email with your login credentials</li>
+            <li>Get exclusive early access to our platform features</li>
+            <li>Priority support during the soft launch phase</li>
+          </ul>
+        </div>
+        
+        <p><strong>Why PolymersHub?</strong></p>
+        <p style="color: #666666; font-size: 14px;">Connect directly with verified polymer suppliers worldwide. Source smarter, trade faster, and grow confidently with our comprehensive B2B marketplace designed specifically for the polymer industry.</p>
+        
+        <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e8e8e8; color: #666666; font-size: 13px;">
+          Questions? Reply to this email or contact us at <a href="mailto:{{SUPPORT_EMAIL}}" style="color: #009966; text-decoration: none;">{{SUPPORT_EMAIL}}</a>
+        </p>
+      </div>
+      
+      <!-- Footer -->
+      <div class="footer">
+        <p class="footer-brand">PolymersHub</p>
+        <p>Global Polymer Marketplace</p>
+        <div class="footer-divider"></div>
+        <p>&copy; {{YEAR}} PolymersHub. All rights reserved.</p>
+        <p style="margin-top: 10px; font-size: 12px;">Be the first to access our platform. No spam, ever.</p>
+      </div>
+      
+    </div>
+  </div>
+</body>
+</html>
