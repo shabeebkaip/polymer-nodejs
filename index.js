@@ -60,6 +60,15 @@ app.use('/public', express.static('public'));
 // Log logo URL
 console.log(`🖼️  Logo available at: http://localhost:${port}/public/logo.png`);
 
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: true,
+    message: "Server is running",
+    timestamp: new Date().toISOString(),
+    db: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+  });
+});
+
 app.use("/api", router);
 
 app.listen(port, () => {
