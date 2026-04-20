@@ -251,6 +251,48 @@ class BulkOrderController {
   }
 
   /**
+   * Admin creates a bulk order (optionally on behalf of a buyer)
+   * POST /bulk-order/admin-create
+   * Body: { product, userId?, status?, quantity, uom, city, country, destination, delivery_date, message }
+   */
+  async adminCreate(req, res) {
+    try {
+      const adminId = req.user.id;
+      const { product, userId, status, ...requestData } = req.body;
+
+      if (!product) {
+        return res.status(400).json({
+          success: false,
+          message: "Product ID is required",
+        });
+      }
+
+      // Use specified buyer ID or fall back to admin's own ID (admin team order)
+      const targetUserId = userId || adminId;
+
+      const bulkOrder = await bulkOrderService.createBulkOrder({
+        user: targetUserId,
+        createdBy: adminId,
+        product,
+        status: status || "pending",
+        ...requestData,
+      });
+
+      res.status(201).json({
+        success: true,
+        message: "Bulk order created successfully",
+        data: bulkOrder,
+      });
+    } catch (error) {
+      console.error("Error creating bulk order (admin):", error);
+      res.status(500).json({
+        success: false,
+        message: error.message || "Failed to create bulk order",
+      });
+    }
+  }
+
+  /**
    * Get approved bulk orders (public opportunities)
    */
   async getApprovedOrders(req, res) {

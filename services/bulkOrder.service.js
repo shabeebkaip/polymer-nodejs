@@ -17,7 +17,7 @@ class BulkOrderService {
 
     const bulkOrder = await bulkOrderRepository.create({
       ...data,
-      status: "pending",
+      status: data.status || "pending",
     });
 
     // Return populated order

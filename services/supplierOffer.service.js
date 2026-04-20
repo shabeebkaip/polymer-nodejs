@@ -61,6 +61,52 @@ class SupplierOfferService {
   }
 
   /**
+   * Admin creates a supplier offer (optionally on behalf of a seller)
+   */
+  async adminCreateSupplierOffer(data) {
+    const { bulkOrderId, supplierId } = data;
+
+    const bulkOrder = await BulkOrder.findById(bulkOrderId).populate({
+      path: "createdBy",
+      select: "_id firstName lastName email",
+    });
+
+    if (!bulkOrder) {
+      throw new Error("Bulk order not found");
+    }
+
+    const offer = await supplierOfferRepository.create({
+      ...data,
+      statusMessage: [
+        {
+          status: data.status || "pending",
+          message: "Offer posted by admin",
+          date: new Date(),
+          updatedBy: "admin",
+        },
+      ],
+    });
+
+    // Notify the bulk order creator
+    try {
+      if (bulkOrder.createdBy?._id) {
+        await Notification.create({
+          userId: bulkOrder.createdBy._id,
+          type: "supplier-offer",
+          message: "An offer has been posted for your bulk order request.",
+          redirectUrl: `/user/product-requests/${bulkOrderId}`,
+          relatedId: offer._id,
+          meta: { supplierId, offerId: offer._id },
+        });
+      }
+    } catch (notifyErr) {
+      console.error("Failed to notify bulk order creator:", notifyErr);
+    }
+
+    return offer;
+  }
+
+  /**
    * Get all supplier offers for admin
    */
   async getAdminSupplierOffers(filters) {

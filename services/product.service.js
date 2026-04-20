@@ -22,34 +22,37 @@ class ProductService {
    * - Product is always created under the logged-in seller
    */
   async createProduct(productData, user) {
-    // Handle "Other" chemicalFamily
-    if (
-      productData.chemicalFamily === "Other" &&
-      productData.otherChemicalFamily
-    ) {
-      const chemicalFamily = await productRepository.findOrCreateChemicalFamily(
-        productData.otherChemicalFamily
-      );
+    // Handle "Other" chemicalFamily (accepts both "Other"/"other" and otherChemicalFamily/chemicalFamilyOther)
+    const chemFamilyOtherVal = productData.otherChemicalFamily || productData.chemicalFamilyOther;
+    if (productData.chemicalFamily?.toLowerCase() === "other" && chemFamilyOtherVal) {
+      const chemicalFamily = await productRepository.findOrCreateChemicalFamily(chemFamilyOtherVal);
       productData.chemicalFamily = chemicalFamily._id;
       delete productData.otherChemicalFamily;
+      delete productData.chemicalFamilyOther;
+    } else if (productData.chemicalFamily?.toLowerCase() === "other") {
+      delete productData.chemicalFamily;
     }
 
-    // Handle "Other" physicalForm
-    if (productData.physicalForm === "Other" && productData.otherPhysicalForm) {
-      const physicalForm = await productRepository.findOrCreatePhysicalForm(
-        productData.otherPhysicalForm
-      );
+    // Handle "Other" physicalForm (accepts both "Other"/"other" and otherPhysicalForm/physicalFormOther)
+    const physFormOtherVal = productData.otherPhysicalForm || productData.physicalFormOther;
+    if (productData.physicalForm?.toLowerCase() === "other" && physFormOtherVal) {
+      const physicalForm = await productRepository.findOrCreatePhysicalForm(physFormOtherVal);
       productData.physicalForm = physicalForm._id;
       delete productData.otherPhysicalForm;
+      delete productData.physicalFormOther;
+    } else if (productData.physicalForm?.toLowerCase() === "other") {
+      delete productData.physicalForm;
     }
 
-    // Handle "Other" polymerType
-    if (productData.polymerType === "Other" && productData.otherPolymerType) {
-      const polymerType = await productRepository.findOrCreatePolymerType(
-        productData.otherPolymerType
-      );
+    // Handle "Other" polymerType (accepts both "Other"/"other" and otherPolymerType/polymerTypeOther)
+    const polymerOtherVal = productData.otherPolymerType || productData.polymerTypeOther;
+    if (productData.polymerType?.toLowerCase() === "other" && polymerOtherVal) {
+      const polymerType = await productRepository.findOrCreatePolymerType(polymerOtherVal);
       productData.polymerType = polymerType._id;
       delete productData.otherPolymerType;
+      delete productData.polymerTypeOther;
+    } else if (productData.polymerType?.toLowerCase() === "other") {
+      delete productData.polymerType;
     }
 
     // Determine the creator:
@@ -59,7 +62,7 @@ class ProductService {
       productData.createdBy = productData.sellerId;
       delete productData.sellerId; // Remove from product data
     } else {
-      productData.createdBy = user._id;
+      productData.createdBy = user.id || user._id;
     }
 
     // Create the product
@@ -138,34 +141,37 @@ class ProductService {
    * Handles "Other" option for chemicalFamily, physicalForm, polymerType
    */
   async updateProduct(productId, updateData) {
-    // Handle "Other" chemicalFamily
-    if (
-      updateData.chemicalFamily === "Other" &&
-      updateData.otherChemicalFamily
-    ) {
-      const chemicalFamily = await productRepository.findOrCreateChemicalFamily(
-        updateData.otherChemicalFamily
-      );
+    // Handle "Other" chemicalFamily (accepts both "Other"/"other" and otherChemicalFamily/chemicalFamilyOther)
+    const chemFamilyOtherVal = updateData.otherChemicalFamily || updateData.chemicalFamilyOther;
+    if (updateData.chemicalFamily?.toLowerCase() === "other" && chemFamilyOtherVal) {
+      const chemicalFamily = await productRepository.findOrCreateChemicalFamily(chemFamilyOtherVal);
       updateData.chemicalFamily = chemicalFamily._id;
       delete updateData.otherChemicalFamily;
+      delete updateData.chemicalFamilyOther;
+    } else if (updateData.chemicalFamily?.toLowerCase() === "other") {
+      delete updateData.chemicalFamily;
     }
 
-    // Handle "Other" physicalForm
-    if (updateData.physicalForm === "Other" && updateData.otherPhysicalForm) {
-      const physicalForm = await productRepository.findOrCreatePhysicalForm(
-        updateData.otherPhysicalForm
-      );
+    // Handle "Other" physicalForm (accepts both "Other"/"other" and otherPhysicalForm/physicalFormOther)
+    const physFormOtherVal = updateData.otherPhysicalForm || updateData.physicalFormOther;
+    if (updateData.physicalForm?.toLowerCase() === "other" && physFormOtherVal) {
+      const physicalForm = await productRepository.findOrCreatePhysicalForm(physFormOtherVal);
       updateData.physicalForm = physicalForm._id;
       delete updateData.otherPhysicalForm;
+      delete updateData.physicalFormOther;
+    } else if (updateData.physicalForm?.toLowerCase() === "other") {
+      delete updateData.physicalForm;
     }
 
-    // Handle "Other" polymerType
-    if (updateData.polymerType === "Other" && updateData.otherPolymerType) {
-      const polymerType = await productRepository.findOrCreatePolymerType(
-        updateData.otherPolymerType
-      );
+    // Handle "Other" polymerType (accepts both "Other"/"other" and otherPolymerType/polymerTypeOther)
+    const polymerOtherVal = updateData.otherPolymerType || updateData.polymerTypeOther;
+    if (updateData.polymerType?.toLowerCase() === "other" && polymerOtherVal) {
+      const polymerType = await productRepository.findOrCreatePolymerType(polymerOtherVal);
       updateData.polymerType = polymerType._id;
       delete updateData.otherPolymerType;
+      delete updateData.polymerTypeOther;
+    } else if (updateData.polymerType?.toLowerCase() === "other") {
+      delete updateData.polymerType;
     }
 
     // Admin can reassign product to different seller
@@ -197,7 +203,7 @@ class ProductService {
     // Authorization check: only owner or superAdmin can delete
     if (
       user.user_type !== "superAdmin" &&
-      product.createdBy.toString() !== user._id.toString()
+      product.createdBy.toString() !== (user.id || user._id).toString()
     ) {
       return { success: false, message: "Not authorized to delete this product" };
     }

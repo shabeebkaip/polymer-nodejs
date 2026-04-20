@@ -3,9 +3,9 @@ import mongoose, { Schema } from "mongoose";
 const productSchema = new Schema(
   {
     // Basic identification & descriptions
-    productName: { type: String, required: true },
+    productName: { type: String, required: false },
     tradeName: { type: String, required: false },
-    chemicalName: { type: String, required: true },
+    chemicalName: { type: String, required: false },
     description: { type: String, required: false },
     ar_description: { type: String, required: false },
     ger_description: { type: String, required: false },
@@ -24,11 +24,12 @@ const productSchema = new Schema(
     ],
 
     // Classification & relationships
-    chemicalFamily: { type: Schema.Types.ObjectId, ref: "chemicalFamily", required: true },
-    polymerType: { type: Schema.Types.ObjectId, ref: "polymerType", required: true },
-    industry: [{ type: Schema.Types.ObjectId, ref: "industry", required: true }],
+    chemicalFamily: { type: Schema.Types.ObjectId, ref: "chemicalFamily", required: false },
+    polymerType: { type: Schema.Types.ObjectId, ref: "polymerType", required: false },
+    polymerTypes: [{ type: Schema.Types.ObjectId, ref: "polymerType" }],
+    industry: [{ type: Schema.Types.ObjectId, ref: "industry" }],
     grade: [{ type: Schema.Types.ObjectId, ref: "Grade" }],
-    physicalForm: { type: Schema.Types.ObjectId, ref: "physicalForm", required: true },
+    physicalForm: { type: Schema.Types.ObjectId, ref: "physicalForm", required: false },
     product_family: [{ type: Schema.Types.ObjectId, ref: "productFamily" }],
 
     // Physical specifications
@@ -81,17 +82,33 @@ const productSchema = new Schema(
     ],
 
     // Inventory & commercial data
-    minimum_order_quantity: { type: Number, required: true },
-    stock: { type: Number, required: true },
-    uom: { type: String, required: true },
-    price: { type: Number, required: true },
+    availability: {
+      type: String,
+      enum: ["In Stock", "On Request", "Limited"],
+      required: false,
+    },
+    productListFile: {
+      id: { type: String, required: false },
+      name: { type: String, required: false },
+      type: { type: String, required: false },
+      fileUrl: { type: String, required: false },
+    },
+    completionStatus: {
+      type: String,
+      enum: ["quick", "complete"],
+      default: "quick",
+    },
+    minimum_order_quantity: { type: Number, required: false },
+    stock: { type: Number, required: false },
+    uom: { type: String, required: false },
+    price: { type: Number, required: false },
     priceTerms: {
       type: String,
       enum: ["fixed", "negotiable"],
       required: false,
       default: "fixed",
     },
-    incoterms: [{ type: Schema.Types.ObjectId, ref: "Incoterms", required: true }],
+    incoterms: [{ type: Schema.Types.ObjectId, ref: "Incoterms" }],
     leadTime: { type: String, required: false },
     paymentTerms: { type: Schema.Types.ObjectId, ref: "paymentTerms" },
     packagingType: [{ type: Schema.Types.ObjectId, ref: "packagingType" }],

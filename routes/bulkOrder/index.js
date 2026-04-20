@@ -51,6 +51,12 @@ router.get(
   authorizeRoles("superAdmin"),
   supplierOfferController.getAdminSupplierOffers
 );
+router.post(
+  "/supplier-offer/admin-create",
+  authenticateUser,
+  authorizeRoles("superAdmin"),
+  supplierOfferController.adminCreateSupplierOffer
+);
 
 // Admin routes
 router.get(
@@ -81,7 +87,7 @@ router.post(
   "/admin-create",
   authenticateUser,
   authorizeRoles("superAdmin"),
-  bulkOrderController.create
+  bulkOrderController.adminCreate
 );
 
 export default router;

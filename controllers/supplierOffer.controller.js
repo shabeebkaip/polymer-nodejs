@@ -53,6 +53,62 @@ class SupplierOfferController {
   }
 
   /**
+   * Admin creates a supplier offer (optionally on behalf of a seller)
+   * POST /api/bulk-order/supplier-offer/admin-create
+   */
+  async adminCreateSupplierOffer(req, res) {
+    try {
+      const {
+        bulkOrderId,
+        supplierId,
+        pricePerUnit,
+        availableQuantity,
+        deliveryTimeInDays,
+        incotermAndPackaging,
+        message,
+        offerDocument,
+        status,
+      } = req.body;
+
+      const adminId = req.user._id;
+
+      if (!bulkOrderId || !pricePerUnit || !availableQuantity || !deliveryTimeInDays || !incotermAndPackaging) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing required fields",
+        });
+      }
+
+      // Use provided supplierId or fall back to admin's own ID (admin team offer)
+      const targetSupplierId = supplierId || adminId;
+
+      const offer = await supplierOfferService.adminCreateSupplierOffer({
+        bulkOrderId,
+        supplierId: targetSupplierId,
+        pricePerUnit: parseFloat(pricePerUnit),
+        availableQuantity: parseInt(availableQuantity),
+        deliveryTimeInDays: parseInt(deliveryTimeInDays),
+        incotermAndPackaging,
+        message,
+        offerDocument,
+        status: status || "pending",
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "Supplier offer created by admin successfully",
+        data: offer,
+      });
+    } catch (error) {
+      console.error("Error creating admin supplier offer:", error);
+      return res.status(400).json({
+        success: false,
+        message: error.message || "Failed to create supplier offer",
+      });
+    }
+  }
+
+  /**
    * Get supplier offers for a bulk order (buyer)
    * GET /api/bulk-order/supplier-offer/buyer/:bulkOrderId
    */

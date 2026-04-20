@@ -111,6 +111,14 @@ class ProductRepository {
       },
       { $unwind: { path: "$paymentTerms", preserveNullAndEmptyArrays: true } },
       {
+        $lookup: {
+          from: "polymertypes",
+          localField: "polymerTypes",
+          foreignField: "_id",
+          as: "polymerTypes",
+        },
+      },
+      {
         $project: {
           productName: 1,
           chemicalName: 1,
@@ -249,6 +257,22 @@ class ProductRepository {
             address: "$user.address",
             location: "$user.location",
             _id: "$user._id",
+          },
+          availability: 1,
+          completionStatus: 1,
+          productListFile: 1,
+          polymerTypes: {
+            $map: {
+              input: { $ifNull: ["$polymerTypes", []] },
+              as: "pt",
+              in: {
+                _id: "$$pt._id",
+                name: { $ifNull: [{ $trim: { input: "$$pt.name" } }, ""] },
+                ar_name: { $ifNull: [{ $trim: { input: "$$pt.ar_name" } }, ""] },
+                ger_name: { $ifNull: [{ $trim: { input: "$$pt.ger_name" } }, ""] },
+                cn_name: { $ifNull: [{ $trim: { input: "$$pt.cn_name" } }, ""] },
+              },
+            },
           },
           createdAt: 1,
           updatedAt: 1,
