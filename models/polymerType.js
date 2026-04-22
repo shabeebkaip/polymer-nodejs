@@ -7,6 +7,7 @@ const schema = new Schema(
       type: String,
       required: true,
     },
+    category: { type: Schema.Types.ObjectId, ref: "productFamily", required: false },
     description: {
       type: String,
       required: false,

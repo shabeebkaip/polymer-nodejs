@@ -136,6 +136,13 @@ const productSchema = new Schema(
       viewUrl: { type: String, required: false },
     },
 
+    // Classification extras
+    materialType: { type: String, enum: ["Virgin", "Recycled"], required: false },
+    form: { type: String, enum: ["Pellets", "Powder", "Flakes", "Regrind"], required: false },
+    application: [{ type: Schema.Types.ObjectId, ref: "application" }],
+    supplierType: { type: String, enum: ["Manufacturer", "Distributor", "Trader"], required: false },
+    additives: { type: String, required: false },
+
     // Ownership metadata
     createdBy: { type: Schema.Types.ObjectId, ref: "user", required: true },
   },
