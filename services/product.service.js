@@ -259,19 +259,22 @@ class ProductService {
       companyCounts,
     } = filterCounts;
 
-    // Helper function to map counts to options
+    // Helper function to map counts to options — only returns options with count > 0
     const mapCounts = (options, counts) => {
       const countMap = new Map(
         counts.map((c) => [c._id?.toString(), c.count])
       );
-      return options.map((opt) => ({
-        _id: opt._id,
-        name: opt.name,
-        count: countMap.get(opt._id?.toString()) || 0,
-      }));
+      return options
+        .map((opt) => ({
+          _id: opt._id,
+          name: opt.name,
+          count: countMap.get(opt._id?.toString()) || 0,
+        }))
+        .filter((opt) => opt.count > 0)
+        .sort((a, b) => b.count - a.count);
     };
 
-    // Helper for array field counts
+    // Helper for array field counts — only returns options with count > 0
     const mapArrayFieldCounts = (options, counts) => {
       const countMap = new Map();
       counts.forEach((c) => {
@@ -280,14 +283,17 @@ class ProductService {
           countMap.set(idStr, (countMap.get(idStr) || 0) + c.count);
         }
       });
-      return options.map((opt) => ({
-        _id: opt._id,
-        name: opt.name,
-        count: countMap.get(opt._id?.toString()) || 0,
-      }));
+      return options
+        .map((opt) => ({
+          _id: opt._id,
+          name: opt.name,
+          count: countMap.get(opt._id?.toString()) || 0,
+        }))
+        .filter((opt) => opt.count > 0)
+        .sort((a, b) => b.count - a.count);
     };
 
-    // Helper for string arrays (country, uom)
+    // Helper for string arrays (country, uom) — already distinct from products so always > 0
     const mapStringCounts = (options, counts) => {
       const countMap = new Map(counts.map((c) => [c._id, c.count]));
       return options
@@ -295,10 +301,12 @@ class ProductService {
         .map((opt) => ({
           name: opt,
           count: countMap.get(opt) || 0,
-        }));
+        }))
+        .filter((opt) => opt.count > 0)
+        .sort((a, b) => b.count - a.count);
     };
 
-    // Helper for boolean counts
+    // Helper for boolean counts — only relevant if at least one product has the flag true
     const mapBooleanCounts = (counts) => {
       const trueCount = counts.find((c) => c._id === true)?.count || 0;
       const falseCount = counts.find((c) => c._id === false)?.count || 0;
@@ -363,18 +371,12 @@ class ProductService {
         title: "Price Terms",
         filter: "priceTerms",
         component: "SelectSingleFilter",
-        options: [
-          {
-            name: "per kg",
-            count:
-              priceTermsCounts.find((c) => c._id === "per kg")?.count || 0,
-          },
-          {
-            name: "per ton",
-            count:
-              priceTermsCounts.find((c) => c._id === "per ton")?.count || 0,
-          },
-        ],
+        options: ["per kg", "per ton"]
+          .map((term) => ({
+            name: term,
+            count: priceTermsCounts.find((c) => c._id === term)?.count || 0,
+          }))
+          .filter((opt) => opt.count > 0),
       },
       {
         title: "Incoterms",
@@ -420,9 +422,19 @@ class ProductService {
       },
     ];
 
+    // Remove sections where no options have any products
+    const activeSide = filterSide.filter((s) => s.options.length > 0);
+
+    // For filterTop: keep SelectMultiple only if it has options;
+    // keep BooleanFilter only if at least one product has the flag set to true
+    const activeTop = filterTop.filter((s) => {
+      if (s.component === "BooleanFilter") return s.trueCount > 0;
+      return s.options.length > 0;
+    });
+
     return {
-      filterSide,
-      filterTop,
+      filterSide: activeSide,
+      filterTop: activeTop,
     };
   }
 

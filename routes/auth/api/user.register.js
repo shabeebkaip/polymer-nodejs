@@ -9,15 +9,15 @@ import { sendRegistrationOtp } from "../../../services/email.service.js";
 const userRegister = express.Router();
 
 // Free email domain validation disabled for development
-// const freeEmailDomains = new Set([
-//   "gmail.com", "yahoo.com", "hotmail.com", "outlook.com",
-//   "icloud.com", "aol.com", "zoho.com", "protonmail.com", "mail.com"
-// ]);
+const freeEmailDomains = new Set([
+  "gmail.com", "yahoo.com", "hotmail.com", "outlook.com",
+  "icloud.com", "aol.com", "zoho.com", "protonmail.com", "mail.com"
+]);
 
-// const isCompanyEmail = (email) => {
-//   const domain = email.split("@")[1]?.toLowerCase();
-//   return domain && !freeEmailDomains.has(domain);
-// };
+const isCompanyEmail = (email) => {
+  const domain = email.split("@")[1]?.toLowerCase();
+  return domain && !freeEmailDomains.has(domain);
+};
 
 userRegister.post("/register", async (req, res) => {
   try {
@@ -48,12 +48,12 @@ userRegister.post("/register", async (req, res) => {
     }
 
     // Company email validation disabled for development
-    // if (!isCompanyEmail(email)) {
-    //   return res.status(400).json({
-    //     status: false,
-    //     message: "Please use a company email address",
-    //   });
-    // }
+    if (!isCompanyEmail(email)) {
+      return res.status(400).json({
+        status: false,
+        message: "Please use a company email address",
+      });
+    }
 
     const existingUser = await User.findOne({ email });
     const existingAuth = await Auth.findOne({ email });

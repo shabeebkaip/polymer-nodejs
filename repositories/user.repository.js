@@ -80,7 +80,7 @@ export const listSellersWithProducts = async ({ page = 1, limit = 10 }) => {
 
   const matchStage = {
     user_type: "seller",
-    verification: "approved",
+    verification: { $in: ["verified", "approved"] },
   };
 
   const usersWithProducts = await User.aggregate([
@@ -135,7 +135,7 @@ export const getSellerDetailWithProducts = async (id) => {
   const seller = await User.findOne({
     _id: id,
     user_type: "seller",
-    verification: "approved",
+    verification: { $in: ["verified", "approved"] },
   });
 
   if (!seller) {

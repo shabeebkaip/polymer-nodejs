@@ -15,7 +15,7 @@ homeList.get('/', async (req, res) => {
 
     const verifiedUsers = await User.find({
       $or: [
-        { user_type: 'seller', verification: 'approved' },
+        { user_type: 'seller', verification: { $in: ['verified', 'approved'] } },
         { user_type: 'superAdmin' }
       ]
     }).select('_id');
