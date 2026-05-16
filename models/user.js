@@ -26,8 +26,8 @@ const schema = new Schema({
     required: false,
   },
   industry: {
-    type: String,
-    required: false,
+    type: [String],
+    default: [],
   },
   address: {
     type: String,
