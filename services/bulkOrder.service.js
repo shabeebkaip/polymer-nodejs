@@ -324,6 +324,10 @@ class BulkOrderService {
 
     return opportunities;
   }
+
+  async deleteBulkOrder(id) {
+    return await bulkOrderRepository.deleteById(id);
+  }
 }
 
 export default new BulkOrderService();

@@ -253,6 +253,24 @@ class SupplierOfferController {
   }
 
   /**
+   * Delete a supplier offer (admin only)
+   * DELETE /api/bulk-order/supplier-offer/admin/:offerId
+   */
+  async deleteSupplierOffer(req, res) {
+    try {
+      const { offerId } = req.params;
+      const deleted = await supplierOfferService.deleteSupplierOffer(offerId);
+      if (!deleted) {
+        return res.status(404).json({ success: false, message: "Supplier offer not found" });
+      }
+      return res.status(200).json({ success: true, message: "Supplier offer deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting supplier offer:", error);
+      return res.status(500).json({ success: false, message: error.message || "Failed to delete supplier offer" });
+    }
+  }
+
+  /**
    * Get all supplier offers for admin
    * GET /api/bulk-order/supplier-offer/admin
    */

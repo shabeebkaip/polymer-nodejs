@@ -293,6 +293,23 @@ class BulkOrderController {
   }
 
   /**
+   * Delete a bulk order (admin only)
+   */
+  async deleteOrder(req, res) {
+    try {
+      const { id } = req.params;
+      const deleted = await bulkOrderService.deleteBulkOrder(id);
+      if (!deleted) {
+        return res.status(404).json({ success: false, message: "Bulk order not found" });
+      }
+      res.status(200).json({ success: true, message: "Bulk order deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting bulk order:", error);
+      res.status(500).json({ success: false, message: error.message || "Failed to delete bulk order" });
+    }
+  }
+
+  /**
    * Get approved bulk orders (public opportunities)
    */
   async getApprovedOrders(req, res) {

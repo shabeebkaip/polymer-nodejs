@@ -361,6 +361,10 @@ class SupplierOfferService {
       $push: { statusMessage: newStatusMessage },
     });
   }
+
+  async deleteSupplierOffer(offerId) {
+    return await supplierOfferRepository.deleteById(offerId);
+  }
 }
 
 export default new SupplierOfferService();

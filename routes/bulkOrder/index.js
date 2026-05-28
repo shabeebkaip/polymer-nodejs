@@ -57,6 +57,12 @@ router.post(
   authorizeRoles("superAdmin"),
   supplierOfferController.adminCreateSupplierOffer
 );
+router.delete(
+  "/supplier-offer/admin/:offerId",
+  authenticateUser,
+  authorizeRoles("superAdmin"),
+  supplierOfferController.deleteSupplierOffer
+);
 
 // Admin routes
 router.get(
@@ -88,6 +94,12 @@ router.post(
   authenticateUser,
   authorizeRoles("superAdmin"),
   bulkOrderController.adminCreate
+);
+router.delete(
+  "/admin-delete/:id",
+  authenticateUser,
+  authorizeRoles("superAdmin"),
+  bulkOrderController.deleteOrder
 );
 
 export default router;
