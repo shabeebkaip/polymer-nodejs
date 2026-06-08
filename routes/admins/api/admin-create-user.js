@@ -26,10 +26,10 @@ adminCreateUser.post("/create-user", async (req, res) => {
 
     email = email?.toLowerCase().trim();
 
-    if (!firstName || !lastName || !email || !phone || !country_code || !user_type) {
+    if (!firstName || !lastName || !email || !user_type) {
       return res.status(400).json({
         status: false,
-        message: "Missing required fields: firstName, lastName, email, phone, country_code, user_type",
+        message: "Missing required fields: firstName, lastName, email, user_type",
       });
     }
 
@@ -60,8 +60,6 @@ adminCreateUser.post("/create-user", async (req, res) => {
       firstName,
       lastName,
       email,
-      phone,
-      country_code,
       user_type,
       company,
       website,
@@ -69,6 +67,8 @@ adminCreateUser.post("/create-user", async (req, res) => {
       address,
       industry,
       vat_number: user_type === "seller" ? vat_number : undefined,
+      // phone is optional when onboarded by admin
+      ...(phone ? { phone, country_code } : {}),
       emailVerified: true,
       verification: "approved",
     });

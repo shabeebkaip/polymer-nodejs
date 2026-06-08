@@ -35,11 +35,11 @@ const schema = new Schema({
   },
   country_code: {
     type: String,
-    required: true
+    required: false,
   },
   phone: {
     type: Number,
-    required: true,
+    required: false,
   },
   location: {
     type: String,
