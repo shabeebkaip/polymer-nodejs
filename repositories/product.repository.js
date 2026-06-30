@@ -437,6 +437,10 @@ class ProductRepository {
       };
     }
 
+    if (filters.createdVia) {
+      matchStage.createdVia = filters.createdVia;
+    }
+
     return matchStage;
   }
 

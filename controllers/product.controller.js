@@ -84,6 +84,7 @@ class ProductController {
         company,
         createdBy,
         product_family,
+        createdVia,
       } = req.body;
 
       const filters = {
@@ -106,6 +107,7 @@ class ProductController {
         company,
         createdBy,
         product_family,
+        createdVia,
       };
 
       // Remove undefined filters

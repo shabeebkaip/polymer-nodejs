@@ -145,6 +145,12 @@ const productSchema = new Schema(
 
     // Ownership metadata
     createdBy: { type: Schema.Types.ObjectId, ref: "user", required: true },
+
+    // AI import provenance
+    createdVia: { type: String, enum: ["manual", "ai"], default: "manual" },
+    aiSessionId: { type: String },
+    // Mixed: call doc.markModified('aiConfidence') before save if mutating in place
+    aiConfidence: { type: Schema.Types.Mixed },
   },
   { timestamps: true }
 );

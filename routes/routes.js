@@ -60,6 +60,9 @@ import homeRouter from "./home/home.js";
 // ==================== TEST ROUTES ====================
 import testEmailRouter from "./test/testEmail.js";
 
+// ==================== AI IMPORT ROUTES ====================
+import aiRouter from "./ai/index.js";
+
 // ==================== PUBLIC ROUTES ====================
 import earlyAccessRouter from "./earlyAccess/earlyAccess.js";
 
@@ -126,6 +129,9 @@ router.use("/home", homeRouter);
 
 // ==================== TEST ROUTES ====================
 router.use("/test-email", testEmailRouter);
+
+// ==================== AI IMPORT ROUTES ====================
+router.use("/ai", aiRouter);
 
 // ==================== PUBLIC ROUTES ====================
 router.use("/early-access", earlyAccessRouter);

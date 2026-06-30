@@ -54,7 +54,10 @@ export const config = {
     redis: {
         restUrl: process.env.UPSTASH_REDIS_REST_URL,
         restToken: process.env.UPSTASH_REDIS_REST_TOKEN,
-    }
+    },
+
+    // AI configuration
+    anthropicApiKey: process.env.ANTHROPIC_API_KEY,
 };
 
 // Get current environment URL

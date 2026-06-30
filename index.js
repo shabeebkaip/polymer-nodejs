@@ -41,6 +41,8 @@ app.use(
   fileUpload({
     useTempFiles: true,
     tempFileDir: "/tmp/",
+    limits: { fileSize: 20 * 1024 * 1024 },
+    abortOnLimit: true,
   })
 );
 
@@ -70,6 +72,13 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api", router);
+
+// Global error handler — must be after all routes
+app.use((err, req, res, next) => {
+  const status = err.status || err.statusCode || 500;
+  const message = status >= 500 ? "Internal server error" : (err.message || "Something went wrong");
+  res.status(status).json({ success: false, message });
+});
 
 app.listen(port, () => {
   console.log(`🚀 Server connected at http://localhost:${port}`);
