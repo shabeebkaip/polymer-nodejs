@@ -65,22 +65,25 @@ export const matchOne = async (refKey, query) => {
   };
 };
 
+// unwraps ConfidentEnum/ConfidentString wrappers so matchOne always receives a plain string
+const strVal = (field) => (field && typeof field === "object" ? field.value : field);
+
 export const resolveReferences = async (extractedProduct) => {
   const results = {};
 
-  results.polymerType = await matchOne("polymerType", extractedProduct.polymerType);
-  results.chemicalFamily = await matchOne("chemicalFamily", extractedProduct.chemicalFamily);
-  results.physicalForm = await matchOne("physicalForm", extractedProduct.physicalForm);
+  results.polymerType = await matchOne("polymerType", strVal(extractedProduct.polymerType));
+  results.chemicalFamily = await matchOne("chemicalFamily", strVal(extractedProduct.chemicalFamily));
+  results.physicalForm = await matchOne("physicalForm", strVal(extractedProduct.physicalForm));
 
   if (Array.isArray(extractedProduct.industry)) {
     results.industry = await Promise.all(
-      extractedProduct.industry.map((v) => matchOne("industry", v))
+      extractedProduct.industry.map((v) => matchOne("industry", strVal(v)))
     );
   }
 
   if (Array.isArray(extractedProduct.grade)) {
     results.grade = await Promise.all(
-      extractedProduct.grade.map((v) => matchOne("grade", v))
+      extractedProduct.grade.map((v) => matchOne("grade", strVal(v)))
     );
   }
 

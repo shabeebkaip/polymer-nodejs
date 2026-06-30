@@ -1,7 +1,7 @@
 import { extractText, getDocumentProxy } from "unpdf";
 import * as XLSX from "xlsx";
 
-const PDF_TEXT_THRESHOLD = 100;
+const AVG_CHARS_PER_PAGE_THRESHOLD = 50;
 
 const IMAGE_EXTS = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
 const IMAGE_MIMES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
@@ -11,13 +11,25 @@ export const extractFromPdf = async (buffer) => {
   const { text, totalPages } = await extractText(pdf, { mergePages: true });
 
   const trimmed = (text || "").trim();
-  const isScanned = trimmed.length < PDF_TEXT_THRESHOLD;
+  const avgCharsPerPage = totalPages > 0 ? trimmed.length / totalPages : 0;
+
+  if (avgCharsPerPage < AVG_CHARS_PER_PAGE_THRESHOLD) {
+    return {
+      format: "pdf-vision",
+      pages: totalPages,
+      text: null,
+      pdfBuffer: buffer,
+      isScanned: true,
+      extractionMethod: "vision",
+    };
+  }
 
   return {
     format: "pdf",
     pages: totalPages,
     text: trimmed,
-    isScanned,
+    isScanned: false,
+    extractionMethod: "text",
   };
 };
 
@@ -43,6 +55,7 @@ export const extractFromSpreadsheet = (buffer) => {
     format: "spreadsheet",
     sheets,
     text: flatText,
+    extractionMethod: "text",
   };
 };
 
@@ -71,6 +84,7 @@ export const extractFromUpload = async (file) => {
       imageData: file.data,
       text: null,
       isScanned: false,
+      extractionMethod: "vision",
     };
   }
 
