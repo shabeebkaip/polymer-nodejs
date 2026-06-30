@@ -2,6 +2,7 @@ import { extractText, getDocumentProxy } from "unpdf";
 import * as XLSX from "xlsx";
 
 const AVG_CHARS_PER_PAGE_THRESHOLD = 50;
+const VISION_PAGE_LIMIT = 50;
 
 const IMAGE_EXTS = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
 const IMAGE_MIMES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
@@ -14,6 +15,14 @@ export const extractFromPdf = async (buffer) => {
   const avgCharsPerPage = totalPages > 0 ? trimmed.length / totalPages : 0;
 
   if (avgCharsPerPage < AVG_CHARS_PER_PAGE_THRESHOLD) {
+    if (totalPages > VISION_PAGE_LIMIT) {
+      const err = new Error(
+        `This document is too large to process (${totalPages} pages). Try a shorter catalog or split it into sections under ${VISION_PAGE_LIMIT} pages.`
+      );
+      err.status = 422;
+      throw err;
+    }
+
     return {
       format: "pdf-vision",
       pages: totalPages,

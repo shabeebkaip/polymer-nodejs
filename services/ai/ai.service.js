@@ -140,7 +140,7 @@ export const parseCatalog = async ({ text, format, mimeType, imageData, pdfBuffe
     };
   }
 
-  const result = await generateText(args);
+  const result = await generateText({ ...args, abortSignal: AbortSignal.timeout(120_000) });
 
   let extraction;
   try {

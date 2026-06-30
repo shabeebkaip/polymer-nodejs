@@ -109,6 +109,12 @@ export const parseUpload = async (req, res, next) => {
       products: productsWithRefs,
     });
   } catch (err) {
+    if (err.name === "TimeoutError") {
+      return res.status(504).json({
+        success: false,
+        message: "AI processing timed out. Try a shorter file or a text-based PDF.",
+      });
+    }
     next(err);
   } finally {
     if (file?.tempFilePath) {
