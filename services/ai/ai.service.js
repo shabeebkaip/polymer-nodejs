@@ -121,8 +121,8 @@ export const parseCatalog = async ({ text, format, mimeType, imageData, pdfBuffe
           content: [
             {
               type: "file",
-              data: Buffer.from(pdfBuffer).toString("base64"),
-              mimeType: "application/pdf",
+              data: pdfBuffer,          // Buffer — valid DataContent
+              mediaType: "application/pdf",  // SDK v7 uses mediaType, not mimeType
             },
             {
               type: "text",

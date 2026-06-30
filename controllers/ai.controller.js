@@ -70,6 +70,8 @@ export const parseUpload = async (req, res, next) => {
       return res.status(200).json({
         success: true,
         sessionId: null,
+        extractionMethod,
+        ocrFailed: false,
         products: [],
         rejectionReason: aiResult.extraction.rejectionReason || "No polymer data detected in the uploaded file.",
       });
@@ -90,6 +92,7 @@ export const parseUpload = async (req, res, next) => {
       sourceFile: file.name,
       format: extracted.format,
       extractionMethod,
+      ocrFailed,
       model: aiResult.model,
       usage: aiResult.usage,
       products: productsWithRefs,
