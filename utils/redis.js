@@ -9,6 +9,33 @@ import { config } from "../config/config.js";
 let redisClient = null;
 let isConnected = false;
 
+// ponytail: in-memory fallback is single-process only; revive Upstash for multi-instance deployments.
+let _redisDown = false;      // latched true on first network failure — stops all retry attempts
+let _redisDownLogged = false; // log the unreachable condition exactly once
+
+const _memCache = new Map(); // { key -> { value, expiresAt: ms } }
+
+const _memSet = (k, data, ttl) => {
+  _memCache.set(k, { value: data, expiresAt: Date.now() + ttl * 1000 });
+};
+
+const _memGet = (k) => {
+  const entry = _memCache.get(k);
+  if (!entry) return null;
+  if (Date.now() > entry.expiresAt) { _memCache.delete(k); return null; }
+  return entry.value;
+};
+
+const _memDel = (k) => _memCache.delete(k);
+
+const _markDown = (err) => {
+  _redisDown = true;
+  if (!_redisDownLogged) {
+    _redisDownLogged = true;
+    console.warn(`[cache] Redis unreachable (${err.message}); using in-memory fallback for this process lifetime.`);
+  }
+};
+
 /**
  * Initialize Redis connection
  */
@@ -96,16 +123,17 @@ const CACHE_TTL = {
  * @param {number} ttl - Time to live in seconds
  */
 const setCache = async (key, data, ttl = CACHE_TTL.DEFAULT) => {
+  if (_redisDown || !isConnected || !redisClient) {
+    _memSet(key, data, ttl);
+    return true;
+  }
   try {
-    if (!isConnected || !redisClient) {
-      return false;
-    }
-    // Upstash uses 'ex' option for TTL
     await redisClient.set(key, JSON.stringify(data), { ex: ttl });
     return true;
   } catch (error) {
-    console.error(`Redis setCache error for key ${key}:`, error.message);
-    return false;
+    _markDown(error);
+    _memSet(key, data, ttl);
+    return true;
   }
 };
 
@@ -114,10 +142,10 @@ const setCache = async (key, data, ttl = CACHE_TTL.DEFAULT) => {
  * @param {string} key - Cache key
  */
 const getCache = async (key) => {
+  if (_redisDown || !isConnected || !redisClient) {
+    return _memGet(key);
+  }
   try {
-    if (!isConnected || !redisClient) {
-      return null;
-    }
     const data = await redisClient.get(key);
     if (data) {
       // Upstash may return parsed object or string
@@ -125,8 +153,8 @@ const getCache = async (key) => {
     }
     return null;
   } catch (error) {
-    console.error(`Redis getCache error for key ${key}:`, error.message);
-    return null;
+    _markDown(error);
+    return _memGet(key);
   }
 };
 
@@ -135,15 +163,14 @@ const getCache = async (key) => {
  * @param {string} key - Cache key
  */
 const deleteCache = async (key) => {
+  _memDel(key); // always clean local mem too
+  if (_redisDown || !isConnected || !redisClient) return true;
   try {
-    if (!isConnected || !redisClient) {
-      return false;
-    }
     await redisClient.del(key);
     return true;
   } catch (error) {
-    console.error(`Redis deleteCache error for key ${key}:`, error.message);
-    return false;
+    _markDown(error);
+    return true;
   }
 };
 
@@ -152,18 +179,21 @@ const deleteCache = async (key) => {
  * @param {string} pattern - Key pattern (e.g., "dashboard:*")
  */
 const deleteCacheByPattern = async (pattern) => {
+  // purge matching keys from local mem fallback
+  const regex = new RegExp(`^${pattern.replace(/\*/g, ".*")}$`);
+  for (const k of _memCache.keys()) {
+    if (regex.test(k)) _memCache.delete(k);
+  }
+  if (_redisDown || !isConnected || !redisClient) return true;
   try {
-    if (!isConnected || !redisClient) {
-      return false;
-    }
     const keys = await redisClient.keys(pattern);
     if (keys && keys.length > 0) {
       await redisClient.del(...keys);
     }
     return true;
   } catch (error) {
-    console.error(`Redis deleteCacheByPattern error for pattern ${pattern}:`, error.message);
-    return false;
+    _markDown(error);
+    return true;
   }
 };
 

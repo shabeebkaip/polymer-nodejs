@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import { extractFromUpload } from "../services/ai/extract.service.js";
 import { parseCatalog } from "../services/ai/ai.service.js";
 import { resolveReferences } from "../services/ai/refmatch.service.js";
-import { createSession, getSession } from "../utils/aiSessionStore.js";
+import { createSession, getSession, updateSession } from "../utils/aiSessionStore.js";
 
 const MAX_FILE_BYTES = 20 * 1024 * 1024; // 20 MB
 
@@ -40,20 +40,10 @@ const applyConfidenceRules = (product, extractionMethod) => {
   return product;
 };
 
-export const parseUpload = async (req, res, next) => {
-  const file = req.files?.file;
+// Runs the heavy pipeline in the background and streams status into the session store.
+// Never throws — all errors get written into the session as { status: "failed", ... }.
+const runPipeline = async (sessionId, fileWithData, userId) => {
   try {
-    if (!file) {
-      return res.status(400).json({ success: false, message: "No file uploaded under field name 'file'." });
-    }
-
-    if (file.size > MAX_FILE_BYTES) {
-      return res.status(413).json({ success: false, message: "File exceeds 20 MB limit." });
-    }
-
-    const buffer = await fs.readFile(file.tempFilePath);
-    const fileWithData = { name: file.name, mimetype: file.mimetype, data: buffer };
-
     const extracted = await extractFromUpload(fileWithData);
     const extractionMethod = extracted.extractionMethod;
 
@@ -63,18 +53,19 @@ export const parseUpload = async (req, res, next) => {
       mimeType: extracted.mimeType,
       imageData: extracted.imageData,
       pdfBuffer: extracted.pdfBuffer,
-      sourceFile: file.name,
+      images: extracted.images,
+      sourceFile: fileWithData.name,
     });
 
     if (!aiResult.extraction.isPolymerCatalog) {
-      return res.status(200).json({
-        success: true,
-        sessionId: null,
+      await updateSession(sessionId, {
+        status: "completed",
         extractionMethod,
         ocrFailed: false,
         products: [],
         rejectionReason: aiResult.extraction.rejectionReason || "No polymer data detected in the uploaded file.",
       });
+      return;
     }
 
     const productsWithRefs = await Promise.all(
@@ -87,9 +78,8 @@ export const parseUpload = async (req, res, next) => {
 
     const ocrFailed = extractionMethod === "vision" && aiResult.extraction.products.length === 0;
 
-    const sessionId = await createSession({
-      userId: req.user.id.toString(),
-      sourceFile: file.name,
+    await updateSession(sessionId, {
+      status: "completed",
       format: extracted.format,
       extractionMethod,
       ocrFailed,
@@ -97,24 +87,47 @@ export const parseUpload = async (req, res, next) => {
       usage: aiResult.usage,
       products: productsWithRefs,
     });
+  } catch (err) {
+    console.error(`[ai.parse] pipeline failed for session ${sessionId}:`, err);
+    await updateSession(sessionId, {
+      status: "failed",
+      failureCode: err.name === "TimeoutError" ? "timeout" : "error",
+      errorMessage: err.message || "Processing failed.",
+    }).catch(() => {});
+  }
+};
 
-    res.json({
+export const parseUpload = async (req, res, next) => {
+  const file = req.files?.file;
+  try {
+    if (!file) {
+      return res.status(400).json({ success: false, message: "No file uploaded under field name 'file'." });
+    }
+
+    if (file.size > MAX_FILE_BYTES) {
+      return res.status(413).json({ success: false, message: "File exceeds 20 MB limit." });
+    }
+
+    // Load the buffer now so we can clean up the temp file before returning.
+    const buffer = await fs.readFile(file.tempFilePath);
+    const fileWithData = { name: file.name, mimetype: file.mimetype, data: buffer };
+    const userId = req.user.id.toString();
+
+    const sessionId = await createSession({
+      userId,
+      sourceFile: file.name,
+      status: "processing",
+    });
+
+    // Fire-and-forget — no HTTP timeout pressure.
+    setImmediate(() => runPipeline(sessionId, fileWithData, userId));
+
+    return res.status(202).json({
       success: true,
       sessionId,
-      sourceFile: file.name,
-      format: extracted.format,
-      extractionMethod,
-      ocrFailed,
-      model: aiResult.model,
-      products: productsWithRefs,
+      status: "processing",
     });
   } catch (err) {
-    if (err.name === "TimeoutError") {
-      return res.status(504).json({
-        success: false,
-        message: "AI processing timed out. Try a shorter file or a text-based PDF.",
-      });
-    }
     next(err);
   } finally {
     if (file?.tempFilePath) {
@@ -135,7 +148,7 @@ export const getParseSession = async (req, res, next) => {
     }
 
     const { userId, ...publicSession } = session;
-    res.json({ success: true, ...publicSession });
+    res.json({ success: true, sessionId: req.params.id, ...publicSession });
   } catch (err) {
     next(err);
   }

@@ -1,11 +1,50 @@
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+import { mkdtemp, readdir, readFile, writeFile, rm } from "node:fs/promises";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 import { extractText, getDocumentProxy } from "unpdf";
 import * as XLSX from "xlsx";
 
+const execFileAsync = promisify(execFile);
+
 const AVG_CHARS_PER_PAGE_THRESHOLD = 50;
-const VISION_PAGE_LIMIT = 50;
+const VISION_PAGE_LIMIT = 25;
+
+// macOS (Homebrew) or Linux (poppler-utils) paths
+const PDFTOPPM =
+  process.env.PDFTOPPM_PATH ||
+  (process.platform === "darwin" ? "/opt/homebrew/bin/pdftoppm" : "pdftoppm");
 
 const IMAGE_EXTS = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
 const IMAGE_MIMES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+
+/**
+ * Converts every page of a scanned PDF to a 150-DPI JPEG using pdftoppm.
+ * Returns an array of Buffers (one per page), sorted by page number.
+ */
+const pdfPagesToImages = async (buffer) => {
+  const tempDir = await mkdtemp(join(tmpdir(), "ph-pdf-"));
+  const tempPdf = join(tempDir, "in.pdf");
+  try {
+    await writeFile(tempPdf, buffer);
+    // 100 DPI + scale-to-900: ~50-80KB/page, well under Claude's 2000px multi-image limit
+    await execFileAsync(PDFTOPPM, [
+      "-r", "100",
+      "-scale-to", "900",
+      "-jpeg",
+      "-jpegopt", "quality=75",
+      tempPdf,
+      join(tempDir, "pg"),
+    ]);
+    const files = (await readdir(tempDir))
+      .filter((f) => f.endsWith(".jpg"))
+      .sort();
+    return Promise.all(files.map((f) => readFile(join(tempDir, f))));
+  } finally {
+    await rm(tempDir, { recursive: true }).catch(() => {});
+  }
+};
 
 export const extractFromPdf = async (buffer) => {
   const pdf = await getDocumentProxy(new Uint8Array(buffer));
@@ -17,17 +56,32 @@ export const extractFromPdf = async (buffer) => {
   if (avgCharsPerPage < AVG_CHARS_PER_PAGE_THRESHOLD) {
     if (totalPages > VISION_PAGE_LIMIT) {
       const err = new Error(
-        `This document is too large to process (${totalPages} pages). Try a shorter catalog or split it into sections under ${VISION_PAGE_LIMIT} pages.`
+        `This document is too large to process (${totalPages} pages). Split it into sections under ${VISION_PAGE_LIMIT} pages.`
       );
       err.status = 422;
       throw err;
     }
 
+    let images;
+    try {
+      images = await pdfPagesToImages(buffer);
+    } catch (convErr) {
+      // pdftoppm not available — fall back to native PDF block
+      console.warn("pdftoppm unavailable, falling back to native PDF block:", convErr.message);
+      return {
+        format: "pdf-vision",
+        pages: totalPages,
+        text: null,
+        pdfBuffer: buffer,
+        isScanned: true,
+        extractionMethod: "vision",
+      };
+    }
+
     return {
-      format: "pdf-vision",
+      format: "pdf-vision-pages",
       pages: totalPages,
-      text: null,
-      pdfBuffer: buffer,
+      images,
       isScanned: true,
       extractionMethod: "vision",
     };
