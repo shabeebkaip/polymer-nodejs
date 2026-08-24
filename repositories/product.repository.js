@@ -183,6 +183,17 @@ class ProductRepository {
           mfi: 1,
           tensileStrength: 1,
           elongationAtBreak: 1,
+          // These 5 fields exist on the schema and save correctly, but were
+          // never added to this shared read projection (used by both list and
+          // single-product reads) — found while verifying DESIGN_SPEC §14's
+          // "Found in Your Catalogue" cards: values saved fine but silently
+          // never came back on reload/edit. Purely additive, no other field's
+          // behavior changes.
+          flexuralModulus: 1,
+          materialType: 1,
+          form: 1,
+          supplierType: 1,
+          additives: 1,
           shoreHardness: 1,
           waterAbsorption: 1,
           safety_data_sheet: "$safety_data_sheet",
