@@ -4,8 +4,11 @@ import User from "../../../models/user.js";
 import Auth from "../../../models/auth.js";
 import { sendAccountCreationEmail } from "../../../services/email.service.js";
 import generateRandomId from "../../../common/random.js";
+import { authenticateUser, authorizeRoles } from "../../../middlewares/verify.token.js";
+import { convertRole } from "../../../controllers/admin.controller.js";
 
 const adminCreateUser = express.Router();
+const superAdminOnly = [authenticateUser, authorizeRoles("superAdmin")];
 
 adminCreateUser.post("/create-user", async (req, res) => {
   try {
@@ -105,5 +108,13 @@ adminCreateUser.post("/create-user", async (req, res) => {
     });
   }
 });
+
+/**
+ * POST /admin/users/convert-role
+ * Convert an existing user's role (buyer<->seller) in place — same _id, Auth untouched.
+ * Guarded: superAdmin only. Business logic lives in controllers/admin.controller.js
+ * (createConvertRoleHandler) so it's unit-testable without a real DB.
+ */
+adminCreateUser.post("/convert-role", ...superAdminOnly, convertRole);
 
 export default adminCreateUser;
