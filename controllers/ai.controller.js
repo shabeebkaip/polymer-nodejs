@@ -6,6 +6,14 @@ import { createSession, getSession, updateSession } from "../utils/aiSessionStor
 
 const MAX_FILE_BYTES = 20 * 1024 * 1024; // 20 MB
 
+export const PROCESSING_STAGES = Object.freeze({
+  UPLOADED: "uploaded",
+  EXTRACTING: "extracting",
+  ANALYSING: "analysing",
+  MATCHING: "matching",
+  PREPARING: "preparing",
+});
+
 // Fields that get ConfidentNumber wrappers — vision path confidence is downgraded for these
 const NUMERIC_FIELDS = new Set([
   "density", "mfi", "tensileStrength", "elongationAtBreak",
@@ -40,14 +48,22 @@ const applyConfidenceRules = (product, extractionMethod) => {
   return product;
 };
 
-// Runs the heavy pipeline in the background and streams status into the session store.
-// Never throws — all errors get written into the session as { status: "failed", ... }.
-const runPipeline = async (sessionId, fileWithData, userId) => {
+// Dependency injection keeps the asynchronous boundary deterministic in tests without
+// invoking the paid model or requiring MongoDB/Redis.
+export const createPipelineRunner = ({
+  extractUpload = extractFromUpload,
+  parse = parseCatalog,
+  resolve = resolveReferences,
+  persist = updateSession,
+  logger = console,
+} = {}) => async (sessionId, fileWithData) => {
   try {
-    const extracted = await extractFromUpload(fileWithData);
+    await persist(sessionId, { stage: PROCESSING_STAGES.EXTRACTING });
+    const extracted = await extractUpload(fileWithData);
     const extractionMethod = extracted.extractionMethod;
 
-    const aiResult = await parseCatalog({
+    await persist(sessionId, { stage: PROCESSING_STAGES.ANALYSING });
+    const aiResult = await parse({
       text: extracted.text,
       format: extracted.format,
       mimeType: extracted.mimeType,
@@ -58,7 +74,7 @@ const runPipeline = async (sessionId, fileWithData, userId) => {
     });
 
     if (!aiResult.extraction.isPolymerCatalog) {
-      await updateSession(sessionId, {
+      await persist(sessionId, {
         status: "completed",
         extractionMethod,
         ocrFailed: false,
@@ -68,17 +84,19 @@ const runPipeline = async (sessionId, fileWithData, userId) => {
       return;
     }
 
+    await persist(sessionId, { stage: PROCESSING_STAGES.MATCHING });
     const productsWithRefs = await Promise.all(
       aiResult.extraction.products.map(async (product) => {
         applyConfidenceRules(product, extractionMethod);
-        const refMatches = await resolveReferences(product);
+        const refMatches = await resolve(product);
         return { product, refMatches };
       })
     );
 
     const ocrFailed = extractionMethod === "vision" && aiResult.extraction.products.length === 0;
 
-    await updateSession(sessionId, {
+    await persist(sessionId, { stage: PROCESSING_STAGES.PREPARING });
+    await persist(sessionId, {
       status: "completed",
       format: extracted.format,
       extractionMethod,
@@ -88,16 +106,27 @@ const runPipeline = async (sessionId, fileWithData, userId) => {
       products: productsWithRefs,
     });
   } catch (err) {
-    console.error(`[ai.parse] pipeline failed for session ${sessionId}:`, err);
-    await updateSession(sessionId, {
+    logger.error(`[ai.parse] pipeline failed for session ${sessionId}:`, err);
+    const failureCode = err.name === "TimeoutError" ? "timeout" : "error";
+    await persist(sessionId, {
       status: "failed",
-      failureCode: err.name === "TimeoutError" ? "timeout" : "error",
-      errorMessage: err.message || "Processing failed.",
+      failureCode,
+      errorMessage: failureCode === "timeout" ? "Processing timed out." : "Processing failed.",
     }).catch(() => {});
   }
 };
 
-export const parseUpload = async (req, res, next) => {
+// Runs the heavy pipeline in the background and streams status into the session store.
+// Never throws — all errors get written into the session as { status: "failed", ... }.
+export const runPipeline = createPipelineRunner();
+
+export const createParseUploadHandler = ({
+  readFile = fs.readFile,
+  unlink = fs.unlink,
+  create = createSession,
+  schedule = setImmediate,
+  pipeline = runPipeline,
+} = {}) => async (req, res, next) => {
   const file = req.files?.file;
   try {
     if (!file) {
@@ -109,36 +138,40 @@ export const parseUpload = async (req, res, next) => {
     }
 
     // Load the buffer now so we can clean up the temp file before returning.
-    const buffer = await fs.readFile(file.tempFilePath);
+    const buffer = await readFile(file.tempFilePath);
     const fileWithData = { name: file.name, mimetype: file.mimetype, data: buffer };
     const userId = req.user.id.toString();
 
-    const sessionId = await createSession({
+    const sessionId = await create({
       userId,
       sourceFile: file.name,
       status: "processing",
+      stage: PROCESSING_STAGES.UPLOADED,
     });
 
     // Fire-and-forget — no HTTP timeout pressure.
-    setImmediate(() => runPipeline(sessionId, fileWithData, userId));
+    schedule(() => pipeline(sessionId, fileWithData, userId));
 
     return res.status(202).json({
       success: true,
       sessionId,
       status: "processing",
+      stage: PROCESSING_STAGES.UPLOADED,
     });
   } catch (err) {
     next(err);
   } finally {
     if (file?.tempFilePath) {
-      await fs.unlink(file.tempFilePath).catch(() => {});
+      await unlink(file.tempFilePath).catch(() => {});
     }
   }
 };
 
-export const getParseSession = async (req, res, next) => {
+export const parseUpload = createParseUploadHandler();
+
+export const createGetParseSessionHandler = ({ load = getSession } = {}) => async (req, res, next) => {
   try {
-    const session = await getSession(req.params.id);
+    const session = await load(req.params.id);
     if (!session) {
       return res.status(404).json({ success: false, message: "Session not found or expired." });
     }
@@ -153,3 +186,5 @@ export const getParseSession = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getParseSession = createGetParseSessionHandler();
