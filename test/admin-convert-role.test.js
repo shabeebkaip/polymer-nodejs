@@ -67,6 +67,23 @@ test("buyer -> seller rejected with 400 when company is missing", async () => {
   assert.equal(user.user_type, "buyer", "user_type must not change on rejection");
 });
 
+test("buyer -> seller succeeds without company in the request when the account already has one on file (one-click convert)", async () => {
+  const user = makeUser({ company: "Existing Co On File" });
+  const handler = createConvertRoleHandler({
+    findUser: async () => user,
+    countActiveListings: async () => 0,
+  });
+  const req = { body: { email: "buyer@example.com", user_type: "seller" } }; // no company in payload
+  const res = responseRecorder();
+
+  await handler(req, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.status, true);
+  assert.equal(res.body.data.user_type, "seller");
+  assert.equal(res.body.data.company, "Existing Co On File", "existing company must be left untouched");
+});
+
 test("converting to the same role is an idempotent no-op", async () => {
   const user = makeUser({ user_type: "seller", company: "Already Seller Co" });
   const handler = createConvertRoleHandler({
@@ -80,6 +97,7 @@ test("converting to the same role is an idempotent no-op", async () => {
 
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.status, true);
+  assert.equal(res.body.alreadyConverted, true);
   assert.match(res.body.message, /already a seller/i);
 });
 

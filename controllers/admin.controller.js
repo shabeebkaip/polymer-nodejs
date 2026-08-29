@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
 import User from "../models/user.js";
 import Product from "../models/product.js";
+import Auth from "../models/auth.js";
 
 const defaultFindUser = (query) => User.findOne(query);
 const defaultCountActiveListings = (sellerId) => Product.countDocuments({ createdBy: sellerId });
 const defaultIsValidId = (id) => mongoose.Types.ObjectId.isValid(id);
+const defaultFindAuth = (query) => Auth.findOne(query);
 
 /**
  * Convert an existing account's role (buyer<->seller) in place — same _id, Auth untouched.
@@ -54,13 +56,17 @@ export const createConvertRoleHandler = ({
     if (user.user_type === user_type) {
       return res.status(200).json({
         status: true,
+        alreadyConverted: true,
         message: `User is already a ${user_type}. No changes made.`,
         data: { _id: user._id, email: user.email, user_type: user.user_type, company: user.company },
       });
     }
 
     // Decision #3: buyer->seller requires company; vat_number/website optional, filled later.
-    if (user_type === "seller" && !company?.trim()) {
+    // Only require it in the request when the account doesn't already have one on file —
+    // mirrors createLookupUserHandler's hasSellerFields check so the frontend's one-click
+    // convert path (company omitted when hasSellerFields=true) isn't rejected here.
+    if (user_type === "seller" && !user.company?.trim() && !company?.trim()) {
       return res.status(400).json({
         status: false,
         message: "company is required to convert an account to seller.",
@@ -114,3 +120,43 @@ export const createConvertRoleHandler = ({
 };
 
 export const convertRole = createConvertRoleHandler();
+
+/**
+ * Guarded email pre-check — lets the dashboard branch (create vs convert) before
+ * attempting a create. Reuses the same lookup logic as admin-create-user.js's
+ * duplicate check (User.findOne({email}) + Auth.findOne({email})).
+ */
+export const createLookupUserHandler = ({
+  findUser = defaultFindUser,
+  findAuth = defaultFindAuth,
+} = {}) => async (req, res) => {
+  try {
+    const email = req.query.email?.toLowerCase().trim();
+
+    if (!email) {
+      return res.status(400).json({
+        status: false,
+        message: "email query param is required.",
+      });
+    }
+
+    const [user, auth] = await Promise.all([findUser({ email }), findAuth({ email })]);
+
+    // Inconsistent-state edge case (Auth row with no User doc, or vice versa): still
+    // report exists:true (matches the create-user duplicate check's existingUser ||
+    // existingAuth logic), but user_type/hasSellerFields can only come from the User doc.
+    return res.status(200).json({
+      exists: Boolean(user || auth),
+      user_type: user?.user_type ?? null,
+      hasSellerFields: Boolean(user?.company?.trim()),
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+export const lookupUser = createLookupUserHandler();

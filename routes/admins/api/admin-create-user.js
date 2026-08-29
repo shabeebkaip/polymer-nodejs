@@ -5,7 +5,7 @@ import Auth from "../../../models/auth.js";
 import { sendAccountCreationEmail } from "../../../services/email.service.js";
 import generateRandomId from "../../../common/random.js";
 import { authenticateUser, authorizeRoles } from "../../../middlewares/verify.token.js";
-import { convertRole } from "../../../controllers/admin.controller.js";
+import { convertRole, lookupUser } from "../../../controllers/admin.controller.js";
 
 const adminCreateUser = express.Router();
 const superAdminOnly = [authenticateUser, authorizeRoles("superAdmin")];
@@ -116,5 +116,13 @@ adminCreateUser.post("/create-user", async (req, res) => {
  * (createConvertRoleHandler) so it's unit-testable without a real DB.
  */
 adminCreateUser.post("/convert-role", ...superAdminOnly, convertRole);
+
+/**
+ * GET /admin/users/lookup?email=
+ * Guarded email pre-check so the dashboard can branch (create vs convert) before
+ * attempting a create. Business logic lives in controllers/admin.controller.js
+ * (createLookupUserHandler) so it's unit-testable without a real DB.
+ */
+adminCreateUser.get("/lookup", ...superAdminOnly, lookupUser);
 
 export default adminCreateUser;
