@@ -350,6 +350,14 @@ class ProductRepository {
   buildMatchStage(filters) {
     const matchStage = {};
 
+    // Archived listings are hidden everywhere by default (marketplace + seller
+    // "My Products"). Pass includeArchived:true (admin) or isArchived:true to see them.
+    if (filters.isArchived !== undefined) {
+      matchStage.isArchived = filters.isArchived;
+    } else if (filters.includeArchived !== true) {
+      matchStage.isArchived = { $ne: true };
+    }
+
     if (filters.search) {
       matchStage.productName = { $regex: filters.search, $options: "i" };
     }

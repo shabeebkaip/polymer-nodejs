@@ -146,6 +146,13 @@ const productSchema = new Schema(
     // Ownership metadata
     createdBy: { type: Schema.Types.ObjectId, ref: "user", required: true },
 
+    // Soft-archive: hidden from marketplace/seller lists but not deleted.
+    // Set when a seller is demoted to buyer (archivedReason "role_change"),
+    // so the listings can be auto-restored if the account is converted back.
+    isArchived: { type: Boolean, default: false, index: true },
+    archivedAt: { type: Date },
+    archivedReason: { type: String, enum: ["role_change", "manual", "admin"] },
+
     // AI import provenance
     createdVia: { type: String, enum: ["manual", "ai"], default: "manual" },
     aiSessionId: { type: String },

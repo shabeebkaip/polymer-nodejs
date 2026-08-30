@@ -5,7 +5,14 @@ import Auth from "../../../models/auth.js";
 import { sendAccountCreationEmail } from "../../../services/email.service.js";
 import generateRandomId from "../../../common/random.js";
 import { authenticateUser, authorizeRoles } from "../../../middlewares/verify.token.js";
-import { convertRole, lookupUser } from "../../../controllers/admin.controller.js";
+import {
+  convertRole,
+  convertPreview,
+  lookupUser,
+  userDetail,
+  userActivity,
+  userActivitySummary,
+} from "../../../controllers/admin.controller.js";
 
 const adminCreateUser = express.Router();
 const superAdminOnly = [authenticateUser, authorizeRoles("superAdmin")];
@@ -124,5 +131,42 @@ adminCreateUser.post("/convert-role", ...superAdminOnly, convertRole);
  * (createLookupUserHandler) so it's unit-testable without a real DB.
  */
 adminCreateUser.get("/lookup", ...superAdminOnly, lookupUser);
+
+/**
+ * GET /admin/users/:id/convert-preview?to=buyer|seller
+ * Read-only dry run of a role change — returns the consequences (listings archived/
+ * restored, verification reset, company requirement) so the dashboard can show the
+ * admin what will happen before they confirm. Guarded: superAdmin only.
+ */
+adminCreateUser.get("/:id/convert-preview", ...superAdminOnly, convertPreview);
+
+/**
+ * GET /admin/users/:id
+ * Profile + activity counts for the admin user-detail view. Guarded: superAdmin only.
+ * Business logic lives in controllers/admin.controller.js (createUserDetailHandler) so
+ * it's unit-testable without a real DB.
+ */
+adminCreateUser.get("/:id", ...superAdminOnly, userDetail);
+
+/**
+ * GET /admin/users/:id/activity?page=1&limit=20
+ * Merged, paginated, date-desc activity feed across products/quotes/samples/bulk orders/
+ * supplier offers/enquiries. Guarded: superAdmin only. Business logic lives in
+ * controllers/admin.controller.js (createUserActivityHandler).
+ */
+adminCreateUser.get("/:id/activity", ...superAdminOnly, userActivity);
+
+/**
+ * GET /admin/users/:id/activity-summary
+ * AI-generated 2-4 sentence plain-English summary of the user's activity (role, key
+ * activity volumes, notable patterns) for the admin user-detail page. Guarded:
+ * superAdmin only. Reuses the same count/feed logic as userDetail/userActivity above
+ * (see mergeActivityItems/defaultGetCounts in controllers/admin.controller.js) and
+ * falls back to a deterministic non-AI summary if the LLM call fails.
+ * NOTE: registered alongside the other "/:id/*" routes above "/:id" — Express only
+ * matches "/:id" against a single path segment so it can't shadow this route, but kept
+ * here for readability/consistency with the other :id sub-routes.
+ */
+adminCreateUser.get("/:id/activity-summary", ...superAdminOnly, userActivitySummary);
 
 export default adminCreateUser;

@@ -36,7 +36,7 @@ test("buyer -> seller succeeds when company is provided", async () => {
   const user = makeUser();
   const handler = createConvertRoleHandler({
     findUser: async () => user,
-    countActiveListings: async () => 0,
+    restoreListings: async () => ({ modifiedCount: 0 }),
   });
   const req = { body: { email: "buyer@example.com", user_type: "seller", company: "GG POLYCHEM L.L.C – FZ" } };
   const res = responseRecorder();
@@ -71,7 +71,7 @@ test("buyer -> seller succeeds without company in the request when the account a
   const user = makeUser({ company: "Existing Co On File" });
   const handler = createConvertRoleHandler({
     findUser: async () => user,
-    countActiveListings: async () => 0,
+    restoreListings: async () => ({ modifiedCount: 0 }),
   });
   const req = { body: { email: "buyer@example.com", user_type: "seller" } }; // no company in payload
   const res = responseRecorder();
@@ -101,28 +101,15 @@ test("converting to the same role is an idempotent no-op", async () => {
   assert.match(res.body.message, /already a seller/i);
 });
 
-test("seller -> buyer demotion is blocked when active listings exist", async () => {
+test("seller -> buyer archives the seller's live listings instead of blocking", async () => {
   const user = makeUser({ user_type: "seller", company: "Some Seller Co" });
+  let archivedFor = null;
   const handler = createConvertRoleHandler({
     findUser: async () => user,
-    countActiveListings: async () => 3,
-  });
-  const req = { body: { email: "seller@example.com", user_type: "buyer" } };
-  const res = responseRecorder();
-
-  await handler(req, res);
-
-  assert.equal(res.statusCode, 409);
-  assert.equal(res.body.status, false);
-  assert.match(res.body.message, /active product listing/i);
-  assert.equal(user.user_type, "seller", "user_type must not change when blocked");
-});
-
-test("seller -> buyer demotion succeeds when there are no active listings", async () => {
-  const user = makeUser({ user_type: "seller", company: "Some Seller Co" });
-  const handler = createConvertRoleHandler({
-    findUser: async () => user,
-    countActiveListings: async () => 0,
+    archiveListings: async (sellerId) => {
+      archivedFor = sellerId;
+      return { modifiedCount: 3 };
+    },
   });
   const req = { body: { email: "seller@example.com", user_type: "buyer" } };
   const res = responseRecorder();
@@ -132,6 +119,45 @@ test("seller -> buyer demotion succeeds when there are no active listings", asyn
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.status, true);
   assert.equal(res.body.data.user_type, "buyer");
+  assert.equal(res.body.archivedCount, 3);
+  assert.equal(archivedFor, user._id, "archive must target the demoted seller");
+});
+
+test("seller -> buyer with no listings converts and archives zero", async () => {
+  const user = makeUser({ user_type: "seller", company: "Some Seller Co" });
+  const handler = createConvertRoleHandler({
+    findUser: async () => user,
+    archiveListings: async () => ({ modifiedCount: 0 }),
+  });
+  const req = { body: { email: "seller@example.com", user_type: "buyer" } };
+  const res = responseRecorder();
+
+  await handler(req, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.data.user_type, "buyer");
+  assert.equal(res.body.archivedCount, 0);
+});
+
+test("buyer -> seller restores listings archived by a prior role change", async () => {
+  const user = makeUser({ user_type: "buyer", company: "Returning Seller Co" });
+  let restoredFor = null;
+  const handler = createConvertRoleHandler({
+    findUser: async () => user,
+    restoreListings: async (sellerId) => {
+      restoredFor = sellerId;
+      return { modifiedCount: 2 };
+    },
+  });
+  const req = { body: { email: "buyer@example.com", user_type: "seller" } };
+  const res = responseRecorder();
+
+  await handler(req, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.data.user_type, "seller");
+  assert.equal(res.body.restoredCount, 2);
+  assert.equal(restoredFor, user._id, "restore must target the re-promoted account");
 });
 
 test("returns 404 when no account matches the email/userId", async () => {
